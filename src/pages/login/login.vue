@@ -1,9 +1,11 @@
 <script setup lang="ts">
 import { postLoginAPI, postLoginWxMinAPI, postLoginWxMinSimpleAPI } from '@/services/login'
+import { wxLogin } from '@/api/user'
 import { useMemberStore } from '@/stores'
-import type { LoginResult } from '@/types/member'
+import type { Profile } from '@/types/member'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
+// import type { Profiler } from 'inspector'
 
 // #ifdef MP-WEIXIN
 // 获取 code 登录凭证
@@ -11,6 +13,7 @@ let code = ''
 onLoad(async () => {
   const res = await wx.login()
   code = res.code
+  console.log(code, 'code.............')
 })
 
 // 获取用户手机号码
@@ -29,7 +32,7 @@ const onGetphonenumberSimple = async () => {
   loginSuccess(res.result)
 }
 
-const loginSuccess = (profile: LoginResult) => {
+const loginSuccess = (profile: Profile) => {
   // 保存会员信息
   const memberStore = useMemberStore()
   memberStore.setProfile(profile)
@@ -82,6 +85,10 @@ const onOpenPrivacyContract = () => {
   wx.openPrivacyContract({})
   // #endif
 }
+const onLogin = async () => {
+  const rs = await wxLogin(code)
+  loginSuccess(rs.data)
+}
 </script>
 
 <template>
@@ -113,6 +120,7 @@ const onOpenPrivacyContract = () => {
           <text class="icon icon-phone"></text>
           手机号快捷登录
         </button>
+        <button @click="onLogin">授权登录</button>
       </view>
       <!-- #endif -->
       <view class="extra">
@@ -129,7 +137,7 @@ const onOpenPrivacyContract = () => {
       <view class="tips" :class="{ animate__shakeY: isAgreePrivacyShakeY }">
         <label class="label" @tap="isAgreePrivacy = !isAgreePrivacy">
           <radio class="radio" color="#28bb9c" :checked="isAgreePrivacy" />
-          <text>登录/注册即视为你同意小兔鲜儿</text>
+          <text>登录/注册即视为你同意RiverValley</text>
         </label>
         <navigator class="link" hover-class="none" url="./protocal">《服务条款》</navigator>
         和

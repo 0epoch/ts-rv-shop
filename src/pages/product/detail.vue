@@ -21,11 +21,58 @@ const query = defineProps<{
   id: string
 }>()
 
+// _id: string
+//   /** 商品名称 */
+//   name: string
+//   /** 商品图片 */
+//   goods_thumb: string
+//   /** 商品规格列表 */
+//   spec_list: SkuPopupSpecItem[]
+//   /** 商品SKU列表 */
+//   sku_list: SkuPopupSkuItem[]
+
+// _id: string
+//   /**  商品 ID */
+//   goods_id: string
+//   /** 商品名称 */
+//   goods_name: string
+//   /** 商品图片 */
+//   image: string
+//   /** SKU 价格 * 100, 注意：需要乘以 100 */
+//   price: number
+//   /** SKU 规格组成, 注意：需要与 spec_list 数组顺序对应 */
+//   sku_name_arr: string[]
+//   /** SKU 库存 */
+//   stock: number
 // 获取商品详情信息
 const productDetail = ref<Detail>()
 const getProductDetail = async () => {
   const rs = await fetchProductDetail(query.id)
   productDetail.value = rs.data
+  localdata.value = {
+    _id: rs.data.id,
+    name: rs.data.title,
+    goods_thumb: rs.data.pic_url,
+    spec_list: rs.data.attrs.map((v) => {
+      return {
+        name: v.name,
+        list: v.values.map((vv) => {
+          return { name: vv.attr_value }
+        }),
+      }
+    }),
+    sku_list: rs.data.skus.map((v) => {
+      return {
+        _id: v.id,
+        goods_id: rs.data.id,
+        goods_name: rs.data.title,
+        image: v.pic_url,
+        price: v.price * 100, // 注意：需要乘以 100
+        stock: v.stock,
+        sku_name_arr: v.attrs.split(','),
+      }
+    }),
+  }
 }
 
 // 页面加载
@@ -62,7 +109,7 @@ const openPopup = (name: typeof popupName.value) => {
   popup.value?.open()
 }
 // 是否显示SKU组件
-const isShowSku = ref(false)
+const skuVisible = ref(false)
 // 商品信息
 const localdata = ref({} as SkuPopupLocaldata)
 // 按钮模式
@@ -75,7 +122,7 @@ const mode = ref<SkuMode>(SkuMode.Cart)
 // 打开SKU弹窗修改按钮模式
 const openSkuPopup = (val: SkuMode) => {
   // 显示SKU弹窗
-  isShowSku.value = true
+  skuVisible.value = true
   // 修改按钮模式
   mode.value = val
 }
@@ -89,7 +136,7 @@ const selectArrText = computed(() => {
 const onAddCart = async (ev: SkuPopupEvent) => {
   await postMemberCartAPI({ skuId: ev._id, count: ev.buy_num })
   uni.showToast({ title: '添加成功' })
-  isShowSku.value = false
+  skuVisible.value = false
 }
 // 立即购买
 const onBuyNow = (ev: SkuPopupEvent) => {
@@ -100,17 +147,20 @@ const onBuyNow = (ev: SkuPopupEvent) => {
 <template>
   <!-- SKU弹窗组件 -->
   <vk-data-goods-sku-popup
-    v-model="isShowSku"
+    v-model="skuVisible"
     :localdata="localdata"
     :mode="mode"
-    add-cart-background-color="#FFA868"
-    buy-now-background-color="#27BA9B"
+    add-cart-background-color="#010101"
+    buy-now-background-color="#010101"
+    add-cart-text="确定"
     ref="skuPopupRef"
     :actived-style="{
-      color: '#27BA9B',
-      borderColor: '#27BA9B',
-      backgroundColor: '#E9F8F5',
+      color: '#fff',
+      borderColor: '#010101',
+      backgroundColor: '#010101',
+      borderRadius: '8rpx',
     }"
+    :btn-style="{ color: '#010101' }"
     @add-cart="onAddCart"
     @buy-now="onBuyNow"
   />
@@ -143,7 +193,7 @@ const onBuyNow = (ev: SkuPopupEvent) => {
 
       <!-- 操作面板 -->
       <view class="action">
-        <view @tap="openSkuPopup(SkuMode.Both)" class="item arrow">
+        <view @tap="openSkuPopup(SkuMode.Cart)" class="item arrow">
           <text class="label">选择</text>
           <text class="text ellipsis"> {{ selectArrText }} </text>
         </view>
@@ -160,17 +210,17 @@ const onBuyNow = (ev: SkuPopupEvent) => {
 
     <!-- 商品详情 -->
     <view class="detail panel">
-      <view class="title">
+      <!-- <view class="title">
         <text>详情</text>
-      </view>
+      </view> -->
       <view class="content">
-        <view class="properties">
-          <!-- 属性详情 -->
-          <view class="item" v-for="item in productDetail?.attrs" :key="item.name">
+        <!-- <view class="properties"> -->
+        <!-- 属性详情 -->
+        <!-- <view class="item" v-for="item in productDetail?.attrs" :key="item.name">
             <text class="label">{{ item.name }}</text>
             <text class="value">{{ item.attr_id }}</text>
-          </view>
-        </view>
+          </view> -->
+        <!-- </view> -->
         <!-- 图片详情 -->
         <image
           class="image"
@@ -199,7 +249,7 @@ const onBuyNow = (ev: SkuPopupEvent) => {
     </view>
     <view class="buttons">
       <view @tap="openSkuPopup(SkuMode.Cart)" class="addcart"> 加入购物车 </view>
-      <view @tap="openSkuPopup(SkuMode.Buy)" class="payment"> 立即购买 </view>
+      <!-- <view @tap="openSkuPopup(SkuMode.Cart)" class="payment"> 立即购买 </view> -->
     </view>
   </view>
 
@@ -433,10 +483,10 @@ page {
   right: 0;
   bottom: calc((var(--window-bottom)));
   z-index: 1;
-  background-color: #fff;
+  // background-color: #fff;
   height: 100rpx;
   padding: 0 20rpx;
-  border-top: 1rpx solid #eaeaea;
+  // border-top: 1rpx solid #eaeaea;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -444,15 +494,15 @@ page {
   .buttons {
     display: flex;
     & > view {
-      width: 220rpx;
+      width: 420rpx;
       text-align: center;
-      line-height: 72rpx;
-      font-size: 26rpx;
+      line-height: 92rpx;
+      font-size: 36rpx;
       color: #fff;
-      border-radius: 72rpx;
+      border-radius: 8rpx;
     }
     .addcart {
-      background-color: #ffa868;
+      background-color: #010101;
     }
     .payment {
       background-color: #27ba9b;

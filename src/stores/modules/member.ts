@@ -1,4 +1,4 @@
-import type { LoginResult } from '@/types/member'
+import type { LoginResult, Profile } from '@/types/member'
 import { defineStore } from 'pinia'
 import { ref } from 'vue'
 
@@ -7,10 +7,10 @@ export const useMemberStore = defineStore(
   'member',
   () => {
     // 会员信息
-    const profile = ref<LoginResult>()
+    const profile = ref<Profile>()
 
     // 保存会员信息，登录时使用
-    const setProfile = (val: LoginResult) => {
+    const setProfile = (val: Profile) => {
       profile.value = val
     }
 

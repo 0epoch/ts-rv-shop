@@ -96,7 +96,7 @@ export type SkuPopupLocaldata = {
   /** 商品 ID */
   _id: string
   /** 商品名称 */
-  title: string
+  name: string
   /** 商品图片 */
   goods_thumb: string
   /** 商品规格列表 */
