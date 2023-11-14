@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { InputNumberBoxEvent } from '@/components/vk-data-input-number-box/vk-data-input-number-box'
 import { useGuessList } from '@/composables'
-import { cartProductList, updateCartProduct } from '@/api/cart'
+import { cartProductList, cartProductCount } from '@/api/cart'
 import {
   deleteMemberCartAPI,
   getMemberCartAPI,
@@ -60,6 +60,8 @@ const onDeleteCart = (skuId: string) => {
 
 // 修改商品数量
 const onChangeCount = (ev: InputNumberBoxEvent) => {
+  // cartProductCount({ cart_type: 'normal', cart_id: item.cart_id, coupon_id: 0 })
+
   putMemberCartBySkuIdAPI(ev.index, { count: ev.value })
 }
 
@@ -68,8 +70,8 @@ const onChangeSelected = (item: CartItem) => {
   // 前端数据更新-是否选中取反
   item.selected = !item.selected
   // 后端数据更新
-  updateCartProduct()
-  putMemberCartBySkuIdAPI(item.sku_id, { selected: item.selected })
+  cartProductCount({ cart_type: 'normal', cart_id: item.cart_id, coupon_id: 0 })
+  // putMemberCartBySkuIdAPI(item.sku_id, { selected: item.selected })
 }
 
 // 计算全选状态
@@ -107,7 +109,7 @@ const selectedCartListMoney = computed(() => {
 })
 
 // 结算按钮
-const gotoPayment = () => {
+const onCheckout = () => {
   if (selectedCartListCount.value === 0) {
     return uni.showToast({
       icon: 'none',
@@ -196,7 +198,7 @@ const { guessRef, onScrolltolower } = useGuessList()
         <text class="amount">{{ selectedCartListMoney }}</text>
         <view class="button-grounp">
           <view
-            @tap="gotoPayment"
+            @tap="onCheckout"
             class="button payment-button"
             :class="{ disabled: selectedCartListCount === 0 }"
           >

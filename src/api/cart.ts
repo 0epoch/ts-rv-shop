@@ -35,7 +35,7 @@ export const cartProductCount = (data: {
   coupon_id: number
 }) => {
   return request<Detail>({
-    method: 'GET',
+    method: 'POST',
     url: '/shop-cart/count',
     data,
   })

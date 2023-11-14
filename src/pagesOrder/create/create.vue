@@ -62,7 +62,7 @@ onLoad(() => {
 const addressStore = useAddressStore()
 // 收货地址
 const selecteAddress = computed(() => {
-  return addressStore.selectedAddress || orderPre.value?.userAddresses.find((v) => v.isDefault)
+  return addressStore.selectedAddress || orderPre.value?.userAddresses.find((v) => v.is_default)
 })
 
 // 提交订单
@@ -94,8 +94,8 @@ const onOrderSubmit = async () => {
       hover-class="none"
       url="/pagesMember/address/address?from=order"
     >
-      <view class="user"> {{ selecteAddress.receiver }} {{ selecteAddress.contact }} </view>
-      <view class="address"> {{ selecteAddress.fullLocation }} {{ selecteAddress.address }} </view>
+      <view class="user"> {{ selecteAddress.name }} {{ selecteAddress.mobile }} </view>
+      <view class="address"> {{ selecteAddress.full_location }} {{ selecteAddress.addr }} </view>
       <text class="icon icon-right"></text>
     </navigator>
     <navigator
@@ -133,12 +133,6 @@ const onOrderSubmit = async () => {
     <!-- 配送及支付方式 -->
     <view class="related">
       <view class="item">
-        <text class="text">配送时间</text>
-        <picker :range="deliveryList" range-key="text" @change="onChangeDelivery">
-          <view class="icon-fonts picker">{{ activeDelivery.text }}</view>
-        </picker>
-      </view>
-      <view class="item">
         <text class="text">订单备注</text>
         <input
           class="input"
@@ -156,7 +150,15 @@ const onOrderSubmit = async () => {
         <text class="number symbol">{{ orderPre?.summary.totalPrice.toFixed(2) }}</text>
       </view>
       <view class="item">
-        <text class="text">运费: </text>
+        <text class="text">优惠券: </text>
+        <text class="number symbol">{{ orderPre?.summary.postFee.toFixed(2) }}</text>
+      </view>
+      <view class="item">
+        <text class="text">经销商折扣: </text>
+        <text class="number symbol">{{ orderPre?.summary.postFee.toFixed(2) }}</text>
+      </view>
+      <view class="item total">
+        <text class="text">合计: </text>
         <text class="number symbol">{{ orderPre?.summary.postFee.toFixed(2) }}</text>
       </view>
     </view>
@@ -343,7 +345,9 @@ page {
     font-size: 26rpx;
     color: #333;
   }
-
+  .total {
+    border-top: 1rpx solid #eaeaea;
+  }
   .danger {
     color: #cf4444;
   }

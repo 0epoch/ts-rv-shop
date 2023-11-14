@@ -1,5 +1,6 @@
 import type { Product, Detail } from '@/types/product'
 import type { Paginate } from '@/types/global'
+import type { AddressItem, AddressParams } from '@/types/address'
 
 import { request } from '@/utils/request'
 import type { Profile } from '@/types/member'
@@ -56,17 +57,8 @@ export const getProfile = () => {
 /**
  * @param data
  */
-export const saveAddr = (data: {
-  address_id: string
-  name: string
-  mobile: string
-  province: string
-  city: string
-  region: string
-  addr: string
-  is_default: number
-}) => {
-  return request<Paginate<Product>>({
+export const saveAddr = (data: AddressParams) => {
+  return request<AddressItem>({
     method: 'POST',
     url: '/user/addr',
     data,
@@ -77,7 +69,7 @@ export const saveAddr = (data: {
  * @param data
  */
 export const addrList = () => {
-  return request<Paginate<Product>>({
+  return request<AddressItem[]>({
     method: 'GET',
     url: '/user/addrs',
     data: {},
@@ -88,8 +80,19 @@ export const addrList = () => {
  * @param data
  */
 export const addrRemove = (address_id: string) => {
-  return request<Paginate<Product>>({
+  return request({
     method: 'DELETE',
+    url: '/user/addr',
+    data: { address_id },
+  })
+}
+
+/**
+ * @param data
+ */
+export const getAddr = (address_id: string) => {
+  return request<AddressItem>({
+    method: 'GET',
     url: '/user/addr',
     data: { address_id },
   })

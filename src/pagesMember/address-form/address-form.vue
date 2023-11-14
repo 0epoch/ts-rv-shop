@@ -1,100 +1,80 @@
 <script setup lang="ts">
-import {
-  getMemberAddressByIdAPI,
-  postMemberAddressAPI,
-  putMemberAddressByIdAPI,
-} from '@/services/address'
+import { saveAddr, getAddr } from '@/api/user'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 
 // 表单数据
 const form = ref({
-  receiver: '', // 收货人
-  contact: '', // 联系方式
-  fullLocation: '', // 省市区(前端展示)
-  provinceCode: '', // 省份编码(后端参数)
-  cityCode: '', // 城市编码(后端参数)
-  countyCode: '', // 区/县编码(后端参数)
-  address: '', // 详细地址
-  isDefault: 0, // 默认地址，1为是，0为否
+  address_id: '',
+  name: '',
+  mobile: '',
+  full_location: '',
+  province: '',
+  city: '',
+  region: '',
+  addr: '',
+  is_default: 0,
 })
 
-// 获取页面参数
 const query = defineProps<{
   id?: string
 }>()
 
-// 获取收货地址详情数据
-const getMemberAddressByIdData = async () => {
+const getMemberAddr = async () => {
   if (query.id) {
-    // 发送请求
-    const res = await getMemberAddressByIdAPI(query.id)
-    // 把数据合并到表单中
-    Object.assign(form.value, res.result)
+    const rs = await getAddr(query.id)
+    Object.assign(form.value, rs.data)
+    form.value.address_id = rs.data.id
   }
 }
 
-// 页面加载
 onLoad(() => {
-  getMemberAddressByIdData()
+  getMemberAddr()
 })
 
-// 动态设置标题
 uni.setNavigationBarTitle({ title: query.id ? '修改地址' : '新建地址' })
 
-// 收集所在地区
 const onRegionChange: UniHelper.RegionPickerOnChange = (ev) => {
-  // 省市区(前端展示)
-  form.value.fullLocation = ev.detail.value.join(' ')
-  // 省市区(后端参数)
-  const [provinceCode, cityCode, countyCode] = ev.detail.code!
-  // form.value.provinceCode = provinceCode
-  Object.assign(form.value, { provinceCode, cityCode, countyCode })
+  form.value.full_location = ev.detail.value.join(' ')
+  console.log(ev.detail.value)
+  const [province, city, region] = ev.detail.code!
+
+  Object.assign(form.value, { province, city, region })
 }
 
-// 收集是否默认收货地址
 const onSwitchChange: UniHelper.SwitchOnChange = (ev) => {
-  form.value.isDefault = ev.detail.value ? 1 : 0
+  form.value.is_default = ev.detail.value ? 1 : 0
 }
 
-// 定义校验规则
 const rules: UniHelper.UniFormsRules = {
-  receiver: {
+  name: {
     rules: [{ required: true, errorMessage: '请输入收货人姓名' }],
   },
-  contact: {
+  mobile: {
     rules: [
       { required: true, errorMessage: '请输入联系方式' },
       { pattern: /^1[3-9]\d{9}$/, errorMessage: '手机号格式不正确' },
     ],
   },
-  countyCode: {
+  region: {
     rules: [{ required: true, errorMessage: '请选择所在地区' }],
   },
-  address: {
+  addr: {
     rules: [{ required: true, errorMessage: '请选择详细地址' }],
   },
 }
 
-// 表单组件实例
 const formRef = ref<UniHelper.UniFormsInstance>()
 
-// 提交表单
 const onSubmit = async () => {
   try {
-    // 表单校验
     await formRef.value?.validate?.()
-    // 校验通过后再发送请求
     if (query.id) {
-      // 修改地址请求
-      await putMemberAddressByIdAPI(query.id, form.value)
+      await saveAddr(form.value)
     } else {
-      // 新建地址请求
-      await postMemberAddressAPI(form.value)
+      await saveAddr(form.value)
     }
-    // 成功提示
     uni.showToast({ icon: 'success', title: query.id ? '修改成功' : '添加成功' })
-    // 返回上一页
     setTimeout(() => {
       uni.navigateBack()
     }, 400)
@@ -105,9 +85,7 @@ const onSubmit = async () => {
 
 // #ifdef H5 || APP-PLUS
 const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
-  // 省市区
   const [province, city, county] = ev.detail.value
-  // 收集后端所需的 code 数据
   Object.assign(form.value, {
     provinceCode: province.value,
     cityCode: city.value,
@@ -123,7 +101,7 @@ const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
       <!-- 表单内容 -->
       <uni-forms-item name="receiver" class="form-item">
         <text class="label">收货人</text>
-        <input class="input" placeholder="请填写收货人姓名" v-model="form.receiver" />
+        <input class="input" placeholder="请填写收货人姓名" v-model="form.name" />
       </uni-forms-item>
       <uni-forms-item name="contact" class="form-item">
         <text class="label">手机号码</text>
@@ -131,7 +109,7 @@ const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
           class="input"
           placeholder="请填写收货人手机号码"
           :maxlength="11"
-          v-model="form.contact"
+          v-model="form.mobile"
         />
       </uni-forms-item>
       <uni-forms-item name="countyCode" class="form-item">
@@ -141,9 +119,9 @@ const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
           @change="onRegionChange"
           class="picker"
           mode="region"
-          :value="form.fullLocation.split(' ')"
+          :value="form.full_location.split(' ')"
         >
-          <view v-if="form.fullLocation">{{ form.fullLocation }}</view>
+          <view v-if="form.full_location">{{ form.full_location }}</view>
           <view v-else class="placeholder">请选择省/市/区(县)</view>
         </picker>
         <!-- #endif -->
@@ -160,13 +138,13 @@ const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
           parent-field="parent_code"
           @change="onCityChange"
           :clear-icon="false"
-          v-model="form.countyCode"
+          v-model="form.region"
         />
         <!-- #endif -->
       </uni-forms-item>
       <uni-forms-item name="address" class="form-item">
         <text class="label">详细地址</text>
-        <input class="input" placeholder="街道、楼牌号等信息" v-model="form.address" />
+        <input class="input" placeholder="街道、楼牌号等信息" v-model="form.addr" />
       </uni-forms-item>
       <view class="form-item">
         <label class="label">设为默认地址</label>
@@ -174,12 +152,11 @@ const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
           @change="onSwitchChange"
           class="switch"
           color="#27ba9b"
-          :checked="form.isDefault === 1"
+          :checked="form.is_default === 1"
         />
       </view>
     </uni-forms>
   </view>
-  <!-- 提交按钮 -->
   <button @tap="onSubmit" class="button">保存并使用</button>
 </template>
 

@@ -1,4 +1,5 @@
 <script setup lang="ts">
+import { addrList, addrRemove } from '@/api/user'
 import { deleteMemberAddressByIdAPI, getMemberAddressAPI } from '@/services/address'
 import { useAddressStore } from '@/stores/modules/address'
 import type { AddressItem } from '@/types/address'
@@ -7,14 +8,14 @@ import { ref } from 'vue'
 
 // 获取收货地址列表数据
 const addressList = ref<AddressItem[]>([])
-const getMemberAddressData = async () => {
-  const res = await getMemberAddressAPI()
-  addressList.value = res.result
+const getMemberAddrList = async () => {
+  const rs = await addrList()
+  addressList.value = rs.data
 }
 
 // 初始化调用(页面显示)
 onShow(() => {
-  getMemberAddressData()
+  getMemberAddrList()
 })
 
 // 删除收货地址
@@ -26,9 +27,9 @@ const onDeleteAddress = (id: string) => {
     success: async (res) => {
       if (res.confirm) {
         // 根据id删除收货地址
-        await deleteMemberAddressByIdAPI(id)
+        await addrRemove(id)
         // 重新获取收货地址列表
-        getMemberAddressData()
+        getMemberAddrList()
       }
     },
   })
@@ -54,11 +55,11 @@ const onChangeAddress = (item: AddressItem) => {
           <uni-swipe-action-item class="item" v-for="item in addressList" :key="item.id">
             <view class="item-content" @tap="onChangeAddress(item)">
               <view class="user">
-                {{ item.receiver }}
-                <text class="contact">{{ item.contact }}</text>
-                <text v-if="item.isDefault" class="badge">默认</text>
+                {{ item.name }}
+                <text class="contact">{{ item.mobile }}</text>
+                <text v-if="item.is_default" class="badge">默认</text>
               </view>
-              <view class="locate">{{ item.fullLocation }} {{ item.address }}</view>
+              <view class="locate">{{ item.full_location }} {{ item.addr }}</view>
               <!-- H5 端需添加 .prevent 阻止链接的默认行为 -->
               <navigator
                 class="edit"
