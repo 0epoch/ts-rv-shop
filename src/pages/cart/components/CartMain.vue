@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import type { InputNumberBoxEvent } from '@/components/vk-data-input-number-box/vk-data-input-number-box'
 import { useGuessList } from '@/composables'
+import { cartProductList, updateCartProduct } from '@/api/cart'
 import {
   deleteMemberCartAPI,
   getMemberCartAPI,
@@ -27,16 +28,16 @@ const memberStore = useMemberStore()
 const cartList = ref<CartItem[]>([])
 // 优化购物车空列表状态，默认展示列表
 const showCartList = ref(true)
-const getMemberCartData = async () => {
-  const res = await getMemberCartAPI()
-  cartList.value = res.result
-  showCartList.value = res.result.length > 0
+const gerUserCart = async () => {
+  const rs = await cartProductList()
+  cartList.value = rs.data
+  showCartList.value = rs.data.length > 0
 }
 
 // 初始化调用: 页面显示触发
 onShow(() => {
   if (memberStore.profile) {
-    getMemberCartData()
+    gerUserCart()
   }
 })
 
@@ -51,7 +52,7 @@ const onDeleteCart = (skuId: string) => {
         // 后端删除单品
         await deleteMemberCartAPI({ ids: [skuId] })
         // 重新获取列表
-        getMemberCartData()
+        gerUserCart()
       }
     },
   })
@@ -67,7 +68,8 @@ const onChangeSelected = (item: CartItem) => {
   // 前端数据更新-是否选中取反
   item.selected = !item.selected
   // 后端数据更新
-  putMemberCartBySkuIdAPI(item.skuId, { selected: item.selected })
+  updateCartProduct()
+  putMemberCartBySkuIdAPI(item.sku_id, { selected: item.selected })
 }
 
 // 计算全选状态
@@ -94,13 +96,13 @@ const selectedCartList = computed(() => {
 
 // 计算选中总件数
 const selectedCartListCount = computed(() => {
-  return selectedCartList.value.reduce((sum, item) => sum + item.count, 0)
+  return selectedCartList.value.reduce((sum, item) => sum + item.num, 0)
 })
 
 // 计算选中总金额
 const selectedCartListMoney = computed(() => {
   return selectedCartList.value
-    .reduce((sum, item) => sum + item.count * item.nowPrice, 0)
+    .reduce((sum, item) => sum + item.num * item.settle_price, 0)
     .toFixed(2)
 })
 
@@ -134,7 +136,7 @@ const { guessRef, onScrolltolower } = useGuessList()
         <!-- 滑动操作分区 -->
         <uni-swipe-action>
           <!-- 滑动操作项 -->
-          <uni-swipe-action-item v-for="item in cartList" :key="item.skuId" class="cart-swipe">
+          <uni-swipe-action-item v-for="item in cartList" :key="item.sku_id" class="cart-swipe">
             <!-- 商品信息 -->
             <view class="goods">
               <!-- 选中状态 -->
@@ -144,24 +146,24 @@ const { guessRef, onScrolltolower } = useGuessList()
                 :class="{ checked: item.selected }"
               ></text>
               <navigator
-                :url="`/pages/goods/goods?id=${item.id}`"
+                :url="`/pages/goods/goods?id=${item.cart_id}`"
                 hover-class="none"
                 class="navigator"
               >
-                <image mode="aspectFill" class="picture" :src="item.picture"></image>
+                <image mode="aspectFill" class="picture" :src="item.pic_url"></image>
                 <view class="meta">
-                  <view class="name ellipsis">{{ item.name }}</view>
-                  <view class="attrsText ellipsis">{{ item.attrsText }}</view>
-                  <view class="price">{{ item.nowPrice }}</view>
+                  <view class="name ellipsis">{{ item.title }}</view>
+                  <view class="attrsText ellipsis">{{ item.attrs }}</view>
+                  <view class="price">{{ item.settle_price }}</view>
                 </view>
               </navigator>
               <!-- 商品数量 -->
               <view class="count">
                 <vk-data-input-number-box
-                  v-model="item.count"
+                  v-model="item.num"
                   :min="1"
                   :max="item.stock"
-                  :index="item.skuId"
+                  :index="item.sku_id"
                   @change="onChangeCount"
                 />
               </view>
@@ -169,7 +171,7 @@ const { guessRef, onScrolltolower } = useGuessList()
             <!-- 右侧删除按钮 -->
             <template #right>
               <view class="cart-swipe-right">
-                <button @tap="onDeleteCart(item.skuId)" class="button delete-button">删除</button>
+                <button @tap="onDeleteCart(item.sku_id)" class="button delete-button">删除</button>
               </view>
             </template>
           </uni-swipe-action-item>

@@ -6,6 +6,8 @@ import type {
 } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
 
 import { postMemberCartAPI } from '@/services/cart'
+import { addProduct } from '@/api/cart'
+
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import AddressPanel from './components/AddressPanel.vue'
@@ -13,37 +15,12 @@ import ServicePanel from './components/ServicePanel.vue'
 import { fetchProductDetail } from '@/api/product'
 import type { Detail } from '@/types/product'
 
-// 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
-// 接收页面参数
 const query = defineProps<{
   id: string
 }>()
 
-// _id: string
-//   /** 商品名称 */
-//   name: string
-//   /** 商品图片 */
-//   goods_thumb: string
-//   /** 商品规格列表 */
-//   spec_list: SkuPopupSpecItem[]
-//   /** 商品SKU列表 */
-//   sku_list: SkuPopupSkuItem[]
-
-// _id: string
-//   /**  商品 ID */
-//   goods_id: string
-//   /** 商品名称 */
-//   goods_name: string
-//   /** 商品图片 */
-//   image: string
-//   /** SKU 价格 * 100, 注意：需要乘以 100 */
-//   price: number
-//   /** SKU 规格组成, 注意：需要与 spec_list 数组顺序对应 */
-//   sku_name_arr: string[]
-//   /** SKU 库存 */
-//   stock: number
 // 获取商品详情信息
 const productDetail = ref<Detail>()
 const getProductDetail = async () => {
@@ -63,8 +40,8 @@ const getProductDetail = async () => {
     }),
     sku_list: rs.data.skus.map((v) => {
       return {
-        _id: v.id,
-        goods_id: rs.data.id,
+        _id: rs.data.id,
+        goods_id: v.id,
         goods_name: rs.data.title,
         image: v.pic_url,
         price: v.price * 100, // 注意：需要乘以 100
@@ -134,7 +111,7 @@ const selectArrText = computed(() => {
 })
 // 加入购物车事件
 const onAddCart = async (ev: SkuPopupEvent) => {
-  await postMemberCartAPI({ skuId: ev._id, count: ev.buy_num })
+  await addProduct({ product_id: ev._id, sku_id: ev.goods_id, num: ev.buy_num })
   uni.showToast({ title: '添加成功' })
   skuVisible.value = false
 }
@@ -496,10 +473,10 @@ page {
     & > view {
       width: 420rpx;
       text-align: center;
-      line-height: 92rpx;
-      font-size: 36rpx;
+      line-height: 72rpx;
+      font-size: 26rpx;
       color: #fff;
-      border-radius: 8rpx;
+      border-radius: 78rpx;
     }
     .addcart {
       background-color: #010101;

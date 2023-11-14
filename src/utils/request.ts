@@ -1,5 +1,6 @@
 import { useMemberStore } from '@/stores'
 
+// const baseURL = 'http://10.13.20.133:8301'
 const baseURL = 'http://api.rv.host'
 
 // 添加拦截器
@@ -21,7 +22,7 @@ const httpInterceptor = {
     const memberStore = useMemberStore()
     const token = memberStore.profile?.token
     if (token) {
-      options.header.Authorization = token
+      options.header.Authorization = 'Bearer ' + token
     }
   },
 }

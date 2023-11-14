@@ -1,25 +1,17 @@
-/** 购物车类型 */
 export type CartItem = {
-  /** 商品 ID */
-  id: string
-  /** SKU ID */
-  skuId: string
-  /** 商品名称 */
-  name: string
-  /** 图片 */
-  picture: string
-  /** 数量 */
-  count: number
-  /** 加入时价格 */
-  price: number
-  /** 当前的价格 */
-  nowPrice: number
-  /** 库存 */
+  cart_id: string
+  sku_id: string
+  product_id: string
+  pic_url: string
+  title: string
+  num: number
+  use_aff: number
+  settle_price: number
+  aff_price: number
   stock: number
-  /** 是否选中 */
   selected: boolean
-  /** 属性文字 */
-  attrsText: string
-  /** 是否为有效商品 */
+  attrs: string
   isEffective: boolean
+  coupon_amount: number
+  vip_discount_amount: number
 }
