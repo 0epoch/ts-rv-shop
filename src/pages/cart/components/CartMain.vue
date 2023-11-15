@@ -1,32 +1,24 @@
 <script setup lang="ts">
 import type { InputNumberBoxEvent } from '@/components/vk-data-input-number-box/vk-data-input-number-box'
 import { useGuessList } from '@/composables'
-import { cartProductList, cartProductCount } from '@/api/cart'
-import {
-  deleteMemberCartAPI,
-  getMemberCartAPI,
-  putMemberCartBySkuIdAPI,
-  putMemberCartSelectedAPI,
-} from '@/services/cart'
+import { cartProductList, calcCart } from '@/api/cart'
+import { deleteMemberCartAPI, putMemberCartSelectedAPI } from '@/services/cart'
 import { useMemberStore } from '@/stores'
-import type { CartItem } from '@/types/cart'
+import type { CartItem, CartResult } from '@/types/cart'
 import { onShow } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 
-// 是否适配底部安全区域
 defineProps<{
   safeAreaInsetBottom?: boolean
 }>()
 
-// 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
-// 获取会员Store
 const memberStore = useMemberStore()
 
-// 获取购物车数据
+const cartResult = ref<CartResult>()
 const cartList = ref<CartItem[]>([])
-// 优化购物车空列表状态，默认展示列表
+
 const showCartList = ref(true)
 const gerUserCart = async () => {
   const rs = await cartProductList()
@@ -34,24 +26,19 @@ const gerUserCart = async () => {
   showCartList.value = rs.data.length > 0
 }
 
-// 初始化调用: 页面显示触发
 onShow(() => {
   if (memberStore.profile) {
     gerUserCart()
   }
 })
 
-// 点击删除按钮
 const onDeleteCart = (skuId: string) => {
-  // 弹窗二次确认
   uni.showModal({
     content: '是否删除',
-    confirmColor: '#27BA9B',
+    confirmColor: '#010101',
     success: async (res) => {
       if (res.confirm) {
-        // 后端删除单品
         await deleteMemberCartAPI({ ids: [skuId] })
-        // 重新获取列表
         gerUserCart()
       }
     },
@@ -59,19 +46,33 @@ const onDeleteCart = (skuId: string) => {
 }
 
 // 修改商品数量
-const onChangeCount = (ev: InputNumberBoxEvent) => {
-  // cartProductCount({ cart_type: 'normal', cart_id: item.cart_id, coupon_id: 0 })
-
-  putMemberCartBySkuIdAPI(ev.index, { count: ev.value })
+const onChangeQty = async (e: InputNumberBoxEvent) => {
+  const changeSkus = cartList.value.map((item) => {
+    return { sku_id: item.sku_id, qty: item.qty, selected: item.selected }
+  })
+  const rs = await calcCart({ selected: changeSkus, coupon_id: 0 })
+  cartResult.value = rs.data
 }
 
-// 修改选中状态-单品修改
-const onChangeSelected = (item: CartItem) => {
-  // 前端数据更新-是否选中取反
-  item.selected = !item.selected
-  // 后端数据更新
-  cartProductCount({ cart_type: 'normal', cart_id: item.cart_id, coupon_id: 0 })
-  // putMemberCartBySkuIdAPI(item.sku_id, { selected: item.selected })
+const onChangeSelected = async (item: CartItem) => {
+  item.selected = item.selected === 1 ? 0 : 1
+  if (selectedCartList.value.length <= 0) {
+    cartResult.value = {
+      checkout_amount: 0,
+      promotion_amount: 0,
+      amount: 0,
+      discount_amount: 0,
+      coupon_amount: 0,
+      skus: [],
+    }
+    calcCart({ coupon_id: 0 })
+    return
+  }
+  const changeSkus = selectedCartList.value.map((item) => {
+    return { sku_id: item.sku_id, qty: item.qty }
+  })
+  const rs = await calcCart({ selected: changeSkus, coupon_id: 0 })
+  cartResult.value = rs.data
 }
 
 // 计算全选状态
@@ -79,33 +80,24 @@ const isSelectedAll = computed(() => {
   return cartList.value.length && cartList.value.every((v) => v.selected)
 })
 
-// 修改选中状态-全选修改
 const onChangeSelectedAll = () => {
-  // 全选状态取反
   const _isSelectedAll = !isSelectedAll.value
-  // 前端数据更新
   cartList.value.forEach((item) => {
-    item.selected = _isSelectedAll
+    // item.selected = _isSelectedAll//TODO:全选
   })
-  // 后端数据更新
   putMemberCartSelectedAPI({ selected: _isSelectedAll })
 }
 
-// 计算选中单品列表
 const selectedCartList = computed(() => {
   return cartList.value.filter((v) => v.selected)
 })
 
-// 计算选中总件数
 const selectedCartListCount = computed(() => {
-  return selectedCartList.value.reduce((sum, item) => sum + item.num, 0)
+  return selectedCartList.value.reduce((sum, item) => sum + item.qty, 0)
 })
 
-// 计算选中总金额
 const selectedCartListMoney = computed(() => {
-  return selectedCartList.value
-    .reduce((sum, item) => sum + item.num * item.settle_price, 0)
-    .toFixed(2)
+  return cartResult.value?.checkout_amount
 })
 
 // 结算按钮
@@ -145,7 +137,7 @@ const { guessRef, onScrolltolower } = useGuessList()
               <text
                 @tap="onChangeSelected(item)"
                 class="checkbox"
-                :class="{ checked: item.selected }"
+                :class="{ checked: item.selected === 1 }"
               ></text>
               <navigator
                 :url="`/pages/goods/goods?id=${item.cart_id}`"
@@ -156,17 +148,17 @@ const { guessRef, onScrolltolower } = useGuessList()
                 <view class="meta">
                   <view class="name ellipsis">{{ item.title }}</view>
                   <view class="attrsText ellipsis">{{ item.attrs }}</view>
-                  <view class="price">{{ item.settle_price }}</view>
+                  <view class="price">{{ item.price }}</view>
                 </view>
               </navigator>
               <!-- 商品数量 -->
               <view class="count">
                 <vk-data-input-number-box
-                  v-model="item.num"
+                  v-model="item.qty"
                   :min="1"
                   :max="item.stock"
                   :index="item.sku_id"
-                  @change="onChangeCount"
+                  @change="onChangeQty"
                 />
               </view>
             </view>
@@ -255,7 +247,7 @@ const { guessRef, onScrolltolower } = useGuessList()
       padding: 7rpx 15rpx 5rpx;
       border-radius: 4rpx;
       font-size: 24rpx;
-      background-color: #27ba9b;
+      background-color: #010101;
       margin-right: 10rpx;
     }
   }
@@ -292,7 +284,7 @@ const { guessRef, onScrolltolower } = useGuessList()
 
       &.checked::before {
         content: '\e6cc';
-        color: #27ba9b;
+        color: #010101;
       }
     }
 
@@ -420,7 +412,7 @@ const { guessRef, onScrolltolower } = useGuessList()
     font-size: 26rpx;
     border-radius: 60rpx;
     color: #fff;
-    background-color: #27ba9b;
+    background-color: #010101;
   }
 }
 
@@ -458,7 +450,7 @@ const { guessRef, onScrolltolower } = useGuessList()
 
   .checked::before {
     content: '\e6cc';
-    color: #27ba9b;
+    color: #010101;
   }
 
   .text {
@@ -498,7 +490,7 @@ const { guessRef, onScrolltolower } = useGuessList()
     }
 
     .payment-button {
-      background-color: #27ba9b;
+      background-color: #010101;
 
       &.disabled {
         opacity: 0.6;

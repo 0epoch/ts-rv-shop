@@ -4,14 +4,22 @@ export type CartItem = {
   product_id: string
   pic_url: string
   title: string
-  num: number
+  qty: number
   use_aff: number
-  settle_price: number
+  price: number
   aff_price: number
   stock: number
-  selected: boolean
   attrs: string
-  isEffective: boolean
+  selected: number
   coupon_amount: number
-  vip_discount_amount: number
+  discount_amount: number
+}
+
+export type CartResult = {
+  skus: CartItem[]
+  amount: number
+  checkout_amount: number
+  coupon_amount: number
+  discount_amount: number
+  promotion_amount: number
 }

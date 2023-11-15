@@ -5,29 +5,17 @@ import {
   getMemberOrderRepurchaseByIdAPI,
   postMemberOrderAPI,
 } from '@/services/order'
+import { checkoutOrder } from '@/api/order'
 import { useAddressStore } from '@/stores/modules/address'
 import type { OrderPreResult } from '@/types/order'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
+import type { CartResult } from '@/types/cart'
 
 // 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 订单备注
-const buyerMessage = ref('')
-// 配送时间
-const deliveryList = ref([
-  { type: 1, text: '时间不限 (周一至周日)' },
-  { type: 2, text: '工作日送 (周一至周五)' },
-  { type: 3, text: '周末配送 (周六至周日)' },
-])
-// 当前配送时间下标
-const activeIndex = ref(0)
-// 当前配送时间
-const activeDelivery = computed(() => deliveryList.value[activeIndex.value])
-// 修改配送时间
-const onChangeDelivery: UniHelper.SelectorPickerOnChange = (ev) => {
-  activeIndex.value = ev.detail.value
-}
+const desc = ref('')
 
 // 页面参数
 const query = defineProps<{
@@ -37,32 +25,38 @@ const query = defineProps<{
 }>()
 
 // 获取订单信息
-const orderPre = ref<OrderPreResult>()
-const getMemberOrderPreData = async () => {
-  if (query.count && query.skuId) {
-    const res = await getMemberOrderPreNowAPI({
-      count: query.count,
-      skuId: query.skuId,
-    })
-    orderPre.value = res.result
-  } else if (query.orderId) {
-    // 再次购买
-    const res = await getMemberOrderRepurchaseByIdAPI(query.orderId)
-    orderPre.value = res.result
-  } else {
-    const res = await getMemberOrderPreAPI()
-    orderPre.value = res.result
-  }
+const checkout = ref<CartResult>()
+// const getMemberOrderPreData = async () => {
+//   if (query.count && query.skuId) {
+//     const res = await getMemberOrderPreNowAPI({
+//       count: query.count,
+//       skuId: query.skuId,
+//     })
+//     orderPre.value = res.result
+//   } else if (query.orderId) {
+//     // 再次购买
+//     const res = await getMemberOrderRepurchaseByIdAPI(query.orderId)
+//     orderPre.value = res.result
+//   } else {
+//     const res = await getMemberOrderPreAPI()
+//     orderPre.value = res.result
+//   }
+// }
+
+const getCheckoutResult = async () => {
+  const rs = await checkoutOrder()
+  checkout.value = rs.data
+  console.log(checkout.value.skus)
 }
 
 onLoad(() => {
-  getMemberOrderPreData()
+  getCheckoutResult()
 })
 
 const addressStore = useAddressStore()
 // 收货地址
 const selecteAddress = computed(() => {
-  return addressStore.selectedAddress || orderPre.value?.userAddresses.find((v) => v.is_default)
+  return addressStore.selectedAddress
 })
 
 // 提交订单
@@ -72,14 +66,13 @@ const onOrderSubmit = async () => {
     return uni.showToast({ icon: 'none', title: '请选择收货地址' })
   }
   // 发送请求
-  const res = await postMemberOrderAPI({
-    addressId: selecteAddress.value?.id,
-    buyerMessage: buyerMessage.value,
-    deliveryTimeType: activeDelivery.value.type,
-    goods: orderPre.value!.goods.map((v) => ({ count: v.count, skuId: v.skuId })),
-    payChannel: 2,
-    payType: 1,
-  })
+  // const res = await postMemberOrderAPI({
+  //   addressId: selecteAddress.value?.id,
+  //   buyerMessage: desc.value,
+  //   goods: orderPre.value!.goods.map((v) => ({ count: v.count, skuId: v.skuId })),
+  //   payChannel: 2,
+  //   payType: 1,
+  // })
   // 关闭当前页面，跳转到订单详情，传递订单id
   uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${res.result.id}` })
 }
@@ -111,21 +104,21 @@ const onOrderSubmit = async () => {
     <!-- 商品信息 -->
     <view class="goods">
       <navigator
-        v-for="item in orderPre?.goods"
-        :key="item.skuId"
-        :url="`/pages/goods/goods?id=${item.id}`"
+        v-for="item in checkout?.skus"
+        :key="item.sku_id"
+        :url="`/pages/goods/goods?id=${item.sku_id}`"
         class="item"
         hover-class="none"
       >
-        <image class="picture" :src="item.picture" />
+        <image class="picture" :src="item.pic_url" />
         <view class="meta">
-          <view class="name ellipsis"> {{ item.name }} </view>
-          <view class="attrs">{{ item.attrsText }}</view>
+          <view class="name ellipsis"> {{ item.title }} </view>
+          <view class="attrs">{{ item.attrs }}</view>
           <view class="prices">
-            <view class="pay-price symbol">{{ item.payPrice }}</view>
+            <view class="pay-price symbol">{{ item.price }}</view>
             <view class="price symbol">{{ item.price }}</view>
           </view>
-          <view class="count">x{{ item.count }}</view>
+          <view class="count">x{{ item.qty }}</view>
         </view>
       </navigator>
     </view>
@@ -138,7 +131,7 @@ const onOrderSubmit = async () => {
           class="input"
           :cursor-spacing="30"
           placeholder="选题，建议留言前先与商家沟通确认"
-          v-model="buyerMessage"
+          v-model="desc"
         />
       </view>
     </view>
@@ -147,19 +140,19 @@ const onOrderSubmit = async () => {
     <view class="settlement">
       <view class="item">
         <text class="text">商品总价: </text>
-        <text class="number symbol">{{ orderPre?.summary.totalPrice.toFixed(2) }}</text>
+        <text class="number symbol">{{ checkout?.amount.toFixed(2) }}</text>
       </view>
       <view class="item">
         <text class="text">优惠券: </text>
-        <text class="number symbol">{{ orderPre?.summary.postFee.toFixed(2) }}</text>
+        <text class="number symbol">{{ checkout?.coupon_amount.toFixed(2) }}</text>
       </view>
       <view class="item">
         <text class="text">经销商折扣: </text>
-        <text class="number symbol">{{ orderPre?.summary.postFee.toFixed(2) }}</text>
+        <text class="number symbol">{{ checkout?.discount_amount.toFixed(2) }}</text>
       </view>
       <view class="item total">
         <text class="text">合计: </text>
-        <text class="number symbol">{{ orderPre?.summary.postFee.toFixed(2) }}</text>
+        <text class="number symbol">{{ checkout?.checkout_amount.toFixed(2) }}</text>
       </view>
     </view>
   </scroll-view>
@@ -167,7 +160,7 @@ const onOrderSubmit = async () => {
   <!-- 吸底工具栏 -->
   <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
     <view class="total-pay symbol">
-      <text class="number">{{ orderPre?.summary.totalPayPrice.toFixed(2) }}</text>
+      <text class="number">{{ checkout?.checkout_amount.toFixed(2) }}</text>
     </view>
     <view class="button" :class="{ disabled: !selecteAddress?.id }" @tap="onOrderSubmit">
       提交订单
@@ -386,7 +379,7 @@ page {
     font-size: 26rpx;
     color: #fff;
     border-radius: 72rpx;
-    background-color: #27ba9b;
+    background-color: #010101;
   }
 
   .disabled {

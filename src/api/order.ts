@@ -2,6 +2,18 @@ import type { Product, Detail } from '@/types/product'
 import type { Paginate } from '@/types/global'
 
 import { request } from '@/utils/request'
+import type { CartResult } from '@/types/cart'
+
+/**
+ * @param data
+ */
+export const checkoutOrder = () => {
+  return request<CartResult>({
+    method: 'POST',
+    url: '/order/checkout',
+    data: {},
+  })
+}
 
 /**
  * @param data

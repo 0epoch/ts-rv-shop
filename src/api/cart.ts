@@ -2,15 +2,15 @@ import type { Product, Detail } from '@/types/product'
 import type { Paginate } from '@/types/global'
 
 import { request } from '@/utils/request'
-import type { CartItem } from '@/types/cart'
+import type { CartItem, CartResult } from '@/types/cart'
 
 /**
  * @param data
  */
-export const addProduct = (data: { product_id: string; sku_id: string; num: number }) => {
+export const saveCardProduct = (data: { product_id: string; sku_id: string; qty: number }) => {
   return request<Paginate<Product>>({
     method: 'POST',
-    url: '/shop-cart/add',
+    url: '/cart',
     data,
   })
 }
@@ -18,36 +18,24 @@ export const addProduct = (data: { product_id: string; sku_id: string; num: numb
 /**
  * @param data
  */
-export const cartProductDel = (cart_id: string) => {
+export const cartProductDel = (id: string) => {
   return request<Detail>({
-    method: 'POST',
-    url: '/shop-cart/del',
-    data: { cart_id },
+    method: 'DELETE',
+    url: '/cart',
+    data: { id },
   })
 }
 
 /**
  * @param data
  */
-export const cartProductCount = (data: {
-  cart_type: string
-  cart_id: string
+export const calcCart = (data: {
+  selected?: { sku_id: string; qty: number }[]
   coupon_id: number
 }) => {
-  return request<Detail>({
+  return request<CartResult>({
     method: 'POST',
-    url: '/shop-cart/count',
-    data,
-  })
-}
-
-/**
- * @param data
- */
-export const updateCartProduct = (data: { product_id: string; sku_id: string; num: number }) => {
-  return request<Detail>({
-    method: 'POST',
-    url: '/shop-cart/update',
+    url: '/cart/calc',
     data,
   })
 }
@@ -58,7 +46,7 @@ export const updateCartProduct = (data: { product_id: string; sku_id: string; nu
 export const cartProductList = () => {
   return request<CartItem[]>({
     method: 'GET',
-    url: '/shop-cart/list',
+    url: '/carts',
     data: {},
   })
 }

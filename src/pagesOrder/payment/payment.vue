@@ -68,7 +68,7 @@ page {
   line-height: 1;
   padding: 50rpx 0;
   color: #fff;
-  background-color: #27ba9b;
+  background-color: #010101;
 
   .tips {
     width: 70%;

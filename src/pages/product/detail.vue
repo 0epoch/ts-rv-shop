@@ -6,7 +6,7 @@ import type {
 } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
 
 import { postMemberCartAPI } from '@/services/cart'
-import { addProduct } from '@/api/cart'
+import { saveCardProduct } from '@/api/cart'
 
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
@@ -111,7 +111,7 @@ const selectArrText = computed(() => {
 })
 // 加入购物车事件
 const onAddCart = async (ev: SkuPopupEvent) => {
-  await addProduct({ product_id: ev._id, sku_id: ev.goods_id, num: ev.buy_num })
+  await saveCardProduct({ product_id: ev._id, sku_id: ev.goods_id, qty: ev.buy_num })
   uni.showToast({ title: '添加成功' })
   skuVisible.value = false
 }
@@ -265,7 +265,7 @@ page {
       font-size: 28rpx;
       color: #333;
       font-weight: 600;
-      border-left: 4rpx solid #27ba9b;
+      border-left: 4rpx solid #010101;
     }
     navigator {
       font-size: 24rpx;
@@ -482,7 +482,7 @@ page {
       background-color: #010101;
     }
     .payment {
-      background-color: #27ba9b;
+      background-color: #010101;
       margin-left: 20rpx;
     }
   }
