@@ -1,6 +1,7 @@
 <script setup lang="ts">
 import { useGuessList } from '@/composables'
 import { OrderState, orderStateList } from '@/services/constants'
+import { orderDetail } from '@/api/order'
 import {
   deleteMemberOrderAPI,
   getMemberOrderByIdAPI,
@@ -85,17 +86,22 @@ onReady(() => {
 
 // 获取订单详情
 const order = ref<OrderResult>()
-const getMemberOrderByIdData = async () => {
-  const res = await getMemberOrderByIdAPI(query.id)
-  order.value = res.result
-  if (
-    [OrderState.DaiShouHuo, OrderState.DaiPingJia, OrderState.YiWanCheng].includes(
-      order.value.orderState,
-    )
-  ) {
-    getMemberOrderLogisticsByIdData()
-  }
+const getOrderDetail = async () => {
+  const rs = await orderDetail({ order_id: query.id })
+  order.value = rs.data
 }
+
+// const getMemberOrderByIdData = async () => {
+//   const res = await getMemberOrderByIdAPI(query.id)
+//   order.value = res.result
+//   if (
+//     [OrderState.DaiShouHuo, OrderState.DaiPingJia, OrderState.YiWanCheng].includes(
+//       order.value.orderState,
+//     )
+//   ) {
+//     getMemberOrderLogisticsByIdData()
+//   }
+// }
 
 // 获取物流信息
 const logisticList = ref<LogisticItem[]>([])
@@ -105,13 +111,13 @@ const getMemberOrderLogisticsByIdData = async () => {
 }
 
 onLoad(() => {
-  getMemberOrderByIdData()
+  getOrderDetail()
 })
 
 // 倒计时结束事件
 const onTimeup = () => {
   // 修改订单状态为已取消
-  order.value!.orderState = OrderState.YiQuXiao
+  order.value!.order_status = OrderState.CANCELED
 }
 
 // 订单支付
@@ -147,7 +153,7 @@ const onOrderSend = async () => {
     await getMemberOrderConsignmentByIdAPI(query.id)
     uni.showToast({ icon: 'success', title: '模拟发货完成' })
     // 主动更新订单状态
-    order.value!.orderState = OrderState.DaiShouHuo
+    order.value!.order_status = OrderState.SHIPPED
   }
 }
 // 确认收货
@@ -218,10 +224,10 @@ const onOrderCancel = async () => {
       <!-- 订单状态 -->
       <view class="overview" :style="{ paddingTop: safeAreaInsets!.top + 20 + 'px' }">
         <!-- 待付款状态:展示倒计时 -->
-        <template v-if="order.orderState === OrderState.DaiFuKuan">
+        <template v-if="order.order_status === OrderState.UNPAID">
           <view class="status icon-clock">等待付款</view>
           <view class="tips">
-            <text class="money">应付金额: ¥ {{ order.payMoney }}</text>
+            <text class="money">应付金额: ¥ {{ order.pay_amount }}</text>
             <text class="time">支付剩余</text>
             <uni-countdown
               :second="order.countdown"
@@ -237,18 +243,10 @@ const onOrderCancel = async () => {
         <!-- 其他订单状态:展示再次购买按钮 -->
         <template v-else>
           <!-- 订单状态文字 -->
-          <view class="status"> {{ orderStateList[order.orderState].text }} </view>
+          <view class="status"> {{ orderStateList[order.order_status].text }} </view>
           <view class="button-group">
-            <navigator
-              class="button"
-              :url="`/pagesOrder/create/create?orderId=${query.id}`"
-              hover-class="none"
-            >
-              再次购买
-            </navigator>
-            <!-- 待发货状态：模拟发货,开发期间使用,用于修改订单状态为已发货 -->
             <view
-              v-if="isDev && order.orderState == OrderState.DaiFaHuo"
+              v-if="isDev && order.order_status == OrderState.WAIT_SHIP"
               @tap="onOrderSend"
               class="button"
             >
@@ -256,7 +254,7 @@ const onOrderCancel = async () => {
             </view>
             <!-- 待收货状态: 展示确认收货按钮 -->
             <view
-              v-if="order.orderState === OrderState.DaiShouHuo"
+              v-if="order.order_status === OrderState.SHIPPED"
               @tap="onOrderConfirm"
               class="button"
             >
@@ -276,8 +274,10 @@ const onOrderCancel = async () => {
         </view>
         <!-- 用户收货地址 -->
         <view class="locate">
-          <view class="user"> {{ order.receiverContact }} {{ order.receiverMobile }} </view>
-          <view class="address"> {{ order.receiverAddress }} </view>
+          <view class="user"> {{ order.receiver_mobile }} </view>
+          <view class="address">
+            {{ order.receiver_addr }}
+          </view>
         </view>
       </view>
 
@@ -288,41 +288,36 @@ const onOrderCancel = async () => {
             class="navigator"
             v-for="item in order.skus"
             :key="item.id"
-            :url="`/pages/goods/goods?id=${item.spuId}`"
+            :url="`/pages/goods/goods?id=${item.product_sku_id}`"
             hover-class="none"
           >
-            <image class="cover" :src="item.image"></image>
+            <image class="cover" :src="item.product_pic_url"></image>
             <view class="meta">
-              <view class="name ellipsis">{{ item.name }}</view>
-              <view class="type">{{ item.attrsText }}</view>
+              <view class="name ellipsis">{{ item.product_name }}</view>
+              <view class="type">{{ item.product_attr }}</view>
               <view class="price">
                 <view class="actual">
                   <text class="symbol">¥</text>
-                  <text>{{ item.curPrice }}</text>
+                  <text>{{ item.product_unit_price }}</text>
                 </view>
               </view>
-              <view class="quantity">x{{ item.quantity }}</view>
+              <view class="quantity">x{{ item.product_num }}</view>
             </view>
           </navigator>
           <!-- 待评价状态:展示按钮 -->
-          <view class="action" v-if="order.orderState === OrderState.DaiPingJia">
+          <view class="action" v-if="order.order_status === OrderState.SHIPPED">
             <view class="button primary">申请售后</view>
-            <navigator url="" class="button"> 去评价 </navigator>
           </view>
         </view>
         <!-- 合计 -->
         <view class="total">
           <view class="row">
             <view class="text">商品总价: </view>
-            <view class="symbol">{{ order.totalMoney }}</view>
+            <view class="symbol">{{ order.order_amount }}</view>
           </view>
           <view class="row">
-            <view class="text">运费: </view>
-            <view class="symbol">{{ order.postFee }}</view>
-          </view>
-          <view class="row">
-            <view class="text">应付金额: </view>
-            <view class="symbol primary">{{ order.payMoney }}</view>
+            <view class="text">实付金额: </view>
+            <view class="symbol primary">{{ order.pay_amount }}</view>
           </view>
         </view>
       </view>
@@ -332,9 +327,10 @@ const onOrderCancel = async () => {
         <view class="title">订单信息</view>
         <view class="row">
           <view class="item">
-            订单编号: {{ query.id }} <text class="copy" @tap="onCopy(query.id)">复制</text>
+            订单编号: {{ order.order_no }}
+            <text class="copy" @tap="onCopy(order.order_no)">复制</text>
           </view>
-          <view class="item">下单时间: {{ order.createTime }}</view>
+          <view class="item">下单时间: {{ order.created_at }}</view>
         </view>
       </view>
 
@@ -345,33 +341,24 @@ const onOrderCancel = async () => {
       <view class="toolbar-height" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }"></view>
       <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
         <!-- 待付款状态:展示支付按钮 -->
-        <template v-if="order.orderState === OrderState.DaiFuKuan">
+        <template v-if="order.order_status === OrderState.UNPAID">
           <view class="button primary" @tap="onOrderPay"> 去支付 </view>
           <view class="button" @tap="popup?.open?.()"> 取消订单 </view>
         </template>
         <!-- 其他订单状态:按需展示按钮 -->
         <template v-else>
-          <navigator
-            class="button secondary"
-            :url="`/pagesOrder/create/create?orderId=${query.id}`"
-            hover-class="none"
-          >
-            再次购买
-          </navigator>
           <!-- 待收货状态: 展示确认收货 -->
           <view
             class="button primary"
-            v-if="order.orderState === OrderState.DaiShouHuo"
+            v-if="order.order_status === OrderState.SHIPPED"
             @tap="onOrderConfirm"
           >
             确认收货
           </view>
-          <!-- 待评价状态: 展示去评价 -->
-          <view class="button" v-if="order.orderState === OrderState.DaiPingJia"> 去评价 </view>
-          <!-- 待评价/已完成/已取消 状态: 展示删除订单 -->
+
           <view
             class="button delete"
-            v-if="order.orderState >= OrderState.DaiPingJia"
+            v-if="order.order_status >= OrderState.COMPLETED"
             @tap="onOrderDelete"
           >
             删除订单

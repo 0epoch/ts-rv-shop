@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import OrderList from './components/OrderList.vue'
-
+import { OrderState } from '@/services/constants'
 // 获取页面参数
 const query = defineProps<{
   type: string
@@ -9,15 +9,15 @@ const query = defineProps<{
 
 // tabs 数据
 const orderTabs = ref([
-  { orderState: 0, title: '全部', isRender: false },
-  { orderState: 1, title: '待付款', isRender: false },
-  { orderState: 2, title: '待发货', isRender: false },
-  { orderState: 3, title: '待收货', isRender: false },
-  { orderState: 4, title: '待评价', isRender: false },
+  { index: 0, title: '全部', isRender: false, status: '' },
+  { index: 1, title: '待付款', isRender: false, status: OrderState.UNPAID },
+  { index: 2, title: '待发货', isRender: false, status: OrderState.WAIT_SHIP },
+  { index: 3, title: '待收货', isRender: false, status: OrderState.SHIPPED },
+  { index: 4, title: '已完成', isRender: false, status: OrderState.COMPLETED },
 ])
 
 // 高亮下标
-const activeIndex = ref(orderTabs.value.findIndex((v) => v.orderState === Number(query.type)))
+const activeIndex = ref(orderTabs.value.findIndex((v) => v.index === Number(query.type)))
 // 默认渲染容器
 orderTabs.value[activeIndex.value].isRender = true
 </script>
@@ -47,7 +47,7 @@ orderTabs.value[activeIndex.value].isRender = true
       <!-- 滑动项 -->
       <swiper-item v-for="item in orderTabs" :key="item.title">
         <!-- 订单列表 -->
-        <OrderList v-if="item.isRender" :order-state="item.orderState" />
+        <OrderList v-if="item.isRender" :order-status="item.status" />
       </swiper-item>
     </swiper>
   </view>
