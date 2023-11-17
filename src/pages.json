@@ -143,6 +143,12 @@
           "style": {
             "navigationBarTitleText": ""
           }
+        },
+        {
+          "path": "coupon/coupon",
+          "style": {
+            "navigationBarTitleText": "优惠券"
+          }
         }
       ]
     },

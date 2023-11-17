@@ -82,9 +82,13 @@ const { guessRef, onScrolltolower } = useGuessList()
         <!-- #endif -->
       </view>
     </view>
-    <!-- 猜你喜欢 -->
-    <view class="guess">
-      <XtxGuess ref="guessRef" />
+
+    <view class="items">
+      <view>
+        <navigator url="/pagesMember/coupon/coupon" class="navigator" hover-class="none">
+          优惠券
+        </navigator>
+      </view>
     </view>
   </scroll-view>
 </template>
