@@ -5,7 +5,7 @@ import {
   getMemberOrderRepurchaseByIdAPI,
   postMemberOrderAPI,
 } from '@/services/order'
-import { checkoutOrder } from '@/api/order'
+import { checkoutOrder, createOrder } from '@/api/order'
 import { useAddressStore } from '@/stores/modules/address'
 import type { OrderPreResult } from '@/types/order'
 import { onLoad } from '@dcloudio/uni-app'
@@ -66,15 +66,17 @@ const onOrderSubmit = async () => {
     return uni.showToast({ icon: 'none', title: '请选择收货地址' })
   }
   // 发送请求
-  // const res = await postMemberOrderAPI({
-  //   addressId: selecteAddress.value?.id,
-  //   buyerMessage: desc.value,
-  //   goods: orderPre.value!.goods.map((v) => ({ count: v.count, skuId: v.skuId })),
-  //   payChannel: 2,
-  //   payType: 1,
-  // })
+  const rs = await createOrder({
+    address_id: selecteAddress.value?.id,
+    coupon_id: 0,
+    buyer_words: desc.value,
+    buy_type: '',
+    pay_type: 1,
+    pay_amount: checkout.value?.checkout_amount!,
+    skus: [],
+  })
   // 关闭当前页面，跳转到订单详情，传递订单id
-  uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${res.result.id}` })
+  uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${rs.data.id}` })
 }
 </script>
 

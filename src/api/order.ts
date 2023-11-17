@@ -3,6 +3,7 @@ import type { Paginate } from '@/types/global'
 
 import { request } from '@/utils/request'
 import type { CartResult } from '@/types/cart'
+import type { Order, OrderCreateParams, OrderListParams, OrderResult } from '@/types/order'
 
 /**
  * @param data
@@ -18,15 +19,10 @@ export const checkoutOrder = () => {
 /**
  * @param data
  */
-export const createOrder = (data: {
-  address_id: string
-  cart_id: string
-  buy_type: string
-  coupon_id: string
-}) => {
-  return request<Paginate<Product>>({
+export const createOrder = (data: OrderCreateParams) => {
+  return request<Order>({
     method: 'POST',
-    url: '/order/store',
+    url: '/order',
     data,
   })
 }
@@ -68,7 +64,7 @@ export const cancelOrder = (data: { order_id: string }) => {
  * @param data
  */
 export const orderDetail = (data: { order_id: string }) => {
-  return request<Detail>({
+  return request<OrderResult>({
     method: 'POST',
     url: '/order/detail',
     data,
@@ -78,9 +74,9 @@ export const orderDetail = (data: { order_id: string }) => {
 /**
  * @param data
  */
-export const orderList = (data: { order_status: string }) => {
-  return request<Paginate<Product>>({
-    method: 'GET',
+export const orderList = (data: OrderListParams) => {
+  return request<Paginate<OrderResult>>({
+    method: 'POST',
     url: '/order/list',
     data,
   })

@@ -2,10 +2,12 @@
 import { OrderState } from '@/services/constants'
 import { orderStateList } from '@/services/constants'
 import { putMemberOrderReceiptByIdAPI } from '@/services/order'
+import { orderList } from '@/api/order'
+
 import { deleteMemberOrderAPI } from '@/services/order'
 import { getMemberOrderAPI } from '@/services/order'
 import { getPayMockAPI, getPayWxPayMiniPayAPI } from '@/services/pay'
-import type { OrderItem } from '@/types/order'
+import type { Order, OrderResult } from '@/types/order'
 import type { OrderListParams } from '@/types/order'
 import { onMounted, ref } from 'vue'
 
@@ -14,21 +16,21 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
 
 // 定义 porps
 const props = defineProps<{
-  orderState: number
+  orderStatus: string
 }>()
 
 // 请求参数
 const queryParams: Required<OrderListParams> = {
   page: 1,
-  pageSize: 5,
-  orderState: props.orderState,
+  per_page: 5,
+  order_status: props.orderStatus,
 }
 
 // 获取订单列表
-const orderList = ref<OrderItem[]>([])
+const orders = ref<OrderResult[]>([])
 // 是否加载中标记，用于防止滚动触底触发多次请求
 const isLoading = ref(false)
-const getMemberOrderData = async () => {
+const getOrderList = async () => {
   // 如果数据出于加载中，退出函数
   if (isLoading.value) return
   // 退出分页判断
@@ -38,13 +40,14 @@ const getMemberOrderData = async () => {
   // 发送请求前，标记为加载中
   isLoading.value = true
   // 发送请求
-  const res = await getMemberOrderAPI(queryParams)
+  const rs = await orderList(queryParams)
+
   // 发送请求后，重置标记
   isLoading.value = false
   // 数组追加
-  orderList.value.push(...res.result.items)
+  orders.value.push(...rs.data.data)
   // 分页条件
-  if (queryParams.page < res.result.pages) {
+  if (queryParams.page < rs.data.last_page) {
     // 页码累加
     queryParams.page++
   } else {
@@ -52,9 +55,33 @@ const getMemberOrderData = async () => {
     isFinish.value = true
   }
 }
+// const getMemberOrderData = async () => {
+//   // 如果数据出于加载中，退出函数
+//   if (isLoading.value) return
+//   // 退出分页判断
+//   if (isFinish.value === true) {
+//     return uni.showToast({ icon: 'none', title: '没有更多数据~' })
+//   }
+//   // 发送请求前，标记为加载中
+//   isLoading.value = true
+//   // 发送请求
+//   const res = await getMemberOrderAPI(queryParams)
+//   // 发送请求后，重置标记
+//   isLoading.value = false
+//   // 数组追加
+//   orderList.value.push(...res.result.items)
+//   // 分页条件
+//   if (queryParams.page < res.result.pages) {
+//     // 页码累加
+//     queryParams.page++
+//   } else {
+//     // 分页已结束
+//     isFinish.value = true
+//   }
+// }
 
 onMounted(() => {
-  getMemberOrderData()
+  getOrderList()
 })
 
 // 订单支付
@@ -85,8 +112,8 @@ const onOrderPay = async (id: string) => {
     })
   }, 2000)
   // 更新订单状态
-  const order = orderList.value.find((v) => v.id === id)
-  order!.orderState = OrderState.DaiFaHuo
+  const order = orders.value.find((v) => v.id === id)
+  order!.order_status = OrderState.WAIT_SHIP
 }
 
 // 确认收货
@@ -99,8 +126,8 @@ const onOrderConfirm = (id: string) => {
         await putMemberOrderReceiptByIdAPI(id)
         uni.showToast({ icon: 'success', title: '确认收货成功' })
         // 确认成功，更新为待评价
-        const order = orderList.value.find((v) => v.id === id)
-        order!.orderState = OrderState.DaiPingJia
+        const order = orders.value.find((v) => v.id === id)
+        order!.order_status = OrderState.COMPLETED
       }
     },
   })
@@ -115,8 +142,8 @@ const onOrderDelete = (id: string) => {
       if (res.confirm) {
         await deleteMemberOrderAPI({ ids: [id] })
         // 删除成功，界面中删除订单
-        const index = orderList.value.findIndex((v) => v.id === id)
-        orderList.value.splice(index, 1)
+        const index = orders.value.findIndex((v) => v.id === id)
+        orders.value.splice(index, 1)
       }
     },
   })
@@ -132,10 +159,10 @@ const onRefresherrefresh = async () => {
   isTriggered.value = true
   // 重置数据
   queryParams.page = 1
-  orderList.value = []
+  orders.value = []
   isFinish.value = false
   // 加载数据
-  await getMemberOrderData()
+  await getOrderList()
   // 关闭动画
   isTriggered.value = false
 }
@@ -149,17 +176,17 @@ const onRefresherrefresh = async () => {
     refresher-enabled
     :refresher-triggered="isTriggered"
     @refresherrefresh="onRefresherrefresh"
-    @scrolltolower="getMemberOrderData"
+    @scrolltolower="getOrderList"
   >
-    <view class="card" v-for="order in orderList" :key="order.id">
+    <view class="card" v-for="order in orders" :key="order.id">
       <!-- 订单信息 -->
       <view class="status">
-        <text class="date">{{ order.createTime }}</text>
+        <text class="date">{{ order.created_at }}</text>
         <!-- 订单状态文字 -->
-        <text>{{ orderStateList[order.orderState].text }}</text>
+        <text>{{ orderStateList[order.order_status as keyof typeof orderStateList].text }}</text>
         <!-- 待评价/已完成/已取消 状态: 展示删除订单 -->
         <text
-          v-if="order.orderState >= OrderState.DaiPingJia"
+          v-if="order.order_status >= OrderState.UNPAID"
           class="icon-delete"
           @tap="onOrderDelete(order.id)"
         ></text>
@@ -173,23 +200,23 @@ const onRefresherrefresh = async () => {
         hover-class="none"
       >
         <view class="cover">
-          <image class="image" mode="aspectFit" :src="item.image"></image>
+          <image class="image" mode="aspectFit" :src="item.product_pic_url"></image>
         </view>
         <view class="meta">
-          <view class="name ellipsis">{{ item.name }}</view>
-          <view class="type">{{ item.attrsText }}</view>
+          <view class="name ellipsis">{{ item.product_name }}</view>
+          <view class="type">{{ item.product_attr }}</view>
         </view>
       </navigator>
       <!-- 支付信息 -->
       <view class="payment">
-        <text class="quantity">共{{ order.totalNum }}件商品</text>
+        <text class="quantity">共{{ order.product_num }}件商品</text>
         <text>实付</text>
-        <text class="amount"> <text class="symbol">¥</text>{{ order.payMoney }}</text>
+        <text class="amount"> <text class="symbol">¥</text>{{ order.pay_amount }}</text>
       </view>
       <!-- 订单操作按钮 -->
       <view class="action">
         <!-- 待付款状态：显示去支付按钮 -->
-        <template v-if="order.orderState === OrderState.DaiFuKuan">
+        <template v-if="order.order_status === OrderState.UNPAID">
           <view class="button primary" @tap="onOrderPay(order.id)">去支付</view>
         </template>
         <template v-else>
@@ -202,7 +229,7 @@ const onRefresherrefresh = async () => {
           </navigator>
           <!-- 待收货状态: 展示确认收货 -->
           <view
-            v-if="order.orderState === OrderState.DaiShouHuo"
+            v-if="order.order_status === OrderState.SHIPPED"
             class="button primary"
             @tap="onOrderConfirm(order.id)"
           >
