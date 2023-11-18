@@ -663,7 +663,7 @@ page {
     }
 
     .primary {
-      color: #cf4444;
+      color: #e51c23;
       font-size: 36rpx;
     }
   }
@@ -740,7 +740,7 @@ page {
 
   .delete {
     order: 4;
-    color: #cf4444;
+    color: #e51c23;
   }
 
   .button {

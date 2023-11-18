@@ -1,16 +1,16 @@
-import type { Product, Detail } from '@/types/product'
-import type { Paginate } from '@/types/global'
+import type { Product, Detail, ProductParams } from '@/types/product'
+import type { Paginate, PaginateParams } from '@/types/global'
 
 import { request } from '@/utils/request'
 
 /**
  * @param data
  */
-export const getProductList = (data: { keyword: string; nav_id: string }) => {
+export const productList = (data: { params?: ProductParams; pagination?: PaginateParams }) => {
   return request<Paginate<Product>>({
     method: 'POST',
     url: '/products',
-    data,
+    data: { ...data.params, ...data.pagination },
   })
 }
 

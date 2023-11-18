@@ -22,7 +22,7 @@ defineProps<{
           class="image"
           mode="aspectFit"
           :src="src"
-        ></image>
+        ></image> 
       </navigator>
     </view>
   </view>

@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import type { InputNumberBoxEvent } from '@/components/vk-data-input-number-box/vk-data-input-number-box'
 import { useGuessList } from '@/composables'
-import { cartProductList, calcCart } from '@/api/cart'
+import { cartProductList, calcCart, cartProductDel } from '@/api/cart'
 import { deleteMemberCartAPI, putMemberCartSelectedAPI } from '@/services/cart'
 import { useMemberStore } from '@/stores'
 import type { CartItem, CartResult } from '@/types/cart'
@@ -18,12 +18,24 @@ const memberStore = useMemberStore()
 
 const cartResult = ref<CartResult>()
 const cartList = ref<CartItem[]>([])
+const editActive = ref(false)
+const editText = ref('编辑')
 
+const checkoutText = ref('去结算')
 const showCartList = ref(true)
+
 const gerUserCart = async () => {
   const rs = await cartProductList()
   cartList.value = rs.data
   showCartList.value = rs.data.length > 0
+}
+
+const deleteUserCartProducts = async () => {
+  const skusId = selectedCartList.value.map((item) => {
+    return item.sku_id
+  })
+  await cartProductDel(skusId)
+  editActive.value = false
 }
 
 onShow(() => {
@@ -32,13 +44,19 @@ onShow(() => {
   }
 })
 
+const onEdit = () => {
+  editActive.value = !editActive.value
+  editText.value = editActive.value ? '完成' : '编辑'
+  checkoutText.value = editActive.value ? '删除' : '去结算'
+}
+
 const onDeleteCart = (skuId: string) => {
   uni.showModal({
     content: '是否删除',
     confirmColor: '#010101',
     success: async (res) => {
       if (res.confirm) {
-        await deleteMemberCartAPI({ ids: [skuId] })
+        await cartProductDel([skuId])
         gerUserCart()
       }
     },
@@ -80,12 +98,16 @@ const isSelectedAll = computed(() => {
   return cartList.value.length && cartList.value.every((v) => v.selected)
 })
 
-const onChangeSelectedAll = () => {
+const onChangeSelectedAll = async () => {
   const _isSelectedAll = !isSelectedAll.value
   cartList.value.forEach((item) => {
-    // item.selected = _isSelectedAll//TODO:全选
+    item.selected = _isSelectedAll ? 1 : 0
   })
-  putMemberCartSelectedAPI({ selected: _isSelectedAll })
+  const changeSkus = selectedCartList.value.map((item) => {
+    return { sku_id: item.sku_id, qty: item.qty }
+  })
+  const rs = await calcCart({ selected: changeSkus, coupon_id: 0 })
+  cartResult.value = rs.data
 }
 
 const selectedCartList = computed(() => {
@@ -108,6 +130,24 @@ const onCheckout = () => {
       title: '请选择商品',
     })
   }
+  if (editActive.value) {
+    uni.showModal({
+      content: '是否删除所选商品',
+      confirmColor: '#010101',
+      success: async (res) => {
+        if (res.confirm) {
+          await deleteUserCartProducts()
+          // editActive.value = false
+          // const skusId = selectedCartList.value.map((item) => {
+          //   return item.sku_id
+          // })
+          // await cartProductDel(skusId)
+          gerUserCart()
+        }
+      },
+    })
+    return
+  }
   // 跳转到结算页
   uni.navigateTo({ url: '/pagesOrder/create/create' })
 }
@@ -122,10 +162,12 @@ const { guessRef, onScrolltolower } = useGuessList()
     <template v-if="memberStore.profile">
       <!-- 购物车列表 -->
       <view class="cart-list" v-if="showCartList">
-        <!-- 优惠提示 -->
-        <view class="tips">
-          <text class="label">满减</text>
-          <text class="desc">满1件, 即可享受9折优惠</text>
+        <view class="edit">
+          <text @tap="onChangeSelectedAll" class="all" :class="{ checked: isSelectedAll }"
+            >全选</text
+          >
+
+          <text class="label" @tap="onEdit">{{ editText }}</text>
         </view>
         <!-- 滑动操作分区 -->
         <uni-swipe-action>
@@ -174,9 +216,9 @@ const { guessRef, onScrolltolower } = useGuessList()
       <!-- 购物车空状态 -->
       <view class="cart-blank" v-else>
         <image src="/static/images/blank_cart.png" class="image" />
-        <text class="text">购物车还是空的，快来挑选好货吧</text>
-        <navigator url="/pages/index/index" hover-class="none">
-          <button class="button">去首页看看</button>
+        <text class="text">购物车空空如也~</text>
+        <navigator url="/pages/product/list" hover-class="none">
+          <button class="button">去逛逛</button>
         </navigator>
       </view>
       <!-- 吸底工具栏 -->
@@ -194,7 +236,7 @@ const { guessRef, onScrolltolower } = useGuessList()
             class="button payment-button"
             :class="{ disabled: selectedCartListCount === 0 }"
           >
-            去结算({{ selectedCartListCount }})
+            {{ checkoutText }}({{ selectedCartListCount }})
           </view>
         </view>
       </view>
@@ -234,21 +276,22 @@ const { guessRef, onScrolltolower } = useGuessList()
   padding: 0 20rpx;
 
   // 优惠提示
-  .tips {
+  .edit {
     display: flex;
+    justify-content: space-between;
     align-items: center;
     line-height: 1;
-    margin: 30rpx 10rpx;
+    margin: 20rpx 0;
     font-size: 26rpx;
     color: #666;
 
     .label {
       color: #fff;
-      padding: 7rpx 15rpx 5rpx;
+      padding: 10rpx 15rpx;
       border-radius: 4rpx;
       font-size: 24rpx;
       background-color: #010101;
-      margin-right: 10rpx;
+      // margin-right: 10rpx;
     }
   }
 
@@ -322,7 +365,7 @@ const { guessRef, onScrolltolower } = useGuessList()
       font-size: 26rpx;
       color: #444;
       margin-bottom: 2rpx;
-      color: #cf4444;
+      color: #e51c23;
 
       &::before {
         content: '￥';
@@ -382,7 +425,7 @@ const { guessRef, onScrolltolower } = useGuessList()
     }
 
     .delete-button {
-      background-color: #cf4444;
+      background-color: #e51c23;
     }
   }
 }
@@ -416,6 +459,24 @@ const { guessRef, onScrolltolower } = useGuessList()
   }
 }
 
+.all {
+  margin-left: 25rpx;
+  font-size: 14px;
+  color: #444;
+  display: flex;
+  align-items: center;
+}
+
+.all::before {
+  font-family: 'erabbit' !important;
+  content: '\e6cd';
+  font-size: 40rpx;
+  margin-right: 8rpx;
+}
+.checked::before {
+  content: '\e6cc';
+  color: #010101;
+}
 // 吸底工具栏
 .toolbar {
   position: fixed;
@@ -432,27 +493,6 @@ const { guessRef, onScrolltolower } = useGuessList()
   border-bottom: 1rpx solid #ededed;
   background-color: #fff;
   box-sizing: content-box;
-
-  .all {
-    margin-left: 25rpx;
-    font-size: 14px;
-    color: #444;
-    display: flex;
-    align-items: center;
-  }
-
-  .all::before {
-    font-family: 'erabbit' !important;
-    content: '\e6cd';
-    font-size: 40rpx;
-    margin-right: 8rpx;
-  }
-
-  .checked::before {
-    content: '\e6cc';
-    color: #010101;
-  }
-
   .text {
     margin-right: 8rpx;
     margin-left: 32rpx;
@@ -462,7 +502,7 @@ const { guessRef, onScrolltolower } = useGuessList()
 
   .amount {
     font-size: 20px;
-    color: #cf4444;
+    color: #e51c23;
 
     .decimal {
       font-size: 12px;

@@ -1,45 +1,35 @@
 <script setup lang="ts">
-import { homeConfs } from '@/api/home'
-
-import type { HomeConfs } from '@/types/home'
-import { onLoad } from '@dcloudio/uni-app'
+import type { ConfItem } from '@/types/home'
 import { ref } from 'vue'
-
+import { onLoad } from '@dcloudio/uni-app'
 const activeIndex = ref(0)
+
+// 当 swiper 下标发生变化时触发
 const onChange: UniHelper.SwiperOnChange = (ev) => {
   activeIndex.value = ev.detail.current
 }
-
-const homeBanner = ref<HomeConfs>()
-const getHomeConfs = async () => {
-  const rs = await homeConfs()
-  homeBanner.value = rs.data
-}
-
-const isLoading = ref(false)
+// 定义 props 接收
+defineProps<{
+  list: ConfItem[]
+}>()
 
 onLoad(async () => {
-  isLoading.value = true
-  await Promise.all([getHomeConfs()])
-  isLoading.value = false
+  console.log('sew....')
 })
-
-const onTap = (id: number) => {
-  uni.navigateTo({ url: `/pages/product/list?nav_id=${id}` })
-}
 </script>
-
 <template>
   <view class="carousel">
-    <swiper :circular="true" :autoplay="true" :interval="3000" @change="onChange">
-      <swiper-item v-for="item in homeBanner?.banner" :key="item.id">
-        <image @tap="onTap(item.id)" mode="aspectFill" class="image" :src="item.cover"></image>
+    <swiper :circular="true" :autoplay="false" :interval="3000" @change="onChange">
+      <swiper-item v-for="item in list" :key="item.id">
+        <navigator url="/pages/index/index" hover-class="none" class="navigator">
+          <image mode="aspectFill" class="image" :src="item.cover"></image>
+        </navigator>
       </swiper-item>
     </swiper>
     <!-- 指示点 -->
     <view class="indicator">
       <text
-        v-for="(item, index) in homeBanner?.banner"
+        v-for="(item, index) in list"
         :key="item.id"
         class="dot"
         :class="{ active: index === activeIndex }"
@@ -49,12 +39,10 @@ const onTap = (id: number) => {
 </template>
 
 <style lang="scss">
+/* 轮播图 */
 .carousel {
-  position: fixed;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
+  height: 280rpx;
+  position: relative;
   overflow: hidden;
   transform: translateY(0);
   background-color: #efefef;
@@ -80,7 +68,6 @@ const onTap = (id: number) => {
   .image {
     width: 100%;
     height: 100%;
-    object-fit: cover;
   }
 }
 </style>

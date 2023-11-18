@@ -268,7 +268,7 @@ page {
 
       .pay-price {
         margin-right: 10rpx;
-        color: #cf4444;
+        color: #e51c23;
       }
 
       .price {
@@ -344,7 +344,7 @@ page {
     border-top: 1rpx solid #eaeaea;
   }
   .danger {
-    color: #cf4444;
+    color: #e51c23;
   }
 }
 
@@ -367,7 +367,7 @@ page {
 
   .total-pay {
     font-size: 40rpx;
-    color: #cf4444;
+    color: #e51c23;
 
     .decimal {
       font-size: 75%;

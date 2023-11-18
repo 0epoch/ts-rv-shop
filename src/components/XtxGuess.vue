@@ -135,7 +135,7 @@ defineExpose({
   .price {
     line-height: 1;
     padding-top: 4rpx;
-    color: #cf4444;
+    color: #e51c23;
     font-size: 26rpx;
   }
   .small {

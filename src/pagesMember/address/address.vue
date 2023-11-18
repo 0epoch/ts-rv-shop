@@ -106,7 +106,7 @@ page {
   color: #fff;
   border-radius: 0;
   padding: 0;
-  background-color: #cf4444;
+  background-color: #e51c23;
 }
 
 .viewport {

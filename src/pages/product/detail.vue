@@ -5,7 +5,6 @@ import type {
   SkuPopupLocaldata,
 } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
 
-import { postMemberCartAPI } from '@/services/cart'
 import { saveCardProduct } from '@/api/cart'
 
 import { onLoad } from '@dcloudio/uni-app'
@@ -44,7 +43,7 @@ const getProductDetail = async () => {
         goods_id: v.id,
         goods_name: rs.data.title,
         image: v.pic_url,
-        price: v.price * 100, // 注意：需要乘以 100
+        price: v.price * 100,
         stock: v.stock,
         sku_name_arr: v.attrs.split(','),
       }
@@ -63,29 +62,24 @@ const onChange: UniHelper.SwiperOnChange = (ev) => {
   currentIndex.value = ev.detail.current
 }
 
-// 点击图片时
 const onTapImage = (url: string) => {
-  // 大图预览
   uni.previewImage({
     current: url,
     urls: productDetail.value!.main_pictures,
   })
 }
 
-// uni-ui 弹出层组件 ref
 const popup = ref<{
   open: (type?: UniHelper.UniPopupType) => void
   close: () => void
 }>()
 
-// 弹出层条件渲染
 const popupName = ref<'address' | 'service'>()
 const openPopup = (name: typeof popupName.value) => {
-  // 修改弹出层名称
   popupName.value = name
   popup.value?.open()
 }
-// 是否显示SKU组件
+
 const skuVisible = ref(false)
 // 商品信息
 const localdata = ref({} as SkuPopupLocaldata)
@@ -96,16 +90,12 @@ enum SkuMode {
   Buy = 3,
 }
 const mode = ref<SkuMode>(SkuMode.Cart)
-// 打开SKU弹窗修改按钮模式
 const openSkuPopup = (val: SkuMode) => {
-  // 显示SKU弹窗
   skuVisible.value = true
-  // 修改按钮模式
   mode.value = val
 }
-// SKU组件实例
+
 const skuPopupRef = ref<SkuPopupInstance>()
-// 计算被选中的值
 const selectArrText = computed(() => {
   return skuPopupRef.value?.selectArr?.join(' ').trim() || '请选择商品规格'
 })
@@ -165,7 +155,6 @@ const onBuyNow = (ev: SkuPopupEvent) => {
           <text class="number">{{ productDetail?.price }}</text>
         </view>
         <view class="name ellipsis">{{ productDetail?.title }}</view>
-        <!-- <view class="desc"> {{ productDetail?.desc }} </view> -->
       </view>
 
       <!-- 操作面板 -->
@@ -187,18 +176,7 @@ const onBuyNow = (ev: SkuPopupEvent) => {
 
     <!-- 商品详情 -->
     <view class="detail panel">
-      <!-- <view class="title">
-        <text>详情</text>
-      </view> -->
       <view class="content">
-        <!-- <view class="properties"> -->
-        <!-- 属性详情 -->
-        <!-- <view class="item" v-for="item in productDetail?.attrs" :key="item.name">
-            <text class="label">{{ item.name }}</text>
-            <text class="value">{{ item.attr_id }}</text>
-          </view> -->
-        <!-- </view> -->
-        <!-- 图片详情 -->
         <image
           class="image"
           v-for="item in productDetail?.detail_pictures"
@@ -226,7 +204,6 @@ const onBuyNow = (ev: SkuPopupEvent) => {
     </view>
     <view class="buttons">
       <view @tap="openSkuPopup(SkuMode.Cart)" class="addcart"> 加入购物车 </view>
-      <!-- <view @tap="openSkuPopup(SkuMode.Cart)" class="payment"> 立即购买 </view> -->
     </view>
   </view>
 
@@ -329,7 +306,7 @@ page {
       color: #fff;
       font-size: 34rpx;
       box-sizing: border-box;
-      background-color: #35c8a9;
+      background-color: #010101;
     }
     .number {
       font-size: 56rpx;
@@ -353,7 +330,7 @@ page {
       line-height: 1;
       padding: 0 20rpx 30rpx;
       font-size: 24rpx;
-      color: #cf4444;
+      color: #e51c23;
     }
   }
   .action {
@@ -439,7 +416,7 @@ page {
     .price {
       line-height: 1;
       font-size: 20rpx;
-      color: #cf4444;
+      color: #e51c23;
     }
     .number {
       font-size: 26rpx;

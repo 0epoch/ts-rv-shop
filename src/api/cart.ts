@@ -18,11 +18,11 @@ export const saveCardProduct = (data: { product_id: string; sku_id: string; qty:
 /**
  * @param data
  */
-export const cartProductDel = (id: string) => {
+export const cartProductDel = (skus_id: string[]) => {
   return request<Detail>({
     method: 'DELETE',
     url: '/cart',
-    data: { id },
+    data: { skus_id },
   })
 }
 

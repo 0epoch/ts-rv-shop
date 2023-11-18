@@ -18,13 +18,12 @@ export type Paginate<T> = {
   current_page: number
   last_page: number
   per_page: number
+  page: number
 }
 
 /** 通用分页参数类型 */
 export type PaginateParams = {
-  /** 页码：默认值为 1 */
   page?: number
-  /** 页大小：默认值为 10 */
   per_page?: number
 }
 

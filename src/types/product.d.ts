@@ -1,5 +1,11 @@
+import type exp from 'constants'
 import type { AddressItem } from './address'
 import type { GoodsItem } from './global'
+
+export type ProductParams = {
+  keyword?: string
+  nav_id?: number
+}
 
 /** 商品信息 */
 export type Product = {
@@ -12,6 +18,7 @@ export type Product = {
   is_aff: number
   sold_qty: number
   pic_url: string
+  type: string
 }
 
 /** 商品详情 */

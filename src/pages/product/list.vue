@@ -1,125 +1,159 @@
 <script setup lang="ts">
-import { reactive, ref } from 'vue'
+import { ref } from 'vue'
 import type { Product } from '@/types/product'
-import { onLoad } from '@dcloudio/uni-app'
-import { getProductList } from '@/api/product'
-const products = ref<Product[]>([])
-const finish = ref(false)
+import type { Paginate } from '@/types/global'
 
-const productList = async () => {
-  const rs = await getProductList({ keyword: '', nav_id: '' })
-  products.value = rs.data.data
+import { onLoad } from '@dcloudio/uni-app'
+import { productList } from '@/api/product'
+const finish = ref(false)
+const triggered = ref(false)
+
+const query = defineProps<{
+  id?: number
+  nav_id?: number
+}>()
+
+const products = ref<Paginate<Product>>()
+const getProductList = async () => {
+  const rs = await productList({ params: { nav_id: query.nav_id } })
+  products.value = rs.data
+  products.value.page = rs.data.current_page
+  if (rs.data.last_page <= 1) {
+    finish.value = true
+  }
 }
 onLoad(() => {
-  productList()
+  console.log(query.nav_id, 'nav_id...........')
+  getProductList()
 })
+
+const onRefresherrefresh = async () => {
+  triggered.value = true
+  await getProductList()
+  triggered.value = false
+}
+
+// 滚动触底
+const onScrolltolower = async () => {
+  if (!products.value) return
+  if (products.value?.current_page! < products.value?.last_page!) {
+    products.value.page++
+  } else {
+    finish.value = true
+    return uni.showToast({ icon: 'none', title: '没有更多数据了~' })
+  }
+
+  const rs = await productList({
+    params: {},
+    pagination: { page: products.value.page },
+  })
+  products.value.data.push(...rs.data.data)
+  products.value.current_page = rs.data.current_page
+}
 </script>
 
 <template>
-  <!-- 猜你喜欢 -->
-  <view class="caption">
-    <text class="text">猜你喜欢</text>
-  </view>
-  <view class="guess">
-    <navigator
-      class="guess-item"
-      v-for="item in products"
-      :key="item.id"
-      :url="`/pages/product/detail?id=${item.id}`"
+  <view class="viewport">
+    <view class="caption">
+      <text class="text">猜你喜欢</text>
+    </view>
+    <scroll-view
+      enable-back-to-top
+      refresher-enabled
+      @refresherrefresh="onRefresherrefresh"
+      :refresher-triggered="triggered"
+      @scrolltolower="onScrolltolower"
+      class="scroll-view"
+      scroll-y
     >
-      <image class="image" mode="widthFix" :src="item.pic_url"></image>
-      <view class="name"> {{ item.title }} </view>
-      <view class="price">
-        <text class="small">¥</text>
-        <text>{{ item.price }}</text>
+      <view class="goods">
+        <navigator
+          hover-class="none"
+          class="navigator"
+          v-for="product in products?.data"
+          :key="product.id"
+          :url="`/pages/product/detail?id=${product.id}`"
+        >
+          <image class="thumb" :src="product.pic_url"></image>
+          <view class="desc">
+            <view class="name ellipsis">{{ product.title }}</view>
+            <view class="price">
+              <text class="symbol">¥</text>
+              <text class="number">{{ product.price }}</text>
+            </view>
+          </view>
+        </navigator>
       </view>
-    </navigator>
-  </view>
-  <view class="loading-text">
-    {{ finish ? '没有更多数据~' : '正在加载...' }}
+      <view class="loading-text">
+        {{ finish ? '没有更多数据了~' : '正在加载...' }}
+      </view>
+    </scroll-view>
   </view>
 </template>
-<!-- <template>
-  <view class="panel hot">
-    <view class="item" v-for="item in products" :key="item.id">
-      <view class="title">
-        <text class="title-text">{{ item.title }}</text>
-        <text class="title-desc">{{ item.price }}</text>
-      </view>
-      <navigator hover-class="none" :url="`/pages/product/detail?id=${item.id}`" class="cards">
-        <image class="image" mode="widthFix" :src="item.pic_url"></image>
-      </navigator>
-    </view>
-  </view>
-</template> -->
 
 <style lang="scss">
-:host {
-  display: block;
+page {
+  height: 100%;
+  background-color: #f4f4f4;
 }
-/* 分类标题 */
+.viewport {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  position: relative;
+}
+.scroll-view {
+  flex: 1;
+}
 .caption {
   display: flex;
   justify-content: center;
   line-height: 1;
   padding: 36rpx 0 40rpx;
   font-size: 32rpx;
-  color: #262626;
+  color: #333;
   .text {
     display: flex;
     justify-content: center;
     align-items: center;
     padding: 0 28rpx 0 30rpx;
-
-    &::before,
-    &::after {
-      content: '';
-      width: 20rpx;
-      height: 20rpx;
-      background-image: url(@/static/images/bubble.png);
-      background-size: contain;
-      margin: 0 10rpx;
-    }
   }
 }
 
-/* 猜你喜欢 */
-.guess {
+.goods {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  padding: 0 20rpx;
-  .guess-item {
-    width: 345rpx;
-    padding: 24rpx 20rpx 20rpx;
-    margin-bottom: 20rpx;
+  padding: 0 20rpx 20rpx;
+  .navigator {
+    width: 342rpx;
+    margin-top: 20rpx;
     border-radius: 10rpx;
-    overflow: hidden;
     background-color: #fff;
   }
-  .image {
-    width: 304rpx;
-    height: 304rpx;
+  .thumb {
+    // width: 305rpx;
+    height: 385rpx;
+    width: 100%;
+    vertical-align: middle;
+  }
+  .desc {
+    padding: 20rpx;
   }
   .name {
-    height: 75rpx;
-    margin: 10rpx 0;
+    height: 58rpx;
     font-size: 26rpx;
-    color: #262626;
-    overflow: hidden;
-    text-overflow: ellipsis;
-    display: -webkit-box;
-    -webkit-line-clamp: 2;
-    -webkit-box-orient: vertical;
   }
   .price {
     line-height: 1;
-    padding-top: 4rpx;
-    color: #cf4444;
-    font-size: 26rpx;
+    color: #e51c23;
+    font-size: 30rpx;
   }
-  .small {
-    font-size: 80%;
+  .symbol {
+    font-size: 70%;
+  }
+  .decimal {
+    font-size: 70%;
   }
 }
 // 加载提示文字
