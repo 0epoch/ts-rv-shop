@@ -35,33 +35,33 @@ onLoad(async () => {
 
 <template>
   <view class="viewport">
-    <view class="tab-wrapper" v-if="confs?.feature">
-      <view class="tabs" v-if="confs.feature.length > 0">
-        <view class="tab-box" v-for="(item, index) in confs.feature" :key="index">
-          <view class="=tab">
-            <navigator
-              hover-class="none"
-              class="navigator"
-              :url="`/pages/product/list?nav_id=${item.id}`"
-            >
-              <image class="cover" :src="item.cover" mode="widthFix" />
-              <view>{{ item.name }}</view>
-            </navigator>
-          </view>
-        </view>
-      </view>
-    </view>
-    <view class="category">
-      <view class="cate-item">
-        <text class="">当季节热</text>
-        <text class="">当季节热</text>
-        <text class="">当季节热</text>
-      </view>
-    </view>
     <!-- 推荐封面图 -->
 
     <!-- 推荐列表 -->
-    <scroll-view>
+    <scroll-view enable-back-to-top refresher-enabled class="scroll-view" scroll-y>
+      <view class="tab-wrapper" v-if="confs?.feature">
+        <view class="tabs" v-if="confs.feature.length > 0">
+          <view class="tab-box" v-for="(item, index) in confs.feature" :key="index">
+            <view class="=tab">
+              <navigator
+                hover-class="none"
+                class="navigator"
+                :url="`/pages/product/list?nav_id=${item.id}&navTitle=${item.name}`"
+              >
+                <image class="cover" :src="item.cover" mode="widthFix" />
+                <view>{{ item.name }}</view>
+              </navigator>
+            </view>
+          </view>
+        </view>
+      </view>
+      <view class="category">
+        <view class="cate-item">
+          <text class="">当季节热</text>
+          <text class="">当季节热</text>
+          <text class="">当季节热</text>
+        </view>
+      </view>
       <view class="goods">
         <navigator
           hover-class="none"
@@ -83,7 +83,6 @@ onLoad(async () => {
       <view class="loading-text">
         {{ finish ? '没有更多数据了~' : '正在加载...' }}
       </view>
-      -->
     </scroll-view>
   </view>
 
@@ -105,7 +104,7 @@ page {
   display: flex;
   flex-direction: column;
   height: 100%;
-  padding: 180rpx 0 0;
+  // padding: 180rpx 0 0;
   position: relative;
 }
 .cover {
@@ -154,6 +153,7 @@ page {
     height: 385rpx;
     width: 100%;
     vertical-align: middle;
+    border-radius: 10rpx;
   }
   .desc {
     padding: 20rpx;

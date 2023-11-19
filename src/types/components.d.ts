@@ -1,13 +1,10 @@
-import XtxSwiper from '@/components/XtxSwiper.vue'
-import XtxGuess from '@/components/XtxGuess.vue'
+import RvAuth from '@/components/RvAuth.vue'
 
 declare module 'vue' {
   export interface GlobalComponents {
-    XtxSwiper: typeof XtxSwiper
-    XtxGuess: typeof XtxGuess
+    RvAuth: typeof RvAuth
   }
 }
 
 // 组件实例类型
-export type XtxGuessInstance = InstanceType<typeof XtxGuess>
-export type XtxSwiperInstance = InstanceType<typeof XtxSwiper>
+export type RvAuthInstance = InstanceType<typeof RvAuth>

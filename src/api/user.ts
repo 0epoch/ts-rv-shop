@@ -1,9 +1,10 @@
-import type { Product, Detail } from '@/types/product'
-import type { Paginate } from '@/types/global'
+import type { Product } from '@/types/product'
+import type { Paginate, PaginateParams } from '@/types/global'
 import type { AddressItem, AddressParams } from '@/types/address'
 
 import { request } from '@/utils/request'
 import type { Profile } from '@/types/member'
+import type { UserCoupon } from '@/types/coupon'
 
 export const wxLogin = (code: string) => {
   return request<Profile>({
@@ -106,5 +107,13 @@ export const balanceBillList = () => {
     method: 'POST',
     url: '/user/balance',
     data: {},
+  })
+}
+
+export const userCouponList = (data?: { params: {}; pagination?: PaginateParams }) => {
+  return request<Paginate<UserCoupon>>({
+    method: 'GET',
+    url: '/user/coupons',
+    data: { ...data?.params, ...data?.pagination },
   })
 }

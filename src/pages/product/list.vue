@@ -11,6 +11,7 @@ const triggered = ref(false)
 const query = defineProps<{
   id?: number
   nav_id?: number
+  navTitle?: string
 }>()
 
 const products = ref<Paginate<Product>>()
@@ -23,7 +24,10 @@ const getProductList = async () => {
   }
 }
 onLoad(() => {
-  console.log(query.nav_id, 'nav_id...........')
+  uni.setNavigationBarTitle({
+    title: query.navTitle ? query.navTitle : '商品列表',
+  })
+  console.log(query.navTitle, 'nav_id...........')
   getProductList()
 })
 
@@ -55,7 +59,8 @@ const onScrolltolower = async () => {
 <template>
   <view class="viewport">
     <view class="caption">
-      <text class="text">猜你喜欢</text>
+      <!-- //TODO:search -->
+      <!-- <text class="text">{{ query.navTitle }}</text> -->
     </view>
     <scroll-view
       enable-back-to-top
@@ -136,6 +141,7 @@ page {
     height: 385rpx;
     width: 100%;
     vertical-align: middle;
+    // border-radius: 10rpx;
   }
   .desc {
     padding: 20rpx;

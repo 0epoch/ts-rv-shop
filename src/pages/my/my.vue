@@ -8,7 +8,6 @@ const orderTypes = [
   { type: '1', text: '待付款', icon: 'icon-currency' },
   { type: '2', text: '待发货', icon: 'icon-gift' },
   { type: '3', text: '待收货', icon: 'icon-check' },
-  { type: '4', text: '待评价', icon: 'icon-comment' },
 ]
 // 获取会员信息
 const memberStore = useMemberStore()
@@ -45,16 +44,20 @@ const { guessRef, onScrolltolower } = useGuessList()
         </navigator>
         <view class="meta">
           <navigator url="/pages/login/login" hover-class="none" class="nickname">
-            未登录
+            点击授权
           </navigator>
-          <view class="extra">
-            <text class="tips">点击登录账号</text>
-          </view>
         </view>
       </view>
-      <navigator class="settings" url="/pagesMember/settings/settings" hover-class="none">
+      <!-- <navigator class="settings" url="/pagesMember/settings/settings" hover-class="none">
         设置
-      </navigator>
+      </navigator> -->
+    </view>
+    <!-- 经销商 -->
+    <view class="aff-wrapper">
+      <view class="affiliate">
+        <text>经销商</text>
+        <view>立即开通</view>
+      </view>
     </view>
     <!-- 我的订单 -->
     <view class="orders">
@@ -83,10 +86,25 @@ const { guessRef, onScrolltolower } = useGuessList()
       </view>
     </view>
 
-    <view class="items">
-      <view>
+    <view class="actions">
+      <view class="action-item">
         <navigator url="/pagesMember/coupon/coupon" class="navigator" hover-class="none">
-          优惠券
+          我的优惠券
+        </navigator>
+      </view>
+      <view class="action-item">
+        <navigator url="/pages/coupon/coupon" class="navigator" hover-class="none">
+          领券中心
+        </navigator>
+      </view>
+      <view class="action-item">
+        <navigator url="/pagesMember/address/address" class="navigator" hover-class="none">
+          地址管理
+        </navigator>
+      </view>
+      <view class="action-item">
+        <navigator url="/pagesMember/profile/profile" class="navigator" hover-class="none">
+          账户设置
         </navigator>
       </view>
     </view>
@@ -103,19 +121,23 @@ page {
 .viewport {
   height: 100%;
   background-repeat: no-repeat;
-  background-image: url(https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/images/center_bg.png);
+  // background-image: url(https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/images/center_bg.png);
+  // background-color: #fff;
   background-size: 100% auto;
 }
 
 /* 用户信息 */
 .profile {
-  margin-top: 30rpx;
+  height: 20%;
+  margin-top: 60rpx;
   position: relative;
+  background-color: #fff;
+  box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
 
   .overview {
     display: flex;
     height: 120rpx;
-    padding: 0 36rpx;
+    padding: 0 30rpx;
     color: #fff;
   }
 
@@ -167,33 +189,48 @@ page {
     border-radius: 30rpx;
   }
 
-  .settings {
-    position: absolute;
-    bottom: 0;
-    right: 40rpx;
-    font-size: 30rpx;
-    color: #fff;
-  }
+  // .settings {
+  //   position: absolute;
+  //   bottom: 0;
+  //   right: 40rpx;
+  //   font-size: 30rpx;
+  //   color: #fff;
+  // }
 }
 
+.aff-wrapper {
+  height: 300rpx;
+  margin: 30rpx 20rpx 0;
+  color: #fff;
+  background-color: #010101;
+  border-radius: 10rpx;
+  box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
+}
+
+.affiliate {
+  padding: 20rpx 35rpx;
+}
 /* 我的订单 */
 .orders {
-  position: relative;
-  z-index: 99;
-  padding: 30rpx;
-  margin: 50rpx 20rpx 0;
+  // position: relative;
+  // z-index: 99;
+  // padding: 30rpx;
+  // margin: 30rpx 20rpx 0;
+  margin-top: 30rpx;
+
   background-color: #fff;
   border-radius: 10rpx;
   box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
 
   .title {
-    height: 40rpx;
+    padding: 25rpx 30rpx;
     line-height: 40rpx;
-    font-size: 28rpx;
+    // font-size: 28rpx;
     color: #1e1e1e;
+    border-bottom: 1rpx solid #eee;
 
     .navigator {
-      font-size: 24rpx;
+      font-size: 28rpx;
       color: #939393;
       float: right;
     }
@@ -203,16 +240,16 @@ page {
     width: 100%;
     display: flex;
     justify-content: space-between;
-    padding: 40rpx 20rpx 10rpx;
+    padding: 30rpx;
     .navigator,
     .contact {
       text-align: center;
-      font-size: 24rpx;
+      font-size: 28rpx;
       color: #333;
       &::before {
         display: block;
         font-size: 60rpx;
-        color: #ff9545;
+        color: #010101;
       }
       &::after {
         border: none;
@@ -228,9 +265,12 @@ page {
   }
 }
 
-/* 猜你喜欢 */
-.guess {
-  background-color: #f7f7f8;
-  margin-top: 20rpx;
+.actions {
+  margin-top: 30rpx;
+  background-color: #fff;
+  .action-item {
+    border-bottom: 1rpx solid #eee;
+    padding: 30rpx;
+  }
 }
 </style>

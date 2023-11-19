@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import { homeConfs } from '@/api/home'
 
-import type { HomeConfs } from '@/types/home'
+import type { ConfItem, HomeConfs } from '@/types/home'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 
@@ -24,8 +24,8 @@ onLoad(async () => {
   isLoading.value = false
 })
 
-const onTap = (id: number) => {
-  uni.navigateTo({ url: `/pages/product/list?nav_id=${id}` })
+const onTap = (item: ConfItem) => {
+  uni.navigateTo({ url: `/pages/product/list?nav_id=${item.id}&navTitle=${item.name}` })
 }
 </script>
 
@@ -33,7 +33,7 @@ const onTap = (id: number) => {
   <view class="carousel">
     <swiper :circular="true" :autoplay="true" :interval="3000" @change="onChange">
       <swiper-item v-for="item in homeBanner?.banner" :key="item.id">
-        <image @tap="onTap(item.id)" mode="aspectFill" class="image" :src="item.cover"></image>
+        <image @tap="onTap(item)" mode="aspectFill" class="image" :src="item.cover"></image>
       </swiper-item>
     </swiper>
     <!-- 指示点 -->

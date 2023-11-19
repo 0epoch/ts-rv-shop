@@ -453,7 +453,7 @@ page {
       line-height: 72rpx;
       font-size: 26rpx;
       color: #fff;
-      border-radius: 78rpx;
+      border-radius: 72rpx;
     }
     .addcart {
       background-color: #010101;
@@ -472,14 +472,17 @@ page {
     .navigator-wrap,
     .icons-button {
       flex: 1;
+      display: flex;
+      flex-direction: column;
       text-align: center;
       line-height: 1.4;
       padding: 0;
       margin: 0;
       border-radius: 0;
       font-size: 20rpx;
-      color: #333;
-      background-color: #fff;
+      color: #fff;
+      background-color: #010101;
+      border-radius: 50%;
       &::after {
         border: none;
       }

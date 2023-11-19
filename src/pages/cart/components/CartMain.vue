@@ -2,11 +2,10 @@
 import type { InputNumberBoxEvent } from '@/components/vk-data-input-number-box/vk-data-input-number-box'
 import { useGuessList } from '@/composables'
 import { cartProductList, calcCart, cartProductDel } from '@/api/cart'
-import { deleteMemberCartAPI, putMemberCartSelectedAPI } from '@/services/cart'
 import { useMemberStore } from '@/stores'
 import type { CartItem, CartResult } from '@/types/cart'
 import { onShow } from '@dcloudio/uni-app'
-import { computed, ref } from 'vue'
+import { computed, ref, watch } from 'vue'
 
 defineProps<{
   safeAreaInsetBottom?: boolean
@@ -15,6 +14,11 @@ defineProps<{
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
 const memberStore = useMemberStore()
+watch(memberStore, (newValue, oldValue) => {
+  if (newValue.profile) {
+    gerUserCart()
+  }
+})
 
 const cartResult = ref<CartResult>()
 const cartList = ref<CartItem[]>([])
@@ -137,11 +141,6 @@ const onCheckout = () => {
       success: async (res) => {
         if (res.confirm) {
           await deleteUserCartProducts()
-          // editActive.value = false
-          // const skusId = selectedCartList.value.map((item) => {
-          //   return item.sku_id
-          // })
-          // await cartProductDel(skusId)
           gerUserCart()
         }
       },
@@ -244,15 +243,11 @@ const { guessRef, onScrolltolower } = useGuessList()
     <!-- 未登录: 提示登录 -->
     <view class="login-blank" v-else>
       <text class="text">登录后可查看购物车中的商品</text>
-      <navigator url="/pages/login/login" hover-class="none">
-        <button class="button">去登录</button>
-      </navigator>
     </view>
-    <!-- 猜你喜欢 -->
-    <XtxGuess ref="guessRef" />
     <!-- 底部占位空盒子 -->
     <view class="toolbar-height"></view>
   </scroll-view>
+  <RvAuth></RvAuth>
 </template>
 
 <style lang="scss">
@@ -286,11 +281,12 @@ const { guessRef, onScrolltolower } = useGuessList()
     color: #666;
 
     .label {
-      color: #fff;
+      color: #010101;
       padding: 10rpx 15rpx;
       border-radius: 4rpx;
       font-size: 24rpx;
-      background-color: #010101;
+      border: 1rpx solid #010101;
+      // background-color: #010101;
       // margin-right: 10rpx;
     }
   }

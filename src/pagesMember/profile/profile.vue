@@ -139,12 +139,12 @@ const onSubmit = async () => {
       <!-- 表单内容 -->
       <view class="form-content">
         <view class="form-item">
-          <text class="label">账号</text>
-          <text class="account placeholder">{{ profile?.account }}</text>
+          <text class="label">姓名</text>
+          <input class="input" type="text" placeholder="请填写姓名" v-model="profile.name" />
         </view>
         <view class="form-item">
-          <text class="label">昵称</text>
-          <input class="input" type="text" placeholder="请填写昵称" v-model="profile.nickname" />
+          <text class="label">手机号</text>
+          <text class="account placeholder">{{ profile?.account }}</text>
         </view>
         <view class="form-item">
           <text class="label">性别</text>
@@ -188,10 +188,6 @@ const onSubmit = async () => {
           </picker>
         </view>
         <!-- #endif -->
-        <view class="form-item">
-          <text class="label">职业</text>
-          <input class="input" type="text" placeholder="请填写职业" v-model="profile.profession" />
-        </view>
       </view>
       <!-- 提交按钮 -->
       <button @tap="onSubmit" class="form-button">保 存</button>
@@ -208,7 +204,7 @@ page {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-image: url(https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/images/order_bg.png);
+  background-image: url('/static/images/order_bg.png');
   background-size: auto 420rpx;
   background-repeat: no-repeat;
 }

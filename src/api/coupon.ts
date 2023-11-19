@@ -1,7 +1,8 @@
 import type { Product, Detail } from '@/types/product'
-import type { Paginate } from '@/types/global'
+import type { Paginate, PaginateParams } from '@/types/global'
 
 import { request } from '@/utils/request'
+import type { Coupon, UserCoupon } from '@/types/coupon'
 
 /**
  * @param data
@@ -50,10 +51,21 @@ export const couponReceive = (data: { coupon_id: string }) => {
 /**
  * @param data
  */
-export const couponsList = (data: { send_method: string }) => {
-  return request<Paginate<Product>>({
+export const couponList = (data: { pagination?: PaginateParams }) => {
+  return request<Paginate<Coupon>>({
     method: 'GET',
     url: '/coupons',
     data,
+  })
+}
+
+/**
+ * @param data
+ */
+export const receiveCoupon = (coupon_id: number) => {
+  return request<UserCoupon>({
+    method: 'POST',
+    url: '/coupon/receive',
+    data: { coupon_id },
   })
 }
