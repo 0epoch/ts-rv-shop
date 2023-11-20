@@ -25,7 +25,7 @@ onLoad(async () => {
 })
 
 const onTap = (item: ConfItem) => {
-  uni.navigateTo({ url: `/pages/product/list?nav_id=${item.id}&navTitle=${item.name}` })
+  uni.navigateTo({ url: `/pages/product/detail?id=${item.related}&navTitle=${item.name}` })
 }
 </script>
 

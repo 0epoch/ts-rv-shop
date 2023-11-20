@@ -4,7 +4,6 @@ import { OrderState, orderStateList } from '@/services/constants'
 import { orderDetail } from '@/api/order'
 import {
   deleteMemberOrderAPI,
-  getMemberOrderByIdAPI,
   getMemberOrderCancelByIdAPI,
   getMemberOrderLogisticsByIdAPI,
   getMemberOrderConsignmentByIdAPI,
@@ -16,10 +15,8 @@ import { ref } from 'vue'
 import PageSkeleton from './components/PageSkeleton.vue'
 import { getPayMockAPI, getPayWxPayMiniPayAPI } from '@/services/pay'
 
-// 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
-// 猜你喜欢
-const { guessRef, onScrolltolower } = useGuessList()
+
 // 弹出层组件
 const popup = ref<UniHelper.UniPopupInstance>()
 // 取消原因列表
@@ -31,16 +28,13 @@ const reasonList = ref([
   '商品降价',
   '其它',
 ])
-// 订单取消原因
 const reason = ref('')
-// 复制内容
 const onCopy = (id: string) => {
-  // 设置系统剪贴板的内容
   uni.setClipboardData({ data: id })
 }
-// 获取页面参数
+
 const query = defineProps<{
-  id: string
+  id: number
 }>()
 
 // 获取页面栈
@@ -88,6 +82,7 @@ onReady(() => {
 const order = ref<OrderResult>()
 const getOrderDetail = async () => {
   const rs = await orderDetail({ order_id: query.id })
+  console.log(rs, 'new or......')
   order.value = rs.data
 }
 
@@ -105,10 +100,6 @@ const getOrderDetail = async () => {
 
 // 获取物流信息
 const logisticList = ref<LogisticItem[]>([])
-const getMemberOrderLogisticsByIdData = async () => {
-  const res = await getMemberOrderLogisticsByIdAPI(query.id)
-  logisticList.value = res.result.list
-}
 
 onLoad(() => {
   getOrderDetail()
@@ -117,7 +108,7 @@ onLoad(() => {
 // 倒计时结束事件
 const onTimeup = () => {
   // 修改订单状态为已取消
-  order.value!.order_status = OrderState.CANCELED
+  // order.value!.order_status = OrderState.CANCELED
 }
 
 // 订单支付
@@ -213,13 +204,7 @@ const onOrderCancel = async () => {
       <view class="title">订单详情</view>
     </view>
   </view>
-  <scroll-view
-    enable-back-to-top
-    scroll-y
-    class="viewport"
-    id="scroller"
-    @scrolltolower="onScrolltolower"
-  >
+  <scroll-view enable-back-to-top scroll-y class="viewport" id="scroller">
     <template v-if="order">
       <!-- 订单状态 -->
       <view class="overview" :style="{ paddingTop: safeAreaInsets!.top + 20 + 'px' }">
@@ -334,9 +319,6 @@ const onOrderCancel = async () => {
         </view>
       </view>
 
-      <!-- 猜你喜欢 -->
-      <XtxGuess ref="guessRef" />
-
       <!-- 底部操作栏 -->
       <view class="toolbar-height" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }"></view>
       <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
@@ -448,7 +430,9 @@ page {
   line-height: 1;
   padding-bottom: 30rpx;
   color: #fff;
-  background-image: url(https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/images/order_bg.png);
+  // background-image: url(/static/images/order_bg.png);
+  background-color: #010101;
+
   background-size: cover;
 
   .status {
@@ -508,7 +492,7 @@ page {
   }
 
   .locate {
-    background-image: url(https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/images/locate.png);
+    background-image: url('/static/images/locate.png');
 
     .user {
       font-size: 26rpx;

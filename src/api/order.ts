@@ -63,7 +63,7 @@ export const cancelOrder = (data: { order_id: string }) => {
 /**
  * @param data
  */
-export const orderDetail = (data: { order_id: string }) => {
+export const orderDetail = (data: { order_id: number }) => {
   return request<OrderResult>({
     method: 'POST',
     url: '/order/detail',

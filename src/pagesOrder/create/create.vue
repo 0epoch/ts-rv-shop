@@ -1,48 +1,21 @@
 <script setup lang="ts">
-import {
-  getMemberOrderPreAPI,
-  getMemberOrderPreNowAPI,
-  getMemberOrderRepurchaseByIdAPI,
-  postMemberOrderAPI,
-} from '@/services/order'
 import { checkoutOrder, createOrder } from '@/api/order'
 import { useAddressStore } from '@/stores/modules/address'
-import type { OrderPreResult } from '@/types/order'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import type { CartResult } from '@/types/cart'
 
-// 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 订单备注
 const desc = ref('')
 
-// 页面参数
 const query = defineProps<{
   skuId?: string
   count?: string
   orderId?: string
 }>()
 
-// 获取订单信息
 const checkout = ref<CartResult>()
-// const getMemberOrderPreData = async () => {
-//   if (query.count && query.skuId) {
-//     const res = await getMemberOrderPreNowAPI({
-//       count: query.count,
-//       skuId: query.skuId,
-//     })
-//     orderPre.value = res.result
-//   } else if (query.orderId) {
-//     // 再次购买
-//     const res = await getMemberOrderRepurchaseByIdAPI(query.orderId)
-//     orderPre.value = res.result
-//   } else {
-//     const res = await getMemberOrderPreAPI()
-//     orderPre.value = res.result
-//   }
-// }
-
 const getCheckoutResult = async () => {
   const rs = await checkoutOrder()
   checkout.value = rs.data
@@ -61,11 +34,9 @@ const selecteAddress = computed(() => {
 
 // 提交订单
 const onOrderSubmit = async () => {
-  // 没有收货地址提醒
   if (!selecteAddress.value?.id) {
     return uni.showToast({ icon: 'none', title: '请选择收货地址' })
   }
-  // 发送请求
   const rs = await createOrder({
     address_id: selecteAddress.value?.id,
     coupon_id: 0,
@@ -75,7 +46,6 @@ const onOrderSubmit = async () => {
     pay_amount: checkout.value?.checkout_amount!,
     skus: [],
   })
-  // 关闭当前页面，跳转到订单详情，传递订单id
   uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${rs.data.id}` })
 }
 </script>
@@ -152,14 +122,9 @@ const onOrderSubmit = async () => {
         <text class="text">经销商折扣: </text>
         <text class="number symbol">{{ checkout?.discount_amount.toFixed(2) }}</text>
       </view>
-      <view class="item total">
-        <text class="text">合计: </text>
-        <text class="number symbol">{{ checkout?.checkout_amount.toFixed(2) }}</text>
-      </view>
     </view>
   </scroll-view>
 
-  <!-- 吸底工具栏 -->
   <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
     <view class="total-pay symbol">
       <text class="number">{{ checkout?.checkout_amount.toFixed(2) }}</text>
@@ -190,8 +155,7 @@ page {
   padding: 30rpx 30rpx 30rpx 84rpx;
   font-size: 26rpx;
   border-radius: 10rpx;
-  background: url(https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/images/locate.png)
-    20rpx center / 50rpx no-repeat #fff;
+  background: url('/static/images/locate.png') 20rpx center / 50rpx no-repeat #fff;
   position: relative;
 
   .icon {

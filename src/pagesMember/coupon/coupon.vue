@@ -5,21 +5,41 @@ import type { Paginate } from '@/types/global'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref, computed } from 'vue'
 
+const tabs = [
+  { id: 0, title: '可使用', status: 'unused' },
+  { id: 1, title: '已使用', status: 'used' },
+  { id: 2, title: '已过期', status: 'expired' },
+]
 const userCoupons = ref<Paginate<UserCoupon>>()
+const activeTab = ref(0)
+
+const onTapTab = async (id: number, status: string) => {
+  activeTab.value = id
+  const rs = await userCouponList({ params: { status } })
+  userCoupons.value = rs.data
+}
+
 const getUserCouponList = async () => {
   const rs = await userCouponList()
   userCoupons.value = rs.data
 }
 
-// const couponValue = computed(() => {
-//   // return count.value * 2
-// })
 onLoad(() => {
   getUserCouponList()
 })
 </script>
 
 <template>
+  <view class="tabs">
+    <text
+      v-for="(item, index) in tabs"
+      :key="item.id"
+      class="text"
+      :class="{ active: index === activeTab }"
+      @tap="onTapTab(item.id, item.status)"
+      >{{ item.title }}</text
+    >
+  </view>
   <view class="viewport">
     <view class="coupon" v-for="item in userCoupons?.data" :key="item.id">
       <view class="overview">
@@ -34,7 +54,7 @@ onLoad(() => {
           }}</text
         >
       </view>
-      <view class="price">{{
+      <view class="price" :class="{ invalid: activeTab !== 0 }">{{
         item.coupon.type === 'discount'
           ? item.coupon.value * 10 + '折'
           : Math.floor(item.coupon.value) + '元'
@@ -45,7 +65,7 @@ onLoad(() => {
 
 <style lang="scss" scoped>
 page {
-  background-color: #f4f4f4;
+  background-color: #fff;
 }
 .viewport {
   height: 100vh;
@@ -54,6 +74,25 @@ page {
   padding: 20rpx;
   background-color: #f4f4f4;
 }
+
+.tabs {
+  display: flex;
+  justify-content: space-evenly;
+  height: 120rpx;
+  line-height: 90rpx;
+  font-size: 28rpx;
+  box-shadow: 0 2rpx 3rpx rgba(200, 200, 200, 0.3);
+  color: #333;
+  background-color: #fff;
+  .text {
+    margin: 0 20rpx;
+    line-height: 120rpx;
+    color: #939393;
+  }
+  .active {
+    color: #010101;
+  }
+}
 .coupon {
   display: flex;
   justify-content: space-between;
@@ -61,7 +100,7 @@ page {
   width: 100%;
   height: 160rpx;
   padding: 20rpx 25rpx;
-  margin-top: 15rpx;
+  margin-top: 5rpx;
   background-color: #fff;
   border-radius: 8rpx;
   mask-image: radial-gradient(circle at right 200rpx bottom 8rpx, transparent 8rpx, red 8.5rpx),
@@ -95,6 +134,9 @@ page {
     align-items: center;
     margin-right: 30rpx;
     color: #e51c23;
+  }
+  .invalid {
+    color: #939393;
   }
 }
 </style>
