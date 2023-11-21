@@ -5,6 +5,7 @@ import type { GoodsItem } from './global'
 export type ProductParams = {
   keyword?: string
   nav_id?: number
+  cid_path?: number
 }
 
 /** 商品信息 */

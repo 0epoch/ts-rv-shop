@@ -1,57 +1,45 @@
 <script setup lang="ts">
 import { addrList, addrRemove } from '@/api/user'
-import { deleteMemberAddressByIdAPI, getMemberAddressAPI } from '@/services/address'
 import { useAddressStore } from '@/stores/modules/address'
 import type { AddressItem } from '@/types/address'
 import { onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 
-// 获取收货地址列表数据
 const addressList = ref<AddressItem[]>([])
 const getMemberAddrList = async () => {
   const rs = await addrList()
   addressList.value = rs.data
 }
 
-// 初始化调用(页面显示)
 onShow(() => {
   getMemberAddrList()
 })
 
-// 删除收货地址
 const onDeleteAddress = (id: string) => {
-  // 二次确认
   uni.showModal({
     content: '删除地址?',
     confirmColor: '#010101',
     success: async (res) => {
       if (res.confirm) {
-        // 根据id删除收货地址
         await addrRemove(id)
-        // 重新获取收货地址列表
         getMemberAddrList()
       }
     },
   })
 }
 
-// 修改收货地址
 const onChangeAddress = (item: AddressItem) => {
-  // 修改地址
   const addressStore = useAddressStore()
   addressStore.changeSelectedAddress(item)
-  // 返回上一页
   uni.navigateBack()
 }
 </script>
 
 <template>
   <view class="viewport">
-    <!-- 地址列表 -->
     <scroll-view enable-back-to-top class="scroll-view" scroll-y>
       <view v-if="addressList.length" class="address">
         <uni-swipe-action class="address-list">
-          <!-- 收货地址项 -->
           <uni-swipe-action-item class="item" v-for="item in addressList" :key="item.id">
             <view class="item-content" @tap="onChangeAddress(item)">
               <view class="user">
@@ -60,7 +48,7 @@ const onChangeAddress = (item: AddressItem) => {
                 <text v-if="item.is_default" class="badge">默认</text>
               </view>
               <view class="locate">{{ item.full_location }} {{ item.addr }}</view>
-              <!-- H5 端需添加 .prevent 阻止链接的默认行为 -->
+
               <navigator
                 class="edit"
                 hover-class="none"
@@ -71,7 +59,7 @@ const onChangeAddress = (item: AddressItem) => {
                 修改
               </navigator>
             </view>
-            <!-- 右侧插槽 -->
+
             <template #right>
               <button @tap="onDeleteAddress(item.id)" class="delete-button">删除</button>
             </template>
@@ -80,7 +68,7 @@ const onChangeAddress = (item: AddressItem) => {
       </view>
       <view v-else class="blank">暂无收货地址</view>
     </scroll-view>
-    <!-- 添加按钮 -->
+
     <view class="add-btn">
       <navigator hover-class="none" url="/pagesMember/address-form/address-form">
         新建地址
@@ -95,7 +83,6 @@ page {
   overflow: hidden;
 }
 
-/* 删除按钮 */
 .delete-button {
   display: flex;
   justify-content: center;

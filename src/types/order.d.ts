@@ -69,9 +69,7 @@ export type Order = {
   confirm_receipt_time: string
 }
 
-/** 订单详情 返回信息 */
 export type OrderResult = Order & {
-  /** 倒计时--剩余的秒数 -1 表示已经超时，正数表示倒计时未结束 */
   countdown: number
   skus: OrderSku[]
 }

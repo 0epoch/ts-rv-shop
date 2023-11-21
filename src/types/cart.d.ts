@@ -1,3 +1,4 @@
+import type { UserCoupon } from './coupon'
 export type CartItem = {
   cart_id: string
   sku_id: string
@@ -6,6 +7,7 @@ export type CartItem = {
   title: string
   qty: number
   use_aff: number
+  original_price: nulber
   price: number
   aff_price: number
   stock: number
@@ -22,4 +24,5 @@ export type CartResult = {
   coupon_amount: number
   discount_amount: number
   promotion_amount: number
+  usable_coupons: UserCoupon[]
 }

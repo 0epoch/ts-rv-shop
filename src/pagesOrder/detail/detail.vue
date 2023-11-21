@@ -1,5 +1,4 @@
 <script setup lang="ts">
-import { useGuessList } from '@/composables'
 import { OrderState, orderStateList } from '@/services/constants'
 import { orderDetail } from '@/api/order'
 import {
@@ -319,7 +318,6 @@ const onOrderCancel = async () => {
         </view>
       </view>
 
-      <!-- 底部操作栏 -->
       <view class="toolbar-height" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }"></view>
       <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
         <!-- 待付款状态:展示支付按钮 -->
@@ -387,7 +385,6 @@ page {
   top: 0;
   left: 0;
   z-index: 9;
-  /* background-color: #f8f8f8; */
   background-color: transparent;
 
   .wrap {
@@ -430,8 +427,8 @@ page {
   line-height: 1;
   padding-bottom: 30rpx;
   color: #fff;
-  // background-image: url(/static/images/order_bg.png);
-  background-color: #010101;
+  background-image: url('/static/images/order_bg.png');
+  // background-color: #010101;
 
   background-size: cover;
 

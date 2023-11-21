@@ -4,10 +4,18 @@ import { useAddressStore } from '@/stores/modules/address'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import type { CartResult } from '@/types/cart'
+import type { UserCoupon } from '@/types/coupon'
 
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 订单备注
 const desc = ref('')
+const checkedCoupon = ref(0)
+
+const assignCouponId = ref(0)
+const popup = ref<{
+  open: (type?: UniHelper.UniPopupType) => void
+  close: () => void
+}>()
 
 const query = defineProps<{
   skuId?: string
@@ -25,6 +33,11 @@ const getCheckoutResult = async () => {
 onLoad(() => {
   getCheckoutResult()
 })
+
+const onChangeChecked = async (item: UserCoupon) => {
+  checkedCoupon.value = item.id
+  popup?.value?.close()
+}
 
 const addressStore = useAddressStore()
 // 收货地址
@@ -88,7 +101,7 @@ const onOrderSubmit = async () => {
           <view class="attrs">{{ item.attrs }}</view>
           <view class="prices">
             <view class="pay-price symbol">{{ item.price }}</view>
-            <view class="price symbol">{{ item.price }}</view>
+            <view class="price symbol">{{ item.original_price }}</view>
           </view>
           <view class="count">x{{ item.qty }}</view>
         </view>
@@ -114,25 +127,51 @@ const onOrderSubmit = async () => {
         <text class="text">商品总价: </text>
         <text class="number symbol">{{ checkout?.amount.toFixed(2) }}</text>
       </view>
-      <view class="item">
-        <text class="text">优惠券: </text>
-        <text class="number symbol">{{ checkout?.coupon_amount.toFixed(2) }}</text>
+      <view class="item" v-if="checkout?.coupon_amount && checkout?.coupon_amount > 0">
+        <text class="text" @tap="popup?.open()">优惠券: </text>
+        <text class="number symbol">{{ checkout?.coupon_amount }}</text>
       </view>
-      <view class="item">
+      <view class="item" v-if="checkout?.discount_amount && checkout.discount_amount > 0">
         <text class="text">经销商折扣: </text>
-        <text class="number symbol">{{ checkout?.discount_amount.toFixed(2) }}</text>
+        <text class="number symbol">{{ checkout?.discount_amount }}</text>
       </view>
     </view>
   </scroll-view>
 
   <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
     <view class="total-pay symbol">
-      <text class="number">{{ checkout?.checkout_amount.toFixed(2) }}</text>
+      <text class="number">{{ checkout?.checkout_amount }}</text>
     </view>
     <view class="button" :class="{ disabled: !selecteAddress?.id }" @tap="onOrderSubmit">
       提交订单
     </view>
   </view>
+
+  <uni-popup ref="popup" type="bottom" background-color="#fff">
+    <scroll-view enable-back-to-top refresher-enabled class="panel" scroll-y>
+      <text class="close icon-close" @tap="popup?.close()"></text>
+
+      <view class="coupon" v-for="item in checkout?.usable_coupons" :key="item.id">
+        <text
+          @tap="onChangeChecked(item)"
+          class="checkbox"
+          :class="{ checked: item.id === checkedCoupon }"
+        ></text>
+        <view class="overview">
+          <view class="meta">
+            <text class="title">{{ item.coupon.title }}</text>
+            <text class="desc ellipsis">{{ item.coupon.desc }}</text>
+          </view>
+
+          <text class="time"
+            >有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{
+              item.end_time.replace(/-/g, '.').substring(0, 10)
+            }}</text
+          >
+        </view>
+      </view>
+    </scroll-view>
+  </uni-popup>
 </template>
 
 <style lang="scss">
@@ -289,7 +328,6 @@ page {
   }
 }
 
-/* 结算清单 */
 .settlement {
   margin: 20rpx;
   padding: 0 20rpx;
@@ -312,7 +350,6 @@ page {
   }
 }
 
-/* 吸底工具栏 */
 .toolbar {
   position: fixed;
   left: 0;
@@ -350,6 +387,89 @@ page {
 
   .disabled {
     opacity: 0.6;
+  }
+}
+
+// --------------------- coupon panel ---------------
+.panel {
+  height: 70vh;
+  padding: 0 30rpx;
+  border-radius: 10rpx 10rpx 0 0;
+  position: relative;
+  background-color: #f4f4f4;
+  .close {
+    position: absolute;
+    right: 24rpx;
+    top: 24rpx;
+  }
+  .checkbox {
+    position: absolute;
+    top: 0;
+    left: 0;
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 80rpx;
+    height: 100%;
+
+    &::before {
+      content: '\e6cd';
+      font-family: 'erabbit' !important;
+      font-size: 40rpx;
+      color: #444;
+    }
+
+    &.checked::before {
+      content: '\e6cc';
+      color: #010101;
+    }
+  }
+}
+.coupon {
+  display: flex;
+  justify-content: space-between;
+  // align-items: center;
+  width: 100%;
+  height: 160rpx;
+  padding: 20rpx 25rpx;
+  margin-top: 5rpx;
+  background-color: #fff;
+  border-radius: 8rpx;
+  mask-image: radial-gradient(circle at right 200rpx bottom 8rpx, transparent 8rpx, red 8.5rpx),
+    radial-gradient(closest-side circle at 50%, red 99%, transparent 100%);
+  mask-size: 100%, 2rpx 12rpx;
+  mask-repeat: repeat, repeat-y;
+  mask-position: 0 8rpx, calc(100% - 199.5rpx);
+  mask-composite: source-out;
+  mask-composite: subtract;
+  .overview {
+    flex: 70%;
+    flex-grow: 0;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-around;
+    .meta {
+      display: flex;
+      flex-direction: column;
+    }
+    .desc {
+      padding: 5rpx 0;
+    }
+    .desc,
+    .time {
+      color: #939393;
+      font-size: 20rpx;
+    }
+  }
+  .price {
+    display: flex;
+    align-items: center;
+    margin-right: 30rpx;
+    color: #e51c23;
+  }
+  .invalid {
+    color: #939393;
   }
 }
 </style>

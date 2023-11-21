@@ -163,13 +163,9 @@ const onBuyNow = (ev: SkuPopupEvent) => {
           <text class="label">选择</text>
           <text class="text ellipsis"> {{ selectArrText }} </text>
         </view>
-        <view @tap="openPopup('address')" class="item arrow">
-          <text class="label">送至</text>
-          <text class="text ellipsis"> 请选择收获地址 </text>
-        </view>
         <view @tap="openPopup('service')" class="item arrow">
           <text class="label">服务</text>
-          <text class="text ellipsis"> 无忧退 快速退款 免费包邮 </text>
+          <text class="text ellipsis"> 7天无理由退款 免费包邮 </text>
         </view>
       </view>
     </view>
