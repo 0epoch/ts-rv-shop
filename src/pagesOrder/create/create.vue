@@ -112,15 +112,15 @@ const onOrderSubmit = async () => {
     <view class="settlement">
       <view class="item">
         <text class="text">商品总价: </text>
-        <text class="number symbol">{{ checkout?.amount.toFixed(2) }}</text>
+        <text class="number symbol">{{ checkout?.amount }}</text>
       </view>
       <view class="item">
         <text class="text">优惠券: </text>
-        <text class="number symbol">{{ checkout?.coupon_amount.toFixed(2) }}</text>
+        <text class="number symbol">{{ checkout?.coupon_amount }}</text>
       </view>
       <view class="item">
         <text class="text">经销商折扣: </text>
-        <text class="number symbol">{{ checkout?.discount_amount.toFixed(2) }}</text>
+        <text class="number symbol">{{ checkout?.discount_amount }}</text>
       </view>
     </view>
   </scroll-view>

@@ -55,13 +55,13 @@ onLoad(async () => {
           </view>
         </view>
       </view>
-      <view class="category">
+      <!-- <view class="category">
         <view class="cate-item">
           <text class="">当季节热</text>
           <text class="">当季节热</text>
           <text class="">当季节热</text>
         </view>
-      </view>
+      </view> -->
       <view class="goods">
         <navigator
           hover-class="none"
@@ -85,26 +85,18 @@ onLoad(async () => {
       </view>
     </scroll-view>
   </view>
-
-  <!-- ------------------------ -->
 </template>
 
 <style lang="scss">
-$page-padding: 10px;
-$grid-gap: 10px;
-
-// -----------------------------------------------------------------------------
 page {
   height: 100%;
   background-color: #f4f4f4;
 }
 
-// --------------------------------------- nav
 .viewport {
   display: flex;
   flex-direction: column;
   height: 100%;
-  // padding: 180rpx 0 0;
   position: relative;
 }
 .cover {
@@ -150,7 +142,7 @@ page {
   }
   .thumb {
     // width: 305rpx;
-    height: 385rpx;
+    height: 420rpx;
     width: 100%;
     vertical-align: middle;
     border-radius: 10rpx;

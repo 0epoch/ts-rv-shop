@@ -159,7 +159,6 @@ const { guessRef, onScrolltolower } = useGuessList()
   <scroll-view enable-back-to-top scroll-y class="scroll-view" @scrolltolower="onScrolltolower">
     <!-- 已登录: 显示购物车 -->
     <template v-if="memberStore.profile">
-      <!-- 购物车列表 -->
       <view class="cart-list" v-if="showCartList">
         <view class="edit">
           <text @tap="onChangeSelectedAll" class="all" :class="{ checked: isSelectedAll }"
@@ -168,13 +167,9 @@ const { guessRef, onScrolltolower } = useGuessList()
 
           <text class="label" @tap="onEdit">{{ editText }}</text>
         </view>
-        <!-- 滑动操作分区 -->
         <uni-swipe-action>
-          <!-- 滑动操作项 -->
           <uni-swipe-action-item v-for="item in cartList" :key="item.sku_id" class="cart-swipe">
-            <!-- 商品信息 -->
             <view class="goods">
-              <!-- 选中状态 -->
               <text
                 @tap="onChangeSelected(item)"
                 class="checkbox"
@@ -192,7 +187,6 @@ const { guessRef, onScrolltolower } = useGuessList()
                   <view class="price">{{ item.price }}</view>
                 </view>
               </navigator>
-              <!-- 商品数量 -->
               <view class="count">
                 <vk-data-input-number-box
                   v-model="item.qty"
@@ -212,14 +206,14 @@ const { guessRef, onScrolltolower } = useGuessList()
           </uni-swipe-action-item>
         </uni-swipe-action>
       </view>
-      <!-- 购物车空状态 -->
+
       <view class="cart-blank" v-else>
         <text class="text">购物车空空如也~</text>
         <navigator url="/pages/product/list" hover-class="none">
           <button class="button">去逛逛</button>
         </navigator>
       </view>
-      <!-- 吸底工具栏 -->
+
       <view
         v-if="showCartList"
         class="toolbar"
@@ -239,18 +233,17 @@ const { guessRef, onScrolltolower } = useGuessList()
         </view>
       </view>
     </template>
-    <!-- 未登录: 提示登录 -->
+    <!-- 未登录 -->
     <view class="login-blank" v-else>
       <text class="text">登录后可查看购物车中的商品</text>
     </view>
-    <!-- 底部占位空盒子 -->
+
     <view class="toolbar-height"></view>
   </scroll-view>
   <RvAuth></RvAuth>
 </template>
 
 <style lang="scss">
-// 根元素
 :host {
   height: 100vh;
   display: flex;
@@ -259,17 +252,13 @@ const { guessRef, onScrolltolower } = useGuessList()
   background-color: #f7f7f8;
 }
 
-// 滚动容器
 .scroll-view {
   flex: 1;
   background-color: #f7f7f8;
 }
 
-// 购物车列表
 .cart-list {
   padding: 0 20rpx;
-
-  // 优惠提示
   .edit {
     display: flex;
     justify-content: space-between;
@@ -285,12 +274,9 @@ const { guessRef, onScrolltolower } = useGuessList()
       border-radius: 4rpx;
       font-size: 24rpx;
       border: 1rpx solid #010101;
-      // background-color: #010101;
-      // margin-right: 10rpx;
     }
   }
 
-  // 购物车商品
   .goods {
     display: flex;
     padding: 20rpx 20rpx 20rpx 80rpx;
@@ -425,7 +411,6 @@ const { guessRef, onScrolltolower } = useGuessList()
   }
 }
 
-// 空状态
 .cart-blank,
 .login-blank {
   display: flex;
@@ -472,7 +457,6 @@ const { guessRef, onScrolltolower } = useGuessList()
   content: '\e6cc';
   color: #010101;
 }
-// 吸底工具栏
 .toolbar {
   position: fixed;
   left: 0;
@@ -533,7 +517,6 @@ const { guessRef, onScrolltolower } = useGuessList()
     }
   }
 }
-// 底部占位空盒子
 .toolbar-height {
   height: 100rpx;
 }

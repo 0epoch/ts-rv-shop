@@ -112,11 +112,11 @@ const onBuyNow = (ev: SkuPopupEvent) => {
 </script>
 
 <template>
-  <!-- SKU弹窗组件 -->
   <vk-data-goods-sku-popup
     v-model="skuVisible"
     :localdata="localdata"
     :mode="mode"
+    price-color="#e51c23"
     add-cart-background-color="#010101"
     buy-now-background-color="#010101"
     add-cart-text="确定"
@@ -125,16 +125,14 @@ const onBuyNow = (ev: SkuPopupEvent) => {
       color: '#fff',
       borderColor: '#010101',
       backgroundColor: '#010101',
-      borderRadius: '8rpx',
+      borderRadius: '10rpx',
     }"
     :btn-style="{ color: '#010101' }"
     @add-cart="onAddCart"
     @buy-now="onBuyNow"
   />
   <scroll-view enable-back-to-top scroll-y class="viewport">
-    <!-- 基本信息 -->
     <view class="goods">
-      <!-- 商品主图 -->
       <view class="preview">
         <swiper @change="onChange" circular>
           <swiper-item v-for="item in productDetail?.main_pictures" :key="item">
@@ -163,10 +161,10 @@ const onBuyNow = (ev: SkuPopupEvent) => {
           <text class="label">选择</text>
           <text class="text ellipsis"> {{ selectArrText }} </text>
         </view>
-        <view @tap="openPopup('address')" class="item arrow">
+        <!-- <view @tap="openPopup('address')" class="item arrow">
           <text class="label">送至</text>
           <text class="text ellipsis"> 请选择收获地址 </text>
-        </view>
+        </view> -->
         <view @tap="openPopup('service')" class="item arrow">
           <text class="label">服务</text>
           <text class="text ellipsis"> 无忧退 快速退款 免费包邮 </text>
@@ -188,7 +186,6 @@ const onBuyNow = (ev: SkuPopupEvent) => {
     </view>
   </scroll-view>
 
-  <!-- 用户操作 -->
   <view
     v-if="productDetail"
     class="toolbar"
@@ -207,7 +204,6 @@ const onBuyNow = (ev: SkuPopupEvent) => {
     </view>
   </view>
 
-  <!-- uni-ui 弹出层 -->
   <uni-popup ref="popup" type="bottom" background-color="#fff">
     <AddressPanel v-if="popupName === 'address'" @close="popup?.close()" />
     <ServicePanel v-if="popupName === 'service'" @close="popup?.close()" />
@@ -264,7 +260,6 @@ page {
   }
 }
 
-/* 商品信息 */
 .goods {
   background-color: #fff;
   .preview {
@@ -360,7 +355,6 @@ page {
   }
 }
 
-/* 商品详情 */
 .detail {
   padding-left: 20rpx;
   .content {
@@ -385,47 +379,6 @@ page {
     }
     .value {
       flex: 1;
-    }
-  }
-}
-
-/* 同类推荐 */
-.similar {
-  .content {
-    padding: 0 20rpx 20rpx;
-    background-color: #f4f4f4;
-    display: flex;
-    flex-wrap: wrap;
-    .goods {
-      width: 340rpx;
-      padding: 24rpx 20rpx 20rpx;
-      margin: 20rpx 7rpx;
-      border-radius: 10rpx;
-      background-color: #fff;
-    }
-    .image {
-      width: 300rpx;
-      height: 260rpx;
-    }
-    .name {
-      height: 80rpx;
-      margin: 10rpx 0;
-      font-size: 26rpx;
-      color: #262626;
-    }
-    .price {
-      line-height: 1;
-      font-size: 20rpx;
-      color: #e51c23;
-    }
-    .number {
-      font-size: 26rpx;
-      margin-left: 2rpx;
-    }
-  }
-  navigator {
-    &:nth-child(even) {
-      margin-right: 0;
     }
   }
 }
@@ -468,7 +421,6 @@ page {
     display: flex;
     align-items: center;
     flex: 1;
-    // 兼容 H5 端和 App 端的导航链接样式
     .navigator-wrap,
     .icons-button {
       flex: 1;

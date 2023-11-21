@@ -125,14 +125,7 @@ const onSubmit = async () => {
     <!-- 导航栏 -->
     <view class="navbar" :style="{ paddingTop: safeAreaInsets?.top + 'px' }">
       <navigator open-type="navigateBack" class="back icon-left" hover-class="none"></navigator>
-      <view class="title">个人信息</view>
-    </view>
-    <!-- 头像 -->
-    <view class="avatar">
-      <view @tap="onAvatarChange" class="avatar-content">
-        <image class="image" :src="profile?.avatar" mode="aspectFill" />
-        <text class="text">点击修改头像</text>
-      </view>
+      <view class="title">经销商中心</view>
     </view>
     <!-- 表单 -->
     <view class="form">
@@ -159,38 +152,8 @@ const onSubmit = async () => {
             </label>
           </radio-group>
         </view>
-        <view class="form-item">
-          <text class="label">生日</text>
-          <picker
-            @change="onBirthdayChange"
-            mode="date"
-            class="picker"
-            :value="profile?.birthday"
-            start="1900-01-01"
-            :end="formatDate(new Date())"
-          >
-            <view v-if="profile?.birthday">{{ profile?.birthday }}</view>
-            <view class="placeholder" v-else>请选择日期</view>
-          </picker>
-        </view>
-        <!-- 只有微信小程序端内置了省市区数据 -->
-        <!-- #ifdef MP-WEIXIN -->
-        <view class="form-item">
-          <text class="label">城市</text>
-          <picker
-            @change="onFullLocationChange"
-            mode="region"
-            class="picker"
-            :value="profile?.fullLocation?.split(' ')"
-          >
-            <view v-if="profile?.fullLocation">{{ profile.fullLocation }}</view>
-            <view class="placeholder" v-else>请选择城市</view>
-          </picker>
-        </view>
-        <!-- #endif -->
       </view>
-      <!-- 提交按钮 -->
-      <button @tap="onSubmit" class="form-button">保 存</button>
+      <button @tap="onSubmit" class="form-button">立即领取</button>
     </view>
   </view>
 </template>
