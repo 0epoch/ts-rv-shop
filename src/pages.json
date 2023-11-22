@@ -21,6 +21,12 @@
       }
     },
     {
+      "path": "pages/index/search",
+      "style": {
+        "navigationBarTitleText": "搜索"
+      }
+    },
+    {
       "path": "pages/product/list",
       "style": {
         "navigationBarTitleText": ""
@@ -33,9 +39,9 @@
       }
     },
     {
-      "path": "pages/category/index",
+      "path": "pages/category/category",
       "style": {
-        "navigationBarTitleText": "选品"
+        "navigationBarTitleText": "选款"
       }
     },
     {
@@ -99,7 +105,7 @@
       },
       {
         "text": "选品",
-        "pagePath": "pages/category/index",
+        "pagePath": "pages/category/category",
         "iconPath": "static/images/category_default.png",
         "selectedIconPath": "static/images/category_selected.png"
       },

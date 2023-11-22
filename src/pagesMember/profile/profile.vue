@@ -1,31 +1,31 @@
 <script setup lang="ts">
-import { getMemberProfileAPI, putMemberProfileAPI } from '@/services/profile'
+import { getProfile, saveProfile } from '@/api/user'
 import { useMemberStore } from '@/stores'
-import type { Gender, ProfileDetail } from '@/types/member'
+import type { Gender, Profile } from '@/types/member'
 import { formatDate } from '@/utils'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 
-// 获取屏幕边界到安全区域距离
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
-// 获取个人信息，修改个人信息需提供初始值
-const profile = ref({} as ProfileDetail)
-const getMemberProfileData = async () => {
-  const res = await getMemberProfileAPI()
-  profile.value = res.result
-  // 同步 Store 的头像和昵称，用于我的页面展示
-  memberStore.profile!.avatar = res.result.avatar
-  memberStore.profile!.nickname = res.result.nickname
+const profile = ref({} as Profile)
+const getMemberProfile = async () => {
+  const rs = await getProfile()
+  profile.value = rs.data
+
+  memberStore.profile!.avatar = rs.data.avatar
+  memberStore.profile!.nickname = rs.data.nickname
 }
 
 onLoad(() => {
-  getMemberProfileData()
+  getMemberProfile()
 })
 
 const memberStore = useMemberStore()
 // 修改头像
 const onAvatarChange = () => {
+  return
+  // TODO:
   // 调用拍照/选择图片
   // 选择图片条件编译
   // #ifdef H5 || APP-PLUS
@@ -101,18 +101,14 @@ const onFullLocationChange: UniHelper.RegionPickerOnChange = (ev) => {
 
 // 点击保存提交表单
 const onSubmit = async () => {
-  const { nickname, gender, birthday, profession } = profile.value
-  const res = await putMemberProfileAPI({
+  const { nickname, gender, birthday, mobile } = profile.value
+  const rs = await saveProfile({
     nickname,
     gender,
     birthday,
-    profession,
-    provinceCode: fullLocationCode[0] || undefined,
-    cityCode: fullLocationCode[1] || undefined,
-    countyCode: fullLocationCode[2] || undefined,
   })
   // 更新Store昵称
-  memberStore.profile!.nickname = res.result.nickname
+  memberStore.profile!.nickname = rs.data.nickname
   uni.showToast({ icon: 'success', title: '保存成功' })
   setTimeout(() => {
     uni.navigateBack()
@@ -131,7 +127,7 @@ const onSubmit = async () => {
     <view class="avatar">
       <view @tap="onAvatarChange" class="avatar-content">
         <image class="image" :src="profile?.avatar" mode="aspectFill" />
-        <text class="text">点击修改头像</text>
+        <!-- <text class="text">点击修改头像</text> -->
       </view>
     </view>
     <!-- 表单 -->
@@ -144,17 +140,18 @@ const onSubmit = async () => {
         </view>
         <view class="form-item">
           <text class="label">手机号</text>
-          <text class="account placeholder">{{ profile?.account }}</text>
+          <input class="input" type="text" placeholder="请填写手机号" v-model="profile.mobile" />
+          <!-- <text class="account placeholder">{{ profile?.account }}</text> -->
         </view>
         <view class="form-item">
           <text class="label">性别</text>
           <radio-group @change="onGenderChange">
             <label class="radio">
-              <radio value="男" color="#010101" :checked="profile?.gender === '男'" />
+              <radio value="1" color="#010101" :checked="profile?.gender === 1" />
               男
             </label>
             <label class="radio">
-              <radio value="女" color="#010101" :checked="profile?.gender === '女'" />
+              <radio value="2" color="#010101" :checked="profile?.gender === 2" />
               女
             </label>
           </radio-group>
@@ -175,13 +172,13 @@ const onSubmit = async () => {
         </view>
         <!-- 只有微信小程序端内置了省市区数据 -->
         <!-- #ifdef MP-WEIXIN -->
-        <view class="form-item">
+        <!-- <view class="form-item">
           <text class="label">城市</text>
           <picker @change="onFullLocationChange" mode="region" class="picker" :value="profile?.fullLocation?.split(' ')">
             <view v-if="profile?.fullLocation">{{ profile.fullLocation }}</view>
             <view class="placeholder" v-else>请选择城市</view>
           </picker>
-        </view>
+        </view> -->
         <!-- #endif -->
       </view>
       <!-- 提交按钮 -->

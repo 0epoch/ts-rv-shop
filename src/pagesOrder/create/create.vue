@@ -11,7 +11,7 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
 const desc = ref('')
 const checkedCoupon = ref(0)
 
-const assignCouponId = ref(0)
+const assignCouponId = ref<number>(0)
 const popup = ref<{
   open: (type?: UniHelper.UniPopupType) => void
   close: () => void
@@ -24,14 +24,16 @@ const query = defineProps<{
 }>()
 
 const checkout = ref<CartResult>()
-const getCheckoutResult = async () => {
-  const rs = await checkoutOrder()
+const getCheckoutResult = async (assignCouponId: number) => {
+  const rs = await checkoutOrder({ coupon_id: assignCouponId })
   checkout.value = rs.data
-  console.log(checkout.value.skus)
 }
 
 onLoad(() => {
-  getCheckoutResult()
+  getCheckoutResult(assignCouponId.value)
+  if (checkout.value?.coupon) {
+    assignCouponId.value = checkout.value.coupon?.id
+  }
 })
 
 const onChangeChecked = async (item: UserCoupon) => {
@@ -44,6 +46,18 @@ const addressStore = useAddressStore()
 const selecteAddress = computed(() => {
   return addressStore.selectedAddress
 })
+
+const onChangeCoupon = (id: number) => {
+  console.log(assignCouponId.value, id, assignCouponId.value === id, 'xxxxxxxxxxx')
+  if (assignCouponId.value === id) {
+    assignCouponId.value === -1
+    getCheckoutResult(-1)
+  } else {
+    assignCouponId.value = id
+    getCheckoutResult(assignCouponId.value)
+  }
+  popup.value?.close()
+}
 
 // 提交订单
 const onOrderSubmit = async () => {
@@ -78,7 +92,13 @@ const onOrderSubmit = async () => {
 
     <!-- 商品信息 -->
     <view class="goods">
-      <navigator v-for="item in checkout?.skus" :key="item.sku_id" :url="`/pages/goods/goods?id=${item.sku_id}`" class="item" hover-class="none">
+      <navigator
+        v-for="item in checkout?.skus"
+        :key="item.sku_id"
+        :url="`/pages/goods/goods?id=${item.sku_id}`"
+        class="item"
+        hover-class="none"
+      >
         <image class="picture" :src="item.pic_url" />
         <view class="meta">
           <view class="name ellipsis"> {{ item.title }} </view>
@@ -106,9 +126,12 @@ const onOrderSubmit = async () => {
         <text class="text">商品总价: </text>
         <text class="number symbol">{{ checkout?.amount }}</text>
       </view>
-      <view class="item" v-if="checkout?.coupon_amount && checkout?.coupon_amount > 0">
-        <text class="text" @tap="popup?.open()">优惠券: </text>
+      <view class="item" v-if="checkout?.coupon_amount && checkout?.coupon_amount > 0" @tap="popup?.open()">
+        <text class="text">优惠券: </text>
+        <!-- <view> -->
         <text class="number symbol">{{ checkout?.coupon_amount }}</text>
+        <!-- <text class="icon icon-right"></text> -->
+        <!-- </view> -->
       </view>
       <view class="item" v-if="checkout?.discount_amount && checkout.discount_amount > 0">
         <text class="text">经销商折扣: </text>
@@ -128,7 +151,7 @@ const onOrderSubmit = async () => {
     <scroll-view enable-back-to-top refresher-enabled class="panel" scroll-y>
       <text class="close icon-close" @tap="popup?.close()"></text>
 
-      <view class="coupon" v-for="item in checkout?.usable_coupons" :key="item.id">
+      <view class="coupon" v-for="item in checkout?.usable_coupons" :key="item.id" @tap="onChangeCoupon(item.id)">
         <text @tap="onChangeChecked(item)" class="checkbox" :class="{ checked: item.id === checkedCoupon }"></text>
         <view class="overview">
           <view class="meta">
@@ -136,8 +159,13 @@ const onOrderSubmit = async () => {
             <text class="desc ellipsis">{{ item.coupon.desc }}</text>
           </view>
 
-          <text class="time">有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{ item.end_time.replace(/-/g, '.').substring(0, 10) }}</text>
+          <text class="time"
+            >有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{ item.end_time.replace(/-/g, '.').substring(0, 10) }}</text
+          >
         </view>
+        <view class="price">{{
+          item.coupon.type === 'discount' ? item.coupon.value * 10 + '折' : Math.floor(item.coupon.value) + '元'
+        }}</view>
       </view>
     </scroll-view>
   </uni-popup>
@@ -317,6 +345,17 @@ page {
   .danger {
     color: #e51c23;
   }
+  // .coupon {
+  //   position: relative;
+  //   .icon {
+  //     font-size: 36rpx;
+  //     color: #333;
+  //     transform: translateY(-50%);
+  //     position: absolute;
+  //     top: 50%;
+  //     right: 20rpx;
+  //   }
+  // }
 }
 
 .toolbar {
@@ -361,8 +400,8 @@ page {
 
 // --------------------- coupon panel ---------------
 .panel {
-  height: 70vh;
-  padding: 0 30rpx;
+  height: 50vh;
+  padding: 20rpx;
   border-radius: 10rpx 10rpx 0 0;
   position: relative;
   background-color: #f4f4f4;
@@ -370,6 +409,7 @@ page {
     position: absolute;
     right: 24rpx;
     top: 24rpx;
+    margin-bottom: 24rpx;
   }
   .checkbox {
     position: absolute;

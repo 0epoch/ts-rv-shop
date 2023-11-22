@@ -52,6 +52,7 @@ const onSubmit = async () => {
       uni.navigateBack()
     }, 400)
   } catch (error) {
+    console.log(error, 'errr')
     uni.showToast({ icon: 'error', title: '请填写完整信息' })
   }
 }

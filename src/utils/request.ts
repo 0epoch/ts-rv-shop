@@ -37,14 +37,14 @@ export const request = <T>(options: UniApp.RequestOptions) => {
     uni.request({
       ...options,
       success(rs) {
-        console.log(rs, rs.statusCode, 'xxxxxxxxxxxxxxxxxx')
         if (rs.statusCode >= 200 && rs.statusCode < 300) {
           const data = rs.data as Data<T>
-          if ((data.code as number) > 0) {
+          if (data.code > 0) {
             uni.showToast({
               icon: 'none',
               title: data.message || '请求错误',
             })
+            return
             reject(rs)
           }
           resolve(data)

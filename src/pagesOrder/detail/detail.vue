@@ -19,14 +19,7 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
 // 弹出层组件
 const popup = ref<UniHelper.UniPopupInstance>()
 // 取消原因列表
-const reasonList = ref([
-  '商品无货',
-  '不想要了',
-  '商品信息填错了',
-  '地址信息填写错误',
-  '商品降价',
-  '其它',
-])
+const reasonList = ref(['商品无货', '不想要了', '商品信息填错了', '地址信息填写错误', '商品降价', '其它'])
 const reason = ref('')
 const onCopy = (id: string) => {
   uni.setClipboardData({ data: id })
@@ -49,17 +42,12 @@ const pageInstance = pages.at(-1) as PageInstance
 // 页面渲染完毕，绑定动画效果
 onReady(() => {
   // 动画效果,导航栏背景色
-  pageInstance.animate(
-    '.navbar',
-    [{ backgroundColor: 'transparent' }, { backgroundColor: '#f8f8f8' }],
-    1000,
-    {
-      scrollSource: '#scroller',
-      timeRange: 1000,
-      startScrollOffset: 0,
-      endScrollOffset: 50,
-    },
-  )
+  pageInstance.animate('.navbar', [{ backgroundColor: 'transparent' }, { backgroundColor: '#f8f8f8' }], 1000, {
+    scrollSource: '#scroller',
+    timeRange: 1000,
+    startScrollOffset: 0,
+    endScrollOffset: 50,
+  })
   // 动画效果,导航栏标题
   pageInstance.animate('.navbar .title', [{ color: 'transparent' }, { color: '#000' }], 1000, {
     scrollSource: '#scroller',
@@ -193,13 +181,8 @@ const onOrderCancel = async () => {
   <!-- 自定义导航栏: 默认透明不可见, scroll-view 滚动到 50 时展示 -->
   <view class="navbar" :style="{ paddingTop: safeAreaInsets?.top + 'px' }">
     <view class="wrap">
-      <navigator
-        v-if="pages.length > 1"
-        open-type="navigateBack"
-        class="back icon-left"
-      ></navigator>
-      <navigator v-else url="/pages/index/index" open-type="switchTab" class="back icon-home">
-      </navigator>
+      <navigator v-if="pages.length > 1" open-type="navigateBack" class="back icon-left"></navigator>
+      <navigator v-else url="/pages/index/index" open-type="switchTab" class="back icon-home"> </navigator>
       <view class="title">订单详情</view>
     </view>
   </view>
@@ -229,21 +212,9 @@ const onOrderCancel = async () => {
           <!-- 订单状态文字 -->
           <view class="status"> {{ orderStateList[order.order_status].text }} </view>
           <view class="button-group">
-            <view
-              v-if="isDev && order.order_status == OrderState.WAIT_SHIP"
-              @tap="onOrderSend"
-              class="button"
-            >
-              模拟发货
-            </view>
+            <view v-if="isDev && order.order_status == OrderState.WAIT_SHIP" @tap="onOrderSend" class="button"> 模拟发货 </view>
             <!-- 待收货状态: 展示确认收货按钮 -->
-            <view
-              v-if="order.order_status === OrderState.SHIPPED"
-              @tap="onOrderConfirm"
-              class="button"
-            >
-              确认收货
-            </view>
+            <view v-if="order.order_status === OrderState.SHIPPED" @tap="onOrderConfirm" class="button"> 确认收货 </view>
           </view>
         </template>
       </view>
@@ -328,21 +299,9 @@ const onOrderCancel = async () => {
         <!-- 其他订单状态:按需展示按钮 -->
         <template v-else>
           <!-- 待收货状态: 展示确认收货 -->
-          <view
-            class="button primary"
-            v-if="order.order_status === OrderState.SHIPPED"
-            @tap="onOrderConfirm"
-          >
-            确认收货
-          </view>
+          <view class="button primary" v-if="order.order_status === OrderState.SHIPPED" @tap="onOrderConfirm"> 确认收货 </view>
 
-          <view
-            class="button delete"
-            v-if="order.order_status >= OrderState.COMPLETED"
-            @tap="onOrderDelete"
-          >
-            删除订单
-          </view>
+          <view class="button delete" v-if="order.order_status >= OrderState.COMPLETED" @tap="onOrderDelete"> 删除订单 </view>
         </template>
       </view>
     </template>
@@ -427,8 +386,8 @@ page {
   line-height: 1;
   padding-bottom: 30rpx;
   color: #fff;
-  background-image: url('/static/images/order_bg.png');
-  // background-color: #010101;
+  // background-image: url('/static/images/order_bg.png');
+  background-color: #010101;
 
   background-size: cover;
 
@@ -503,7 +462,7 @@ page {
   }
 
   .item {
-    background-image: url(https://pcapi-xiaotuxian-front-devtest.itheima.net/miniapp/images/car.png);
+    // background-image: url('/static/images/car_default.png');
     border-bottom: 1rpx solid #eee;
     position: relative;
 

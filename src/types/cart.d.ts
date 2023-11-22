@@ -24,5 +24,6 @@ export type CartResult = {
   coupon_amount: number
   discount_amount: number
   promotion_amount: number
-  usable_coupons: UserCoupon[]
+  coupon?: UserCoupon
+  usable_coupons?: UserCoupon[]
 }

@@ -151,34 +151,26 @@ const onCheckout = () => {
   uni.navigateTo({ url: '/pagesOrder/create/create' })
 }
 
-// 猜你喜欢
-const { guessRef, onScrolltolower } = useGuessList()
+const onGo = () => {
+  uni.switchTab({
+    url: '/pages/category/category',
+  })
+}
 </script>
 
 <template>
-  <scroll-view enable-back-to-top scroll-y class="scroll-view" @scrolltolower="onScrolltolower">
+  <scroll-view enable-back-to-top scroll-y class="scroll-view">
     <template v-if="memberStore.profile">
       <view class="cart-list" v-if="showCartList">
         <view class="edit">
-          <text @tap="onChangeSelectedAll" class="all" :class="{ checked: isSelectedAll }"
-            >全选</text
-          >
-
+          <text @tap="onChangeSelectedAll" class="all" :class="{ checked: isSelectedAll }">全选</text>
           <text class="label" @tap="onEdit">{{ editText }}</text>
         </view>
         <uni-swipe-action>
           <uni-swipe-action-item v-for="item in cartList" :key="item.sku_id" class="cart-swipe">
             <view class="goods">
-              <text
-                @tap="onChangeSelected(item)"
-                class="checkbox"
-                :class="{ checked: item.selected === 1 }"
-              ></text>
-              <navigator
-                :url="`/pages/product/detail?id=${item.product_id}`"
-                hover-class="none"
-                class="navigator"
-              >
+              <text @tap="onChangeSelected(item)" class="checkbox" :class="{ checked: item.selected === 1 }"></text>
+              <navigator :url="`/pages/product/detail?id=${item.product_id}`" hover-class="none" class="navigator">
                 <image mode="aspectFill" class="picture" :src="item.pic_url"></image>
                 <view class="meta">
                   <view class="name ellipsis">{{ item.title }}</view>
@@ -187,13 +179,7 @@ const { guessRef, onScrolltolower } = useGuessList()
                 </view>
               </navigator>
               <view class="count">
-                <vk-data-input-number-box
-                  v-model="item.qty"
-                  :min="1"
-                  :max="item.stock"
-                  :index="item.sku_id"
-                  @change="onChangeQty"
-                />
+                <vk-data-input-number-box v-model="item.qty" :min="1" :max="item.stock" :index="item.sku_id" @change="onChangeQty" />
               </view>
             </view>
 
@@ -209,25 +195,17 @@ const { guessRef, onScrolltolower } = useGuessList()
 
       <view class="cart-blank" v-else>
         <text class="text">购物车空空如也~</text>
-        <navigator url="/pages/product/list" hover-class="none">
+        <view @tap="onGo">
           <button class="button">去逛逛</button>
-        </navigator>
+        </view>
       </view>
 
-      <view
-        v-if="showCartList"
-        class="toolbar"
-        :style="{ paddingBottom: safeAreaInsetBottom ? safeAreaInsets?.bottom + 'px' : 0 }"
-      >
+      <view v-if="showCartList" class="toolbar" :style="{ paddingBottom: safeAreaInsetBottom ? safeAreaInsets?.bottom + 'px' : 0 }">
         <text @tap="onChangeSelectedAll" class="all" :class="{ checked: isSelectedAll }">全选</text>
         <text class="text">合计:</text>
         <text class="amount">{{ selectedCartListMoney }}</text>
         <view class="button-grounp">
-          <view
-            @tap="onCheckout"
-            class="button payment-button"
-            :class="{ disabled: selectedCartListCount === 0 }"
-          >
+          <view @tap="onCheckout" class="button payment-button" :class="{ disabled: selectedCartListCount === 0 }">
             {{ checkoutText }}({{ selectedCartListCount }})
           </view>
         </view>

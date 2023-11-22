@@ -52,7 +52,7 @@ onLoad(() => {
           >有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{ item.end_time.replace(/-/g, '.').substring(0, 10) }}</text
         >
       </view>
-      <view class="price" :class="{ invalid: activeTab !== 0 }">{{
+      <view :class="activeTab !== 0 ? 'invalid' : 'price'">{{
         item.coupon.type === 'discount' ? item.coupon.value * 10 + '折' : Math.floor(item.coupon.value) + '元'
       }}</view>
     </view>

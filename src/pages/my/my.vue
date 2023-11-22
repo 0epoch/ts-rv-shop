@@ -60,7 +60,7 @@ const memberStore = useMemberStore()
           <navigator
             url="/pagesMember/affiliate/affiliate"
             hover-class="none"
-            v-if="memberStore.profile?.vip_grade_id && memberStore.profile.vip_grade_id === 0"
+            v-if="memberStore.profile && memberStore.profile.vip_grade_id === 0"
           >
             <button class="button">立即开通</button>
           </navigator>
@@ -125,7 +125,7 @@ page {
 
 /* 用户信息 */
 .profile {
-  height: 25%;
+  // height: 25%;
   position: relative;
   background-color: #fff;
   box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);

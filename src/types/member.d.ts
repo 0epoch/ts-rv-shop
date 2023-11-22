@@ -40,7 +40,7 @@ export type ProfileParams = InviteParams & {
   avatar?: string
   nickname?: string
   name?: string
-  gender?: string
+  gender?: number
   city?: string
   birthday?: string
   province?: string

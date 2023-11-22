@@ -8,11 +8,11 @@ import type { Order, OrderCreateParams, OrderListParams, OrderResult } from '@/t
 /**
  * @param data
  */
-export const checkoutOrder = () => {
+export const checkoutOrder = (data: { coupon_id: number }) => {
   return request<CartResult>({
     method: 'POST',
     url: '/order/checkout',
-    data: {},
+    data,
   })
 }
 
