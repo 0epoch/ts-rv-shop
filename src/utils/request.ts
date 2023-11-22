@@ -11,6 +11,7 @@ const httpInterceptor = {
     options.header = {
       ...options.header,
       'source-client': 'miniapp',
+      Accept: 'application/json',
     }
 
     const memberStore = useMemberStore()
