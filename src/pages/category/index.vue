@@ -93,11 +93,7 @@ const onScrolltolower = async () => {
         <view class="tabs" v-if="confs.feature.length > 0">
           <view class="tab-box" v-for="(item, index) in confs.feature" :key="index">
             <view class="=tab">
-              <navigator
-                hover-class="none"
-                class="navigator"
-                :url="`/pages/product/list?nav_id=${item.id}&navTitle=${item.name}`"
-              >
+              <navigator hover-class="none" class="navigator" :url="`/pages/product/list?nav_id=${item.id}&navTitle=${item.name}`">
                 <image class="cover" :src="item.cover" mode="widthFix" />
                 <view>{{ item.name }}</view>
               </navigator>
@@ -105,21 +101,14 @@ const onScrolltolower = async () => {
           </view>
         </view>
       </view>
-      <view class="category">
+      <scroll-view scroll-x class="category">
         <view class="cate-item" @tap="onTapCategory(0)">
           <text :class="{ active: activeCategory === 0 }" class="cate-text">全部</text>
         </view>
-        <view
-          class="cate-item"
-          @tap="onTapCategory(item.id)"
-          v-for="item in categories"
-          :key="item.id"
-        >
-          <text :class="{ active: activeCategory === item.id }" class="cate-text">{{
-            item.name
-          }}</text>
+        <view class="cate-item" @tap="onTapCategory(item.id)" v-for="item in categories" :key="item.id">
+          <text :class="{ active: activeCategory === item.id }" class="cate-text">{{ item.name }}</text>
         </view>
-      </view>
+      </scroll-view>
       <view class="goods">
         <navigator
           hover-class="none"
@@ -133,9 +122,7 @@ const onScrolltolower = async () => {
             <view class="name ellipsis">{{ product.title }}</view>
             <view class="price">
               <text class="symbol">¥</text>
-              <text class="number" v-if="hasAff && product.is_aff == 1">{{
-                product.aff_price
-              }}</text>
+              <text class="number" v-if="hasAff && product.is_aff == 1">{{ product.aff_price }}</text>
               <text class="number" v-else>{{ product.price }}</text>
             </view>
           </view>
@@ -185,6 +172,7 @@ page {
 .category {
   display: flex;
   // justify-content: space-around;
+  flex-direction: row;
   align-items: center;
   height: 130rpx;
   padding: 0 20rpx;
