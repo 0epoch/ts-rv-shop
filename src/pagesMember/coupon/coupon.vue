@@ -49,15 +49,11 @@ onLoad(() => {
         </view>
 
         <text class="time"
-          >有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{
-            item.end_time.replace(/-/g, '.').substring(0, 10)
-          }}</text
+          >有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{ item.end_time.replace(/-/g, '.').substring(0, 10) }}</text
         >
       </view>
       <view class="price" :class="{ invalid: activeTab !== 0 }">{{
-        item.coupon.type === 'discount'
-          ? item.coupon.value * 10 + '折'
-          : Math.floor(item.coupon.value) + '元'
+        item.coupon.type === 'discount' ? item.coupon.value * 10 + '折' : Math.floor(item.coupon.value) + '元'
       }}</view>
     </view>
   </view>

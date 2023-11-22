@@ -146,8 +146,6 @@ const onScrolltolower = async () => {
       </view>
     </scroll-view>
   </view>
-
-  <!-- ------------------------ -->
 </template>
 
 <style lang="scss">
@@ -218,7 +216,7 @@ page {
   }
   .thumb {
     // width: 305rpx;
-    height: 385rpx;
+    height: 420rpx;
     width: 100%;
     vertical-align: middle;
     // border-radius: 10rpx;

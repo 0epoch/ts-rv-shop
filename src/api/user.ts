@@ -3,7 +3,7 @@ import type { Paginate, PaginateParams } from '@/types/global'
 import type { AddressItem, AddressParams } from '@/types/address'
 
 import { request } from '@/utils/request'
-import type { Profile } from '@/types/member'
+import type { InviteParams, Profile, ProfileParams } from '@/types/member'
 import type { UserCoupon } from '@/types/coupon'
 
 export const wxLogin = (code: string) => {
@@ -28,16 +28,8 @@ export const wxUserPhone = (code: string) => {
 /**
  * @param data
  */
-export const saveProfile = (data: {
-  name: string
-  mobile: string
-  city: string
-  birthday: string
-  gender: string
-  province: string
-  avatar: string
-}) => {
-  return request<Paginate<Product>>({
+export const saveProfile = (data: ProfileParams) => {
+  return request<Profile>({
     method: 'POST',
     url: '/user/profile',
     data,
@@ -47,8 +39,19 @@ export const saveProfile = (data: {
 /**
  * @param data
  */
+export const applyMember = (data: InviteParams) => {
+  return request<Profile>({
+    method: 'POST',
+    url: '/user/apply',
+    data,
+  })
+}
+
+/**
+ * @param data
+ */
 export const getProfile = () => {
-  return request<Paginate<Product>>({
+  return request<Profile>({
     method: 'GET',
     url: '/user/profile',
     data: {},

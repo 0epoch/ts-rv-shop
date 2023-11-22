@@ -177,12 +177,7 @@ const onSubmit = async () => {
         <!-- #ifdef MP-WEIXIN -->
         <view class="form-item">
           <text class="label">城市</text>
-          <picker
-            @change="onFullLocationChange"
-            mode="region"
-            class="picker"
-            :value="profile?.fullLocation?.split(' ')"
-          >
+          <picker @change="onFullLocationChange" mode="region" class="picker" :value="profile?.fullLocation?.split(' ')">
             <view v-if="profile?.fullLocation">{{ profile.fullLocation }}</view>
             <view class="placeholder" v-else>请选择城市</view>
           </picker>
@@ -204,9 +199,10 @@ page {
   display: flex;
   flex-direction: column;
   height: 100%;
-  background-image: url('/static/images/order_bg.png');
+  // background-image: url('/static/images/order_bg.png');
   background-size: auto 420rpx;
-  background-repeat: no-repeat;
+  background-color: #010101;
+  // background-repeat: no-repeat;
 }
 
 // 导航栏

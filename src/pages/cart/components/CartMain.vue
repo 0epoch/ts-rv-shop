@@ -186,7 +186,6 @@ const { guessRef, onScrolltolower } = useGuessList()
                   <view class="price">{{ item.price }}</view>
                 </view>
               </navigator>
-
               <view class="count">
                 <vk-data-input-number-box
                   v-model="item.qty"
@@ -234,7 +233,6 @@ const { guessRef, onScrolltolower } = useGuessList()
         </view>
       </view>
     </template>
-
     <view class="login-blank" v-else>
       <text class="text">登录后可查看购物车中的商品</text>
     </view>
@@ -274,12 +272,9 @@ const { guessRef, onScrolltolower } = useGuessList()
       border-radius: 4rpx;
       font-size: 24rpx;
       border: 1rpx solid #010101;
-      // background-color: #010101;
-      // margin-right: 10rpx;
     }
   }
 
-  // 购物车商品
   .goods {
     display: flex;
     padding: 20rpx 20rpx 20rpx 80rpx;
@@ -414,7 +409,6 @@ const { guessRef, onScrolltolower } = useGuessList()
   }
 }
 
-// 空状态
 .cart-blank,
 .login-blank {
   display: flex;
@@ -461,7 +455,6 @@ const { guessRef, onScrolltolower } = useGuessList()
   content: '\e6cc';
   color: #010101;
 }
-// 吸底工具栏
 .toolbar {
   position: fixed;
   left: 0;
@@ -522,7 +515,6 @@ const { guessRef, onScrolltolower } = useGuessList()
     }
   }
 }
-// 底部占位空盒子
 .toolbar-height {
   height: 100rpx;
 }

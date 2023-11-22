@@ -53,8 +53,9 @@
     {
       "path": "pages/my/my",
       "style": {
-        "navigationStyle": "custom",
-        "navigationBarTextStyle": "white",
+        // "navigationStyle": "custom",
+        // "setNavigationBarColor": "white",
+        // "navigationBarTextStyle": "white",
         "navigationBarTitleText": "我的"
       }
     },
@@ -80,7 +81,7 @@
   "globalStyle": {
     "navigationBarTextStyle": "black",
     "navigationBarTitleText": "",
-    "navigationBarBackgroundColor": "#F8F8F8",
+    "navigationBarBackgroundColor": "#fff",
     "backgroundColor": "#F8F8F8"
   },
   // 设置 TabBar
@@ -135,6 +136,14 @@
             "navigationStyle": "custom",
             "navigationBarTextStyle": "white",
             "navigationBarTitleText": "个人信息"
+          }
+        },
+        {
+          "path": "affiliate/affiliate",
+          "style": {
+            "navigationStyle": "custom",
+            "navigationBarTextStyle": "white",
+            "navigationBarTitleText": "经销商"
           }
         },
         {

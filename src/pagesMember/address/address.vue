@@ -48,7 +48,6 @@ const onChangeAddress = (item: AddressItem) => {
                 <text v-if="item.is_default" class="badge">默认</text>
               </view>
               <view class="locate">{{ item.full_location }} {{ item.addr }}</view>
-
               <navigator
                 class="edit"
                 hover-class="none"
@@ -59,7 +58,6 @@ const onChangeAddress = (item: AddressItem) => {
                 修改
               </navigator>
             </view>
-
             <template #right>
               <button @tap="onDeleteAddress(item.id)" class="delete-button">删除</button>
             </template>
@@ -68,11 +66,8 @@ const onChangeAddress = (item: AddressItem) => {
       </view>
       <view v-else class="blank">暂无收货地址</view>
     </scroll-view>
-
     <view class="add-btn">
-      <navigator hover-class="none" url="/pagesMember/address-form/address-form">
-        新建地址
-      </navigator>
+      <navigator hover-class="none" url="/pagesMember/address-form/address-form"> 新建地址 </navigator>
     </view>
   </view>
 </template>

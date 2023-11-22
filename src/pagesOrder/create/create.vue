@@ -66,35 +66,19 @@ const onOrderSubmit = async () => {
 <template>
   <scroll-view enable-back-to-top scroll-y class="viewport">
     <!-- 收货地址 -->
-    <navigator
-      v-if="selecteAddress"
-      class="shipment"
-      hover-class="none"
-      url="/pagesMember/address/address?from=order"
-    >
+    <navigator v-if="selecteAddress" class="shipment" hover-class="none" url="/pagesMember/address/address?from=order">
       <view class="user"> {{ selecteAddress.name }} {{ selecteAddress.mobile }} </view>
       <view class="address"> {{ selecteAddress.full_location }} {{ selecteAddress.addr }} </view>
       <text class="icon icon-right"></text>
     </navigator>
-    <navigator
-      v-else
-      class="shipment"
-      hover-class="none"
-      url="/pagesMember/address/address?from=order"
-    >
+    <navigator v-else class="shipment" hover-class="none" url="/pagesMember/address/address?from=order">
       <view class="address"> 请选择收货地址 </view>
       <text class="icon icon-right"></text>
     </navigator>
 
     <!-- 商品信息 -->
     <view class="goods">
-      <navigator
-        v-for="item in checkout?.skus"
-        :key="item.sku_id"
-        :url="`/pages/goods/goods?id=${item.sku_id}`"
-        class="item"
-        hover-class="none"
-      >
+      <navigator v-for="item in checkout?.skus" :key="item.sku_id" :url="`/pages/goods/goods?id=${item.sku_id}`" class="item" hover-class="none">
         <image class="picture" :src="item.pic_url" />
         <view class="meta">
           <view class="name ellipsis"> {{ item.title }} </view>
@@ -112,12 +96,7 @@ const onOrderSubmit = async () => {
     <view class="related">
       <view class="item">
         <text class="text">订单备注</text>
-        <input
-          class="input"
-          :cursor-spacing="30"
-          placeholder="选题，建议留言前先与商家沟通确认"
-          v-model="desc"
-        />
+        <input class="input" :cursor-spacing="30" placeholder="选题，建议留言前先与商家沟通确认" v-model="desc" />
       </view>
     </view>
 
@@ -125,7 +104,7 @@ const onOrderSubmit = async () => {
     <view class="settlement">
       <view class="item">
         <text class="text">商品总价: </text>
-        <text class="number symbol">{{ checkout?.amount.toFixed(2) }}</text>
+        <text class="number symbol">{{ checkout?.amount }}</text>
       </view>
       <view class="item" v-if="checkout?.coupon_amount && checkout?.coupon_amount > 0">
         <text class="text" @tap="popup?.open()">优惠券: </text>
@@ -142,9 +121,7 @@ const onOrderSubmit = async () => {
     <view class="total-pay symbol">
       <text class="number">{{ checkout?.checkout_amount }}</text>
     </view>
-    <view class="button" :class="{ disabled: !selecteAddress?.id }" @tap="onOrderSubmit">
-      提交订单
-    </view>
+    <view class="button" :class="{ disabled: !selecteAddress?.id }" @tap="onOrderSubmit"> 提交订单 </view>
   </view>
 
   <uni-popup ref="popup" type="bottom" background-color="#fff">
@@ -152,22 +129,14 @@ const onOrderSubmit = async () => {
       <text class="close icon-close" @tap="popup?.close()"></text>
 
       <view class="coupon" v-for="item in checkout?.usable_coupons" :key="item.id">
-        <text
-          @tap="onChangeChecked(item)"
-          class="checkbox"
-          :class="{ checked: item.id === checkedCoupon }"
-        ></text>
+        <text @tap="onChangeChecked(item)" class="checkbox" :class="{ checked: item.id === checkedCoupon }"></text>
         <view class="overview">
           <view class="meta">
             <text class="title">{{ item.coupon.title }}</text>
             <text class="desc ellipsis">{{ item.coupon.desc }}</text>
           </view>
 
-          <text class="time"
-            >有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{
-              item.end_time.replace(/-/g, '.').substring(0, 10)
-            }}</text
-          >
+          <text class="time">有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{ item.end_time.replace(/-/g, '.').substring(0, 10) }}</text>
         </view>
       </view>
     </scroll-view>

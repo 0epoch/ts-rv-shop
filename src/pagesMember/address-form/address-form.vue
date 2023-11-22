@@ -105,22 +105,12 @@ const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
       </uni-forms-item>
       <uni-forms-item name="contact" class="form-item">
         <text class="label">手机号码</text>
-        <input
-          class="input"
-          placeholder="请填写收货人手机号码"
-          :maxlength="11"
-          v-model="form.mobile"
-        />
+        <input class="input" placeholder="请填写收货人手机号码" :maxlength="11" v-model="form.mobile" />
       </uni-forms-item>
       <uni-forms-item name="countyCode" class="form-item">
         <text class="label">所在地区</text>
         <!-- #ifdef MP-WEIXIN -->
-        <picker
-          @change="onRegionChange"
-          class="picker"
-          mode="region"
-          :value="form.full_location.split(' ')"
-        >
+        <picker @change="onRegionChange" class="picker" mode="region" :value="form.full_location.split(' ')">
           <view v-if="form.full_location">{{ form.full_location }}</view>
           <view v-else class="placeholder">请选择省/市/区(县)</view>
         </picker>
@@ -148,12 +138,7 @@ const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
       </uni-forms-item>
       <view class="form-item">
         <label class="label">设为默认地址</label>
-        <switch
-          @change="onSwitchChange"
-          class="switch"
-          color="#010101"
-          :checked="form.is_default === 1"
-        />
+        <switch @change="onSwitchChange" class="switch" color="#010101" :checked="form.is_default === 1" />
       </view>
     </uni-forms>
   </view>
@@ -161,7 +146,6 @@ const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
 </template>
 
 <style lang="scss">
-// 深度选择器修改 uni-data-picker 组件样式
 :deep(.selected-area) {
   flex: 0 1 auto;
   height: auto;
@@ -189,7 +173,6 @@ page {
     position: relative;
     margin-bottom: 0;
 
-    // 调整 uni-forms 样式
     .uni-forms-item__content {
       display: flex;
     }
