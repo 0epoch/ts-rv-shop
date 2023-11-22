@@ -1,6 +1,6 @@
 import { useMemberStore } from '@/stores'
 
-const baseURL = 'http://8.134.219.163:8100'
+const baseURL = 'http://8.134.219.163:8200'
 
 const httpInterceptor = {
   invoke(options: UniApp.RequestOptions) {

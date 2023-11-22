@@ -1,9 +1,5 @@
 <script setup lang="ts">
-import type {
-  SkuPopupEvent,
-  SkuPopupInstance,
-  SkuPopupLocaldata,
-} from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
+import type { SkuPopupEvent, SkuPopupInstance, SkuPopupLocaldata } from '@/components/vk-data-goods-sku-popup/vk-data-goods-sku-popup'
 
 import { saveCardProduct } from '@/api/cart'
 
@@ -171,30 +167,16 @@ const onBuyNow = (ev: SkuPopupEvent) => {
     <!-- 商品详情 -->
     <view class="detail panel">
       <view class="content">
-        <image
-          class="image"
-          v-for="item in productDetail?.detail_pictures"
-          :key="item"
-          mode="widthFix"
-          :src="item"
-        ></image>
+        <image class="image" v-for="item in productDetail?.detail_pictures" :key="item" mode="widthFix" :src="item"></image>
       </view>
     </view>
   </scroll-view>
 
-  <view
-    v-if="productDetail"
-    class="toolbar"
-    :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }"
-  >
-    <view class="icons">
-      <button class="icons-button" open-type="contact">
-        <text class="icon-handset"></text>客服
-      </button>
-      <navigator class="icons-button" url="/pages/cart/cart2" open-type="navigate">
-        <text class="icon-cart"></text>购物车
-      </navigator>
-    </view>
+  <view v-if="productDetail" class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
+    <!-- <view class="icons">
+      <button class="icons-button" open-type="contact"><text class="icon-handset"></text>客服</button>
+      <navigator class="icons-button" url="/pages/cart/cart2" open-type="navigate"> <text class="icon-cart"></text>购物车 </navigator>
+    </view> -->
     <view class="buttons">
       <view @tap="openSkuPopup(SkuMode.Cart)" class="addcart"> 加入购物车 </view>
     </view>
@@ -397,7 +379,7 @@ page {
   .buttons {
     display: flex;
     & > view {
-      width: 420rpx;
+      width: 720rpx;
       text-align: center;
       line-height: 72rpx;
       font-size: 26rpx;

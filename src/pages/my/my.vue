@@ -1,5 +1,6 @@
 <script setup lang="ts">
 import { useMemberStore } from '@/stores'
+import { computed, ref, watch } from 'vue'
 
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 订单选项
@@ -38,7 +39,7 @@ const memberStore = useMemberStore()
       <!-- 未登录 -->
       <view class="overview" v-else>
         <image class="avatar gray" mode="aspectFill" src="/static/images/user_default.png"></image>
-        <view class="meta"> 点击授权 </view>
+        <!-- <view class="meta"> 点击授权 </view> -->
       </view>
     </view>
 
@@ -109,6 +110,7 @@ const memberStore = useMemberStore()
       </view>
     </view>
   </scroll-view>
+  <RvAuth></RvAuth>
 </template>
 
 <style lang="scss">
