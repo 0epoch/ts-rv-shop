@@ -1,25 +1,16 @@
 <script setup lang="ts">
 import { OrderState, orderStateList } from '@/services/constants'
-import { orderDetail } from '@/api/order'
-import {
-  deleteMemberOrderAPI,
-  getMemberOrderCancelByIdAPI,
-  getMemberOrderLogisticsByIdAPI,
-  getMemberOrderConsignmentByIdAPI,
-  putMemberOrderReceiptByIdAPI,
-} from '@/services/order'
+import { orderDetail, cancelOrder } from '@/api/order'
 import type { LogisticItem, OrderResult } from '@/types/order'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import PageSkeleton from './components/PageSkeleton.vue'
-import { getPayMockAPI, getPayWxPayMiniPayAPI } from '@/services/pay'
 
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
-// 弹出层组件
 const popup = ref<UniHelper.UniPopupInstance>()
-// 取消原因列表
 const reasonList = ref(['商品无货', '不想要了', '商品信息填错了', '地址信息填写错误', '商品降价', '其它'])
+
 const reason = ref('')
 const onCopy = (id: string) => {
   uni.setClipboardData({ data: id })
@@ -29,33 +20,25 @@ const query = defineProps<{
   id: number
 }>()
 
-// 获取页面栈
 const pages = getCurrentPages()
 
-// 基于小程序的 Page 类型扩展 uni-app 的 Page
 type PageInstance = Page.PageInstance & WechatMiniprogram.Page.InstanceMethods<any>
-
 // #ifdef MP-WEIXIN
-// 获取当前页面实例，数组最后一项
 const pageInstance = pages.at(-1) as PageInstance
 
-// 页面渲染完毕，绑定动画效果
 onReady(() => {
-  // 动画效果,导航栏背景色
   pageInstance.animate('.navbar', [{ backgroundColor: 'transparent' }, { backgroundColor: '#f8f8f8' }], 1000, {
     scrollSource: '#scroller',
     timeRange: 1000,
     startScrollOffset: 0,
     endScrollOffset: 50,
   })
-  // 动画效果,导航栏标题
   pageInstance.animate('.navbar .title', [{ color: 'transparent' }, { color: '#000' }], 1000, {
     scrollSource: '#scroller',
     timeRange: 1000,
     startScrollOffset: 0,
     endScrollOffset: 50,
   })
-  // 动画效果,导航栏返回按钮
   pageInstance.animate('.navbar .back', [{ color: '#fff' }, { color: '#000' }], 1000, {
     scrollSource: '#scroller',
     timeRange: 1000,
@@ -65,27 +48,12 @@ onReady(() => {
 })
 // #endif
 
-// 获取订单详情
 const order = ref<OrderResult>()
 const getOrderDetail = async () => {
   const rs = await orderDetail({ order_id: query.id })
-  console.log(rs, 'new or......')
   order.value = rs.data
 }
 
-// const getMemberOrderByIdData = async () => {
-//   const res = await getMemberOrderByIdAPI(query.id)
-//   order.value = res.result
-//   if (
-//     [OrderState.DaiShouHuo, OrderState.DaiPingJia, OrderState.YiWanCheng].includes(
-//       order.value.orderState,
-//     )
-//   ) {
-//     getMemberOrderLogisticsByIdData()
-//   }
-// }
-
-// 获取物流信息
 const logisticList = ref<LogisticItem[]>([])
 
 onLoad(() => {
@@ -101,54 +69,42 @@ const onTimeup = () => {
 // 订单支付
 const onOrderPay = async () => {
   if (import.meta.env.DEV) {
-    // 开发环境模拟支付
-    await getPayMockAPI({ orderId: query.id })
+    // await getPayMockAPI({ orderId: query.id })
   } else {
     // #ifdef MP-WEIXIN
-
     // 正式环境支付：1.获取支付订单信息，2.调用微信支付API
     // const res = await getPayWxPayMiniPayAPI({ orderId: query.id })
     // await wx.requestPayment(res.result)
-
     // 注意：因小程序上线后被恶意投诉：理由为支付 0.01 元后不发货，现调整为模拟支付
-    await getPayMockAPI({ orderId: query.id })
+    // await getPayMockAPI({ orderId: query.id })
     // #endif
-
     // #ifdef H5 || APP-PLUS
     // H5端 和 App 端未开通支付-模拟支付体验
-    await getPayMockAPI({ orderId: query.id })
+    // await getPayMockAPI({ orderId: query.id })
     // #endif
   }
+
   // 关闭当前页，再跳转支付结果页
   uni.redirectTo({ url: `/pagesOrder/payment/payment?id=${query.id}` })
 }
 
 // 是否为开发环境
 const isDev = import.meta.env.DEV
-// 模拟发货
-const onOrderSend = async () => {
-  if (isDev) {
-    await getMemberOrderConsignmentByIdAPI(query.id)
-    uni.showToast({ icon: 'success', title: '模拟发货完成' })
-    // 主动更新订单状态
-    order.value!.order_status = OrderState.SHIPPED
-  }
-}
-// 确认收货
+
 const onOrderConfirm = () => {
-  // 二次确认弹窗
   uni.showModal({
     content: '为保障您的权益，请收到货并确认无误后，再确认收货',
     confirmColor: '#010101',
     success: async (success) => {
       if (success.confirm) {
-        const res = await putMemberOrderReceiptByIdAPI(query.id)
+        // const res = await putMemberOrderReceiptByIdAPI(query.id)
         // 更新订单状态
-        order.value = res.result
+        // order.value = res.result
       }
     },
   })
 }
+
 // 删除订单
 const onOrderDelete = () => {
   // 二次确认
@@ -157,7 +113,7 @@ const onOrderDelete = () => {
     confirmColor: '#010101',
     success: async (success) => {
       if (success.confirm) {
-        await deleteMemberOrderAPI({ ids: [query.id] })
+        await cancelOrder({ order_id: query.id })
         uni.redirectTo({ url: '/pagesOrder/list/list' })
       }
     },
@@ -166,13 +122,10 @@ const onOrderDelete = () => {
 
 // 取消订单
 const onOrderCancel = async () => {
-  // 发送请求
-  const res = await getMemberOrderCancelByIdAPI(query.id, { cancelReason: reason.value })
-  // 更新订单信息
-  order.value = res.result
-  // 关闭弹窗
+  // const res = await getMemberOrderCancelByIdAPI(query.id, { cancelReason: reason.value })
+  // order.value = res.result
+
   popup.value?.close!()
-  // 轻提示
   uni.showToast({ icon: 'none', title: '订单取消成功' })
 }
 </script>
@@ -212,8 +165,7 @@ const onOrderCancel = async () => {
           <!-- 订单状态文字 -->
           <view class="status"> {{ orderStateList[order.order_status].text }} </view>
           <view class="button-group">
-            <view v-if="isDev && order.order_status == OrderState.WAIT_SHIP" @tap="onOrderSend" class="button"> 模拟发货 </view>
-            <!-- 待收货状态: 展示确认收货按钮 -->
+            <!-- 确认收货按钮 -->
             <view v-if="order.order_status === OrderState.SHIPPED" @tap="onOrderConfirm" class="button"> 确认收货 </view>
           </view>
         </template>
@@ -310,7 +262,8 @@ const onOrderCancel = async () => {
       <PageSkeleton />
     </template>
   </scroll-view>
-  <!-- 取消订单弹窗 -->
+
+  <!-- 取消订单 -->
   <uni-popup ref="popup" type="bottom" background-color="#fff">
     <view class="popup-root">
       <view class="title">订单取消</view>

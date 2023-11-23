@@ -52,7 +52,7 @@ export const orderReceipt = (order_id: string) => {
 /**
  * @param data
  */
-export const cancelOrder = (data: { order_id: string }) => {
+export const cancelOrder = (data: { order_id: number }) => {
   return request<Detail>({
     method: 'POST',
     url: '/order/cancel',
