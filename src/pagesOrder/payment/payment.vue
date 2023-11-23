@@ -1,14 +1,10 @@
 <script setup lang="ts">
-import { useGuessList } from '@/composables'
 import { onLoad } from '@dcloudio/uni-app'
 
 // 获取页面参数
 const query = defineProps<{
   id: string
 }>()
-
-// 猜你喜欢
-const { guessRef, onScrolltolower } = useGuessList()
 
 // 页面加载
 onLoad(() => {
@@ -22,33 +18,16 @@ onLoad(() => {
 </script>
 
 <template>
-  <scroll-view enable-back-to-top class="viewport" scroll-y @scrolltolower="onScrolltolower">
+  <scroll-view enable-back-to-top class="viewport" scroll-y>
     <!-- 订单状态 -->
     <view class="overview">
-      <view class="status icon-checked">模拟支付成功</view>
-      <view class="tips">提示: 本小程序仅为教学演示用途，并未实际支付或购买商品或服务</view>
       <view class="buttons">
-        <navigator
-          hover-class="none"
-          class="button navigator"
-          url="/pages/index/index"
-          open-type="switchTab"
-        >
-          返回首页
-        </navigator>
-        <navigator
-          hover-class="none"
-          class="button navigator"
-          :url="`/pagesOrder/detail/detail?id=${query.id}`"
-          open-type="redirect"
-        >
+        <navigator hover-class="none" class="button navigator" url="/pages/index/index" open-type="switchTab"> 返回首页 </navigator>
+        <navigator hover-class="none" class="button navigator" :url="`/pagesOrder/detail/detail?id=${query.id}`" open-type="redirect">
           查看订单
         </navigator>
       </view>
     </view>
-
-    <!-- 猜你喜欢 -->
-    <XtxGuess ref="guessRef" />
   </scroll-view>
 </template>
 

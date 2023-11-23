@@ -1,27 +1,43 @@
 <script setup lang="ts">
 import { onLoad, onShow } from '@dcloudio/uni-app'
-import { ref } from 'vue'
+import { ref, watch } from 'vue'
+import { useAuthStore } from '@/stores'
 import { useMemberStore } from '@/stores'
+
 import { wxLogin } from '@/api/user'
 import type { Profile } from '@/types/member'
 
-const memberStore = useMemberStore()
-const visible = ref(false)
+const authStore = useAuthStore()
+// const visible = ref(false)
+
+const props = defineProps<{
+  visible: boolean
+}>()
+
 const popup = ref<{
   open: (type?: UniHelper.UniPopupType) => void
   close: () => void
 }>()
 
+const code = ref()
 const emit = defineEmits<{
   (event: 'close'): void
 }>()
 
+const userLogin = async () => {
+  const rs = await wxLogin(code.value)
+  const memberStore = useMemberStore()
+  memberStore.setProfile(rs.data)
+  setTimeout(() => {
+    popup.value?.close()
+  }, 500)
+}
+
 const onConfirm = () => {
   uni.login({
     success: async (rs) => {
-      const code = rs.code
-      const data = await wxLogin(code)
-      loginSuccess(data.data)
+      code.value = rs.code
+      userLogin()
     },
     fail: (rs) => {
       console.log(rs, '取消授权')
@@ -29,19 +45,31 @@ const onConfirm = () => {
   })
 }
 
-const loginSuccess = (profile: Profile) => {
-  const memberStore = useMemberStore()
-  memberStore.setProfile(profile)
-  setTimeout(() => {
-    popup.value?.close()
-  }, 500)
-}
+watch(authStore, (newValue, oldValue) => {
+  if (newValue.visible) {
+    wx.getSetting({
+      success: (rs) => {
+        if (rs.authSetting['scope.userInfo']) {
+          userLogin()
+        } else {
+          popup.value?.open()
+        }
+      },
+      fail: (err) => {
+        console.log(err, '授权失败.....')
+      },
+    })
+  }
+})
 
 onShow(async () => {
-  if (memberStore.profile?.token) return
+  const rs = await wx.login()
+  code.value = rs.code
   wx.getSetting({
     success: (rs) => {
       if (rs.authSetting['scope.userInfo']) {
+        userLogin()
+      } else {
         popup.value?.open()
       }
     },
@@ -74,6 +102,7 @@ onShow(async () => {
   border-radius: 10rpx 10rpx 0 0;
   position: relative;
   background-color: #fff;
+  z-index: 9;
 }
 
 .title {
@@ -97,8 +126,8 @@ onShow(async () => {
 }
 
 .button {
-  height: 65rpx;
-  line-height: 65rpx;
+  height: 85rpx;
+  line-height: 85rpx;
   margin-top: 100rpx;
   font-size: 28rpx;
   border-radius: 8rpx;

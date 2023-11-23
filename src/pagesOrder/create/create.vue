@@ -4,7 +4,6 @@ import { useAddressStore } from '@/stores/modules/address'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import type { CartResult } from '@/types/cart'
-import type { UserCoupon } from '@/types/coupon'
 
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 订单备注
@@ -27,19 +26,14 @@ const checkout = ref<CartResult>()
 const getCheckoutResult = async (assignCouponId: number) => {
   const rs = await checkoutOrder({ coupon_id: assignCouponId })
   checkout.value = rs.data
+  if (rs.data?.coupon) {
+    checkedCoupon.value = rs.data.coupon.id
+  }
 }
 
 onLoad(() => {
   getCheckoutResult(assignCouponId.value)
-  if (checkout.value?.coupon) {
-    assignCouponId.value = checkout.value.coupon?.id
-  }
 })
-
-const onChangeChecked = async (item: UserCoupon) => {
-  checkedCoupon.value = item.id
-  popup?.value?.close()
-}
 
 const addressStore = useAddressStore()
 // 收货地址
@@ -48,14 +42,14 @@ const selecteAddress = computed(() => {
 })
 
 const onChangeCoupon = (id: number) => {
-  console.log(assignCouponId.value, id, assignCouponId.value === id, 'xxxxxxxxxxx')
   if (assignCouponId.value === id) {
-    assignCouponId.value === -1
-    getCheckoutResult(-1)
+    assignCouponId.value = -1
+    checkedCoupon.value = -1
   } else {
+    checkedCoupon.value = id
     assignCouponId.value = id
-    getCheckoutResult(assignCouponId.value)
   }
+  getCheckoutResult(assignCouponId.value)
   popup.value?.close()
 }
 
@@ -116,7 +110,7 @@ const onOrderSubmit = async () => {
     <view class="related">
       <view class="item">
         <text class="text">订单备注</text>
-        <input class="input" :cursor-spacing="30" placeholder="选题，建议留言前先与商家沟通确认" v-model="desc" />
+        <input class="input" :cursor-spacing="30" placeholder="建议留言前先与商家沟通确认" v-model="desc" />
       </view>
     </view>
 
@@ -126,7 +120,7 @@ const onOrderSubmit = async () => {
         <text class="text">商品总价: </text>
         <text class="number symbol">{{ checkout?.amount }}</text>
       </view>
-      <view class="item" v-if="checkout?.coupon_amount && checkout?.coupon_amount > 0" @tap="popup?.open()">
+      <view class="item" v-if="checkout?.usable_coupons && checkout?.usable_coupons.length > 0" @tap="popup?.open()">
         <text class="text">优惠券: </text>
         <!-- <view> -->
         <text class="number symbol">{{ checkout?.coupon_amount }}</text>
@@ -152,16 +146,17 @@ const onOrderSubmit = async () => {
       <text class="close icon-close" @tap="popup?.close()"></text>
 
       <view class="coupon" v-for="item in checkout?.usable_coupons" :key="item.id" @tap="onChangeCoupon(item.id)">
-        <text @tap="onChangeChecked(item)" class="checkbox" :class="{ checked: item.id === checkedCoupon }"></text>
         <view class="overview">
+          <text class="checkbox" :class="{ checked: item.id === checkedCoupon }"></text>
+
           <view class="meta">
             <text class="title">{{ item.coupon.title }}</text>
-            <text class="desc ellipsis">{{ item.coupon.desc }}</text>
+            <text class="time"
+              >有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{
+                item.end_time.replace(/-/g, '.').substring(0, 10)
+              }}</text
+            >
           </view>
-
-          <text class="time"
-            >有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{ item.end_time.replace(/-/g, '.').substring(0, 10) }}</text
-          >
         </view>
         <view class="price">{{
           item.coupon.type === 'discount' ? item.coupon.value * 10 + '折' : Math.floor(item.coupon.value) + '元'
@@ -345,17 +340,6 @@ page {
   .danger {
     color: #e51c23;
   }
-  // .coupon {
-  //   position: relative;
-  //   .icon {
-  //     font-size: 36rpx;
-  //     color: #333;
-  //     transform: translateY(-50%);
-  //     position: absolute;
-  //     top: 50%;
-  //     right: 20rpx;
-  //   }
-  // }
 }
 
 .toolbar {
@@ -400,28 +384,22 @@ page {
 
 // --------------------- coupon panel ---------------
 .panel {
-  height: 50vh;
-  padding: 20rpx;
+  height: 60vh;
+  padding: 30rpx 20rpx;
   border-radius: 10rpx 10rpx 0 0;
   position: relative;
   background-color: #f4f4f4;
   .close {
+    display: inline-block;
+    padding: 20rpx;
     position: absolute;
     right: 24rpx;
     top: 24rpx;
-    margin-bottom: 24rpx;
+    color: #010101;
+    // margin-bottom: 24rpx;
   }
   .checkbox {
-    position: absolute;
-    top: 0;
-    left: 0;
-
-    display: flex;
-    align-items: center;
-    justify-content: center;
     width: 80rpx;
-    height: 100%;
-
     &::before {
       content: '\e6cd';
       font-family: 'erabbit' !important;
@@ -438,11 +416,10 @@ page {
 .coupon {
   display: flex;
   justify-content: space-between;
-  // align-items: center;
   width: 100%;
   height: 160rpx;
   padding: 20rpx 25rpx;
-  margin-top: 5rpx;
+  margin-bottom: 10rpx;
   background-color: #fff;
   border-radius: 8rpx;
   mask-image: radial-gradient(circle at right 200rpx bottom 8rpx, transparent 8rpx, red 8.5rpx),
@@ -456,8 +433,7 @@ page {
     flex: 70%;
     flex-grow: 0;
     display: flex;
-    flex-direction: column;
-    justify-content: space-around;
+    align-items: center;
     .meta {
       display: flex;
       flex-direction: column;

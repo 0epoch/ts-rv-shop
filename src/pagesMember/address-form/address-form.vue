@@ -143,6 +143,7 @@ const onCityChange: UniHelper.UniDataPickerOnChange = (ev) => {
     </uni-forms>
   </view>
   <button @tap="onSubmit" class="button">保存并使用</button>
+  <RvAuth />
 </template>
 
 <style lang="scss">

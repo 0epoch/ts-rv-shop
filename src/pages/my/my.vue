@@ -1,8 +1,10 @@
 <script setup lang="ts">
 import { useMemberStore } from '@/stores'
+import { useAuthStore } from '@/stores'
+import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref, watch } from 'vue'
-
 const { safeAreaInsets } = uni.getSystemInfoSync()
+const authStore = useAuthStore()
 // 订单选项
 const orderTypes = [
   { type: '1', text: '待付款', icon: 'icon-currency' },
@@ -10,6 +12,10 @@ const orderTypes = [
   { type: '3', text: '待收货', icon: 'icon-check' },
 ]
 const memberStore = useMemberStore()
+
+onLoad(async () => {
+  authStore.toggleAuthVisible()
+})
 </script>
 
 <template>
@@ -110,7 +116,7 @@ const memberStore = useMemberStore()
       </view>
     </view>
   </scroll-view>
-  <RvAuth></RvAuth>
+  <RvAuth />
 </template>
 
 <style lang="scss">

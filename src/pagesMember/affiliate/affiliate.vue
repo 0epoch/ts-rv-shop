@@ -99,6 +99,7 @@ const onSubmit = async () => {
     </view>
   </view>
   <button @tap="onSubmit" class="button">立即领取</button>
+  <RvAuth />
 </template>
 
 <style lang="scss">

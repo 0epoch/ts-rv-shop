@@ -7,3 +7,4 @@ pinia.use(persist)
 export default pinia
 
 export * from './modules/member'
+export * from './modules/auth'

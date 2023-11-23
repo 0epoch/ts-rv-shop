@@ -1,8 +1,7 @@
 <script setup lang="ts">
 import type { InputNumberBoxEvent } from '@/components/vk-data-input-number-box/vk-data-input-number-box'
-import { useGuessList } from '@/composables'
 import { cartProductList, calcCart, cartProductDel } from '@/api/cart'
-import { useMemberStore } from '@/stores'
+import { useMemberStore, useAuthStore } from '@/stores'
 import type { CartItem, CartResult } from '@/types/cart'
 import { onShow } from '@dcloudio/uni-app'
 import { computed, ref, watch } from 'vue'
@@ -14,6 +13,8 @@ defineProps<{
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
 const memberStore = useMemberStore()
+const authStore = useAuthStore()
+
 watch(memberStore, (newValue, oldValue) => {
   if (newValue.profile) {
     gerUserCart()
@@ -55,6 +56,10 @@ const onEdit = () => {
 }
 
 const onDeleteCart = (skuId: string) => {
+  if (!authStore.certified()) {
+    authStore.visible = true
+    return
+  }
   uni.showModal({
     content: '是否删除',
     confirmColor: '#010101',
@@ -217,7 +222,7 @@ const onGo = () => {
 
     <view class="toolbar-height"></view>
   </scroll-view>
-  <RvAuth></RvAuth>
+  <RvAuth />
 </template>
 
 <style lang="scss">

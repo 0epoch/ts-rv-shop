@@ -1,66 +1,36 @@
 <script setup lang="ts">
-import { postLoginAPI, postLoginWxMinAPI, postLoginWxMinSimpleAPI } from '@/services/login'
 import { wxLogin } from '@/api/user'
 import { useMemberStore } from '@/stores'
 import type { Profile } from '@/types/member'
 import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
-// import type { Profiler } from 'inspector'
 
 // #ifdef MP-WEIXIN
 // 获取 code 登录凭证
 let code = ''
 onLoad(async () => {
-  const res = await wx.login()
-  code = res.code
-  console.log(code, 'code.............')
+  const rs = await wx.login()
+  code = rs.code
 })
 
 // 获取用户手机号码
 const onGetphonenumber: UniHelper.ButtonOnGetphonenumber = async (ev) => {
   await checkedAgreePrivacy()
   const { encryptedData, iv } = ev.detail
-  const res = await postLoginWxMinAPI({ code, encryptedData, iv })
-  loginSuccess(res.result)
 }
 // #endif
 
-// 模拟手机号码快捷登录（开发练习）
-const onGetphonenumberSimple = async () => {
-  await checkedAgreePrivacy()
-  const res = await postLoginWxMinSimpleAPI('13123456789')
-  loginSuccess(res.result)
-}
-
 const loginSuccess = (profile: Profile) => {
-  // 保存会员信息
   const memberStore = useMemberStore()
   memberStore.setProfile(profile)
-  // 成功提示
+
   uni.showToast({ icon: 'success', title: '登录成功' })
   setTimeout(() => {
-    // 页面跳转
-    // uni.switchTab({ url: '/pages/my/my' })
     uni.navigateBack()
   }, 500)
 }
 
-// #ifdef H5
-// 传统表单登录，测试账号：13123456789 密码：123456，测试账号仅开发学习使用。
-const form = ref({
-  account: '13123456789',
-  password: '',
-})
-
-// 表单提交
-const onSubmit = async () => {
-  await checkedAgreePrivacy()
-  const res = await postLoginAPI(form.value)
-  loginSuccess(res.result)
-}
-// #endif
-
-// 请先阅读并勾选协议
+//协议
 const isAgreePrivacy = ref(false)
 const isAgreePrivacyShakeY = ref(false)
 const checkedAgreePrivacy = async () => {
@@ -69,22 +39,21 @@ const checkedAgreePrivacy = async () => {
       icon: 'none',
       title: '请先阅读并勾选协议',
     })
-    // 震动提示
     isAgreePrivacyShakeY.value = true
     setTimeout(() => {
       isAgreePrivacyShakeY.value = false
     }, 500)
-    // 返回错误
     return Promise.reject(new Error('请先阅读并勾选协议'))
   }
 }
 
 const onOpenPrivacyContract = () => {
   // #ifdef MP-WEIXIN
-  // 跳转至隐私协议页面
+  // 隐私协议页面
   wx.openPrivacyContract({})
   // #endif
 }
+
 const onLogin = async () => {
   const rs = await wxLogin(code)
   loginSuccess(rs.data)
@@ -98,12 +67,12 @@ const onLogin = async () => {
       <!-- #ifdef MP-WEIXIN -->
       <view class="button-privacy-wrap">
         <button :hidden="isAgreePrivacy" class="button-opacity button phone" @tap="checkedAgreePrivacy">请先阅读并勾选协议</button>
-        <button @click="onLogin">授权登录</button>
+        <button @click="onLogin" class="button">授权登录</button>
       </view>
       <!-- #endif -->
       <view class="tips" :class="{ animate__shakeY: isAgreePrivacyShakeY }">
         <label class="label" @tap="isAgreePrivacy = !isAgreePrivacy">
-          <radio class="radio" color="#28bb9c" :checked="isAgreePrivacy" />
+          <radio class="radio" color="#010101" :checked="isAgreePrivacy" />
           <text>登录/注册即视为你同意RiverValley</text>
         </label>
         <navigator class="link" hover-class="none" url="./protocal">《服务条款》</navigator>
@@ -122,116 +91,15 @@ page {
 .viewport {
   display: flex;
   flex-direction: column;
+  justify-content: center;
   height: 100%;
   padding: 20rpx 40rpx;
 }
 
-.logo {
-  flex: 1;
-  text-align: center;
-  image {
-    width: 220rpx;
-    height: 220rpx;
-    margin-top: 15vh;
-  }
-}
-
-.login {
-  display: flex;
-  flex-direction: column;
-  height: 60vh;
-  padding: 40rpx 20rpx 20rpx;
-
-  .input {
-    width: 100%;
-    height: 80rpx;
-    font-size: 28rpx;
-    border-radius: 72rpx;
-    border: 1px solid #ddd;
-    padding-left: 30rpx;
-    margin-bottom: 20rpx;
-  }
-
-  .button {
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    width: 100%;
-    height: 80rpx;
-    font-size: 28rpx;
-    border-radius: 72rpx;
-    color: #fff;
-    .icon {
-      font-size: 40rpx;
-      margin-right: 6rpx;
-    }
-  }
-
-  .phone {
-    background-color: #28bb9c;
-  }
-
-  .wechat {
-    background-color: #06c05f;
-  }
-
-  .extra {
-    flex: 1;
-    padding: 70rpx 70rpx 0;
-    .caption {
-      width: 440rpx;
-      line-height: 1;
-      border-top: 1rpx solid #ddd;
-      font-size: 26rpx;
-      color: #999;
-      position: relative;
-      text {
-        transform: translate(-40%);
-        background-color: #fff;
-        position: absolute;
-        top: -12rpx;
-        left: 50%;
-      }
-    }
-
-    .options {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-top: 70rpx;
-      button {
-        padding: 0;
-        background-color: transparent;
-        &::after {
-          border: none;
-        }
-      }
-    }
-
-    .icon {
-      font-size: 24rpx;
-      color: #444;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-
-      &::before {
-        display: flex;
-        align-items: center;
-        justify-content: center;
-        width: 80rpx;
-        height: 80rpx;
-        margin-bottom: 6rpx;
-        font-size: 40rpx;
-        border: 1rpx solid #444;
-        border-radius: 50%;
-      }
-    }
-    .icon-weixin::before {
-      border-color: #06c05f;
-      color: #06c05f;
-    }
-  }
+.button {
+  color: #fff;
+  background-color: #010101;
+  border-radius: 72rpx;
 }
 
 @keyframes animate__shakeY {
@@ -260,12 +128,9 @@ page {
 }
 
 .tips {
-  position: absolute;
-  bottom: 80rpx;
-  left: 20rpx;
-  right: 20rpx;
-  font-size: 22rpx;
-  color: #999;
+  margin-top: 10rpx;
+  font-size: 24rpx;
+  color: #666;
   text-align: center;
 
   .radio {
@@ -277,7 +142,7 @@ page {
 
   .link {
     display: inline;
-    color: #28bb9c;
+    color: #010101;
   }
 }
 </style>

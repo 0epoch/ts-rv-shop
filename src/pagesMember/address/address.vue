@@ -1,9 +1,13 @@
 <script setup lang="ts">
 import { addrList, addrRemove } from '@/api/user'
 import { useAddressStore } from '@/stores/modules/address'
+import { useAuthStore } from '@/stores'
+
 import type { AddressItem } from '@/types/address'
 import { onShow } from '@dcloudio/uni-app'
 import { ref } from 'vue'
+
+const authStore = useAuthStore()
 
 const addressList = ref<AddressItem[]>([])
 const getMemberAddrList = async () => {
@@ -16,6 +20,10 @@ onShow(() => {
 })
 
 const onDeleteAddress = (id: string) => {
+  if (!authStore.certified()) {
+    authStore.visible = true
+    return
+  }
   uni.showModal({
     content: '删除地址?',
     confirmColor: '#010101',
@@ -70,6 +78,7 @@ const onChangeAddress = (item: AddressItem) => {
       <navigator hover-class="none" url="/pagesMember/address-form/address-form"> 新建地址 </navigator>
     </view>
   </view>
+  <RvAuth />
 </template>
 
 <style lang="scss">

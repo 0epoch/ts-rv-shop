@@ -9,6 +9,7 @@ import AddressPanel from './components/AddressPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
 import { fetchProductDetail } from '@/api/product'
 import type { Detail } from '@/types/product'
+import { useAuthStore } from '@/stores'
 
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
@@ -16,6 +17,7 @@ const query = defineProps<{
   id: string
 }>()
 
+const authStore = useAuthStore()
 // 获取商品详情信息
 const productDetail = ref<Detail>()
 const getProductDetail = async () => {
@@ -95,15 +97,15 @@ const skuPopupRef = ref<SkuPopupInstance>()
 const selectArrText = computed(() => {
   return skuPopupRef.value?.selectArr?.join(' ').trim() || '请选择商品规格'
 })
-// 加入购物车事件
+
 const onAddCart = async (ev: SkuPopupEvent) => {
+  if (!authStore.certified()) {
+    authStore.visible = true
+    return
+  }
   await saveCardProduct({ product_id: ev._id, sku_id: ev.goods_id, qty: ev.buy_num })
   uni.showToast({ title: '添加成功' })
   skuVisible.value = false
-}
-// 立即购买
-const onBuyNow = (ev: SkuPopupEvent) => {
-  uni.navigateTo({ url: `/pagesOrder/create/create?skuId=${ev._id}&count=${ev.buy_num}` })
 }
 </script>
 
@@ -125,7 +127,6 @@ const onBuyNow = (ev: SkuPopupEvent) => {
     }"
     :btn-style="{ color: '#010101' }"
     @add-cart="onAddCart"
-    @buy-now="onBuyNow"
   />
   <scroll-view enable-back-to-top scroll-y class="viewport">
     <view class="goods">
@@ -186,6 +187,8 @@ const onBuyNow = (ev: SkuPopupEvent) => {
     <AddressPanel v-if="popupName === 'address'" @close="popup?.close()" />
     <ServicePanel v-if="popupName === 'service'" @close="popup?.close()" />
   </uni-popup>
+
+  <RvAuth />
 </template>
 
 <style lang="scss">
