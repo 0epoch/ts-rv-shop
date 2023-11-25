@@ -22,7 +22,7 @@ watch(memberStore, (newValue, oldValue) => {
 })
 
 const cartResult = ref<CartResult>()
-const cartList = ref<CartItem[]>([])
+const cartList = ref<CartResult>()
 const editActive = ref(false)
 const editText = ref('编辑')
 
@@ -32,15 +32,18 @@ const showCartList = ref(true)
 const gerUserCart = async () => {
   const rs = await cartProductList()
   cartList.value = rs.data
-  showCartList.value = rs.data.length > 0
+  cartResult.value = rs.data
+  showCartList.value = rs.data.skus.length > 0
 }
 
 const deleteUserCartProducts = async () => {
-  const skusId = selectedCartList.value.map((item) => {
+  const skusId = selectedCartList.value?.map((item) => {
     return item.sku_id
   })
-  await cartProductDel(skusId)
-  editActive.value = false
+  if (skusId) {
+    await cartProductDel(skusId)
+    editActive.value = false
+  }
 }
 
 onShow(() => {
@@ -74,7 +77,7 @@ const onDeleteCart = (skuId: string) => {
 
 // 修改商品数量
 const onChangeQty = async (e: InputNumberBoxEvent) => {
-  const changeSkus = cartList.value.map((item) => {
+  const changeSkus = cartList.value?.skus.map((item) => {
     return { sku_id: item.sku_id, qty: item.qty, selected: item.selected }
   })
   const rs = await calcCart({ selected: changeSkus, coupon_id: 0 })
@@ -83,7 +86,7 @@ const onChangeQty = async (e: InputNumberBoxEvent) => {
 
 const onChangeSelected = async (item: CartItem) => {
   item.selected = item.selected === 1 ? 0 : 1
-  if (selectedCartList.value.length <= 0) {
+  if (!selectedCartList.value || selectedCartList.value.length <= 0) {
     cartResult.value = {
       checkout_amount: 0,
       promotion_amount: 0,
@@ -95,7 +98,7 @@ const onChangeSelected = async (item: CartItem) => {
     calcCart({ coupon_id: 0 })
     return
   }
-  const changeSkus = selectedCartList.value.map((item) => {
+  const changeSkus = selectedCartList.value?.map((item) => {
     return { sku_id: item.sku_id, qty: item.qty }
   })
   const rs = await calcCart({ selected: changeSkus, coupon_id: 0 })
@@ -104,15 +107,15 @@ const onChangeSelected = async (item: CartItem) => {
 
 // 计算全选状态
 const isSelectedAll = computed(() => {
-  return cartList.value.length && cartList.value.every((v) => v.selected)
+  return cartList.value?.skus.length && cartList.value.skus.every((v) => v.selected)
 })
 
 const onChangeSelectedAll = async () => {
   const _isSelectedAll = !isSelectedAll.value
-  cartList.value.forEach((item) => {
+  cartList.value?.skus.forEach((item) => {
     item.selected = _isSelectedAll ? 1 : 0
   })
-  const changeSkus = selectedCartList.value.map((item) => {
+  const changeSkus = selectedCartList.value?.map((item) => {
     return { sku_id: item.sku_id, qty: item.qty }
   })
   const rs = await calcCart({ selected: changeSkus, coupon_id: 0 })
@@ -120,11 +123,11 @@ const onChangeSelectedAll = async () => {
 }
 
 const selectedCartList = computed(() => {
-  return cartList.value.filter((v) => v.selected)
+  return cartList.value?.skus.filter((v) => v.selected)
 })
 
 const selectedCartListCount = computed(() => {
-  return selectedCartList.value.reduce((sum, item) => sum + item.qty, 0)
+  return selectedCartList.value?.reduce((sum, item) => sum + item.qty, 0)
 })
 
 const selectedCartListMoney = computed(() => {
@@ -172,7 +175,7 @@ const onGo = () => {
           <text class="label" @tap="onEdit">{{ editText }}</text>
         </view>
         <uni-swipe-action>
-          <uni-swipe-action-item v-for="item in cartList" :key="item.sku_id" class="cart-swipe">
+          <uni-swipe-action-item v-for="item in cartList?.skus" :key="item.sku_id" class="cart-swipe">
             <view class="goods">
               <text @tap="onChangeSelected(item)" class="checkbox" :class="{ checked: item.selected === 1 }"></text>
               <navigator :url="`/pages/product/detail?id=${item.product_id}`" hover-class="none" class="navigator">

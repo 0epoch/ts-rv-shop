@@ -1,32 +1,9 @@
 import type { OrderState } from '@/services/constants'
 import type { AddressItem } from './address'
-import type { PageParams } from '@/types/global'
-
-export type OrderPreResult = {
-  goods: OrderPreGoods[]
-  summary: {
-    totalPrice: number
-    postFee: number
-    totalPayPrice: number
-  }
-  userAddresses: AddressItem[]
-}
-
-export type OrderPreGoods = {
-  attrsText: string
-  count: number
-  id: string
-  name: string
-  payPrice: string
-  picture: string
-  price: string
-  skuId: string
-  totalPayPrice: string
-  totalPrice: string
-}
+import type { PageParams, Paginate } from '@/types/global'
 
 export type OrderCreateParams = {
-  address_id: string
+  address_id: number
   buy_type: string
   buyer_words: string
   skus: {
@@ -39,7 +16,7 @@ export type OrderCreateParams = {
 }
 
 export type Order = {
-  id: string
+  id: number
   order_no: string
   pay_platform: string
   order_amount: number
@@ -48,7 +25,7 @@ export type Order = {
   coupon_amount: number
   vip_discount_amount: number
   product_num: number
-  order_status: string
+  order_status: OrderState
   refund_status: string
   receiver_name: string
   receiver_mobile: string
@@ -76,7 +53,7 @@ export type OrderResult = Order & {
 
 /** 商品信息 */
 export type OrderSku = {
-  id: string
+  id: number
   product_sku_id: string
   product_name: string
   product_attr: string
@@ -85,39 +62,29 @@ export type OrderSku = {
   product_pic_url: string
 }
 
-/** 物流信息 返回值类型 */
+/** 物流信息 */
 export type OrderLogisticResult = {
-  /** 快递公司 */
   company: {
-    /** 公司名称 */
     name: string
-    /** 快递编号 */
     number: string
-    /** 联系电话 */
     tel: string
   }
-  /** 商品件数 */
   count: number
-  /** 物流日志 */
   list: LogisticItem[]
 }
 
 /** 物流日志 */
 export type LogisticItem = {
-  /** 信息ID */
   id: string
-  /** 信息文字 */
   text: string
-  /** 时间 */
   time: string
 }
 
 /** 订单列表参数 */
-export type OrderListParams = PageParams & { orderState: number }
+export type OrderListParams = { order_status: string; pagination: Paginate }
 
 /** 订单列表 */
 export type OrderListResult = {
-  /** 总记录数 */
   total: number
   data: Order[]
   page: number
@@ -127,6 +94,5 @@ export type OrderListResult = {
 
 /** 订单列表项 */
 export type OrderItem = OrderResult & {
-  /** 总件数 */
   totalNum: number
 }

@@ -38,12 +38,7 @@ const onTap = (item: ConfItem) => {
     </swiper>
     <!-- 指示点 -->
     <view class="indicator">
-      <text
-        v-for="(item, index) in homeBanner?.banner"
-        :key="item.id"
-        class="dot"
-        :class="{ active: index === activeIndex }"
-      ></text>
+      <text v-for="(item, index) in homeBanner?.banner" :key="item.id" class="dot" :class="{ active: index === activeIndex }"></text>
     </view>
   </view>
 </template>

@@ -1,12 +1,8 @@
 <script setup lang="ts">
 import { OrderState } from '@/services/constants'
 import { orderStateList } from '@/services/constants'
-import { putMemberOrderReceiptByIdAPI } from '@/services/order'
-import { orderList } from '@/api/order'
+import { orderList, orderReceipt } from '@/api/order'
 
-import { deleteMemberOrderAPI } from '@/services/order'
-import { getMemberOrderAPI } from '@/services/order'
-import { getPayMockAPI, getPayWxPayMiniPayAPI } from '@/services/pay'
 import type { Order, OrderResult } from '@/types/order'
 import type { OrderListParams } from '@/types/order'
 import { onMounted, ref } from 'vue'
@@ -21,111 +17,64 @@ const props = defineProps<{
 
 // 请求参数
 const queryParams: Required<OrderListParams> = {
-  page: 1,
-  per_page: 5,
+  pagination: {
+    page: 1,
+    per_page: 10,
+  },
   order_status: props.orderStatus,
 }
 
-// 获取订单列表
 const orders = ref<OrderResult[]>([])
-// 是否加载中标记，用于防止滚动触底触发多次请求
+
 const isLoading = ref(false)
 const getOrderList = async () => {
-  // 如果数据出于加载中，退出函数
   if (isLoading.value) return
-  // 退出分页判断
   if (isFinish.value === true) {
     return uni.showToast({ icon: 'none', title: '没有更多数据~' })
   }
+
   // 发送请求前，标记为加载中
   isLoading.value = true
-  // 发送请求
   const rs = await orderList(queryParams)
-
-  // 发送请求后，重置标记
   isLoading.value = false
-  // 数组追加
   orders.value.push(...rs.data.data)
-  // 分页条件
-  if (queryParams.page < rs.data.last_page) {
-    // 页码累加
-    queryParams.page++
+  if (queryParams.pagination.page < rs.data.last_page) {
+    queryParams.pagination.page++
   } else {
-    // 分页已结束
     isFinish.value = true
   }
 }
-// const getMemberOrderData = async () => {
-//   // 如果数据出于加载中，退出函数
-//   if (isLoading.value) return
-//   // 退出分页判断
-//   if (isFinish.value === true) {
-//     return uni.showToast({ icon: 'none', title: '没有更多数据~' })
-//   }
-//   // 发送请求前，标记为加载中
-//   isLoading.value = true
-//   // 发送请求
-//   const res = await getMemberOrderAPI(queryParams)
-//   // 发送请求后，重置标记
-//   isLoading.value = false
-//   // 数组追加
-//   orderList.value.push(...res.result.items)
-//   // 分页条件
-//   if (queryParams.page < res.result.pages) {
-//     // 页码累加
-//     queryParams.page++
-//   } else {
-//     // 分页已结束
-//     isFinish.value = true
-//   }
-// }
 
 onMounted(() => {
   getOrderList()
 })
 
 // 订单支付
-const onOrderPay = async (id: string) => {
-  if (import.meta.env.DEV) {
-    // 开发环境模拟支付
-    await getPayMockAPI({ orderId: id })
-  } else {
-    // #ifdef MP-WEIXIN
+const onOrderPay = async (id: number) => {
+  // #ifdef MP-WEIXIN
 
-    // 正式环境支付：1.获取支付订单信息，2.调用微信支付API
-    // const res = await getPayWxPayMiniPayAPI({ orderId: id })
-    // await wx.requestPayment(res.result)
+  // 正式环境支付：1.获取支付订单信息，2.调用微信支付API
+  // const res = await getPayWxPayMiniPayAPI({ orderId: id })
+  // await wx.requestPayment(res.result)
+  // #endif
 
-    // 注意：因小程序上线后被恶意投诉：理由为支付 0.01 元后不发货，现调整为模拟支付
-    await getPayMockAPI({ orderId: id })
-    // #endif
-  }
-  // 成功提示
-  uni.showToast({ title: '模拟支付成功' })
-  // 模拟支付提示
-  setTimeout(() => {
-    wx.showModal({
-      title: '温馨提示',
-      content: '此交易是模拟支付，您并未付款，不会导致实际购买商品或服务',
-      confirmText: '知道了',
-      showCancel: false,
-    })
-  }, 2000)
+  uni.showToast({ title: '支付成功' })
+
   // 更新订单状态
   const order = orders.value.find((v) => v.id === id)
   order!.order_status = OrderState.WAIT_SHIP
 }
 
-// 确认收货
-const onOrderConfirm = (id: string) => {
+const onOrderConfirm = (id: number) => {
   uni.showModal({
     content: '为保障您的权益，请收到货并确认无误后，再确认收货',
     confirmColor: '#010101',
     success: async (res) => {
       if (res.confirm) {
-        await putMemberOrderReceiptByIdAPI(id)
+        await orderReceipt(id)
         uni.showToast({ icon: 'success', title: '确认收货成功' })
-        // 确认成功，更新为待评价
+
+        // 确认成功，状态更新
         const order = orders.value.find((v) => v.id === id)
         order!.order_status = OrderState.COMPLETED
       }
@@ -133,37 +82,15 @@ const onOrderConfirm = (id: string) => {
   })
 }
 
-// 删除订单
-const onOrderDelete = (id: string) => {
-  uni.showModal({
-    content: '你确定要删除该订单？',
-    confirmColor: '#010101',
-    success: async (res) => {
-      if (res.confirm) {
-        await deleteMemberOrderAPI({ ids: [id] })
-        // 删除成功，界面中删除订单
-        const index = orders.value.findIndex((v) => v.id === id)
-        orders.value.splice(index, 1)
-      }
-    },
-  })
-}
-
-// 是否分页结束
 const isFinish = ref(false)
-// 是否触发下拉刷新
 const isTriggered = ref(false)
-// 自定义下拉刷新被触发
 const onRefresherrefresh = async () => {
-  // 开始动画
   isTriggered.value = true
-  // 重置数据
-  queryParams.page = 1
+  // 重置分页
+  queryParams.pagination.page = 1
   orders.value = []
   isFinish.value = false
-  // 加载数据
   await getOrderList()
-  // 关闭动画
   isTriggered.value = false
 }
 </script>
@@ -179,19 +106,13 @@ const onRefresherrefresh = async () => {
     @scrolltolower="getOrderList"
   >
     <view class="card" v-for="order in orders" :key="order.id">
-      <!-- 订单信息 -->
       <view class="status">
         <text class="date">{{ order.created_at }}</text>
-        <!-- 订单状态文字 -->
+        <!-- 订单状态 -->
         <text>{{ orderStateList[order.order_status as keyof typeof orderStateList].text }}</text>
-        <!-- 待评价/已完成/已取消 状态: 展示删除订单 -->
-        <text
-          v-if="order.order_status >= OrderState.UNPAID"
-          class="icon-delete"
-          @tap="onOrderDelete(order.id)"
-        ></text>
       </view>
-      <!-- 商品信息，点击商品跳转到订单详情，不是商品详情 -->
+
+      <!-- 订单商品信息 -->
       <navigator
         v-for="item in order.skus"
         :key="item.id"
@@ -207,38 +128,26 @@ const onRefresherrefresh = async () => {
           <view class="type">{{ item.product_attr }}</view>
         </view>
       </navigator>
+
       <!-- 支付信息 -->
       <view class="payment">
         <text class="quantity">共{{ order.product_num }}件商品</text>
         <text>实付</text>
         <text class="amount"> <text class="symbol">¥</text>{{ order.pay_amount }}</text>
       </view>
-      <!-- 订单操作按钮 -->
+
       <view class="action">
-        <!-- 待付款状态：显示去支付按钮 -->
+        <!-- 待付款状态 -->
         <template v-if="order.order_status === OrderState.UNPAID">
           <view class="button primary" @tap="onOrderPay(order.id)">去支付</view>
         </template>
         <template v-else>
-          <navigator
-            class="button secondary"
-            :url="`/pagesOrder/create/create?orderId=${order.id}`"
-            hover-class="none"
-          >
-            再次购买
-          </navigator>
-          <!-- 待收货状态: 展示确认收货 -->
-          <view
-            v-if="order.order_status === OrderState.SHIPPED"
-            class="button primary"
-            @tap="onOrderConfirm(order.id)"
-          >
-            确认收货
-          </view>
+          <!-- 待收货状态 -->
+          <view v-if="order.order_status === OrderState.SHIPPED" class="button primary" @tap="onOrderConfirm(order.id)"> 确认收货 </view>
         </template>
       </view>
     </view>
-    <!-- 底部提示文字 -->
+
     <view class="loading-text" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
       {{ isFinish ? '没有更多数据~' : '正在加载...' }}
     </view>
@@ -246,7 +155,6 @@ const onRefresherrefresh = async () => {
 </template>
 
 <style lang="scss">
-// 订单列表
 .orders {
   .card {
     min-height: 100rpx;

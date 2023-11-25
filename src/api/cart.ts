@@ -29,10 +29,7 @@ export const cartProductDel = (skus_id: string[]) => {
 /**
  * @param data
  */
-export const calcCart = (data: {
-  selected?: { sku_id: string; qty: number }[]
-  coupon_id: number
-}) => {
+export const calcCart = (data: { selected?: { sku_id: string; qty: number }[]; coupon_id: number }) => {
   return request<CartResult>({
     method: 'POST',
     url: '/cart/calc',
@@ -44,7 +41,7 @@ export const calcCart = (data: {
  * @param data
  */
 export const cartProductList = () => {
-  return request<CartItem[]>({
+  return request<CartResult>({
     method: 'GET',
     url: '/carts',
     data: {},

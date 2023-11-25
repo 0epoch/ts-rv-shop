@@ -23,6 +23,7 @@ const query = defineProps<{
 const pages = getCurrentPages()
 
 type PageInstance = Page.PageInstance & WechatMiniprogram.Page.InstanceMethods<any>
+
 // #ifdef MP-WEIXIN
 const pageInstance = pages.at(-1) as PageInstance
 
@@ -60,10 +61,8 @@ onLoad(() => {
   getOrderDetail()
 })
 
-// 倒计时结束事件
 const onTimeup = () => {
-  // 修改订单状态为已取消
-  // order.value!.order_status = OrderState.CANCELED
+  order.value!.order_status = OrderState.CANCELED
 }
 
 // 订单支付
@@ -76,10 +75,6 @@ const onOrderPay = async () => {
     // const res = await getPayWxPayMiniPayAPI({ orderId: query.id })
     // await wx.requestPayment(res.result)
     // 注意：因小程序上线后被恶意投诉：理由为支付 0.01 元后不发货，现调整为模拟支付
-    // await getPayMockAPI({ orderId: query.id })
-    // #endif
-    // #ifdef H5 || APP-PLUS
-    // H5端 和 App 端未开通支付-模拟支付体验
     // await getPayMockAPI({ orderId: query.id })
     // #endif
   }
@@ -105,26 +100,14 @@ const onOrderConfirm = () => {
   })
 }
 
-// 删除订单
-const onOrderDelete = () => {
-  // 二次确认
-  uni.showModal({
-    content: '是否删除订单',
-    confirmColor: '#010101',
-    success: async (success) => {
-      if (success.confirm) {
-        await cancelOrder({ order_id: query.id })
-        uni.redirectTo({ url: '/pagesOrder/list/list' })
-      }
-    },
-  })
-}
-
 // 取消订单
 const onOrderCancel = async () => {
-  // const res = await getMemberOrderCancelByIdAPI(query.id, { cancelReason: reason.value })
-  // order.value = res.result
+  if (!order.value) {
+    uni.showToast({ icon: 'error', title: '请返回上一步获取订单数据' })
+    return
+  }
 
+  await cancelOrder({ order_id: order.value?.id, reason: reason.value })
   popup.value?.close!()
   uni.showToast({ icon: 'none', title: '订单取消成功' })
 }
@@ -143,7 +126,7 @@ const onOrderCancel = async () => {
     <template v-if="order">
       <!-- 订单状态 -->
       <view class="overview" :style="{ paddingTop: safeAreaInsets!.top + 20 + 'px' }">
-        <!-- 待付款状态:展示倒计时 -->
+        <!-- 待付款倒计时 -->
         <template v-if="order.order_status === OrderState.UNPAID">
           <view class="status icon-clock">等待付款</view>
           <view class="tips">
@@ -160,16 +143,17 @@ const onOrderCancel = async () => {
           </view>
           <view class="button" @tap="onOrderPay">去支付</view>
         </template>
-        <!-- 其他订单状态:展示再次购买按钮 -->
+
         <template v-else>
-          <!-- 订单状态文字 -->
+          <!-- 订单状态 -->
           <view class="status"> {{ orderStateList[order.order_status].text }} </view>
           <view class="button-group">
-            <!-- 确认收货按钮 -->
+            <!-- 确认收货 -->
             <view v-if="order.order_status === OrderState.SHIPPED" @tap="onOrderConfirm" class="button"> 确认收货 </view>
           </view>
         </template>
       </view>
+
       <!-- 配送状态 -->
       <view class="shipment">
         <!-- 订单物流信息 -->
@@ -179,6 +163,7 @@ const onOrderCancel = async () => {
           </view>
           <view class="date"> {{ item.time }} </view>
         </view>
+
         <!-- 用户收货地址 -->
         <view class="locate">
           <view class="user"> {{ order.receiver_mobile }} </view>
@@ -211,7 +196,7 @@ const onOrderCancel = async () => {
               <view class="quantity">x{{ item.product_num }}</view>
             </view>
           </navigator>
-          <!-- 待评价状态:展示按钮 -->
+
           <view class="action" v-if="order.order_status === OrderState.SHIPPED">
             <view class="button primary">申请售后</view>
           </view>
@@ -243,22 +228,19 @@ const onOrderCancel = async () => {
 
       <view class="toolbar-height" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }"></view>
       <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
-        <!-- 待付款状态:展示支付按钮 -->
+        <!-- 待付款状态 -->
         <template v-if="order.order_status === OrderState.UNPAID">
           <view class="button primary" @tap="onOrderPay"> 去支付 </view>
           <view class="button" @tap="popup?.open?.()"> 取消订单 </view>
         </template>
-        <!-- 其他订单状态:按需展示按钮 -->
-        <template v-else>
-          <!-- 待收货状态: 展示确认收货 -->
-          <view class="button primary" v-if="order.order_status === OrderState.SHIPPED" @tap="onOrderConfirm"> 确认收货 </view>
 
-          <view class="button delete" v-if="order.order_status >= OrderState.COMPLETED" @tap="onOrderDelete"> 删除订单 </view>
+        <template v-else>
+          <!-- 待收货状态 -->
+          <view class="button primary" v-if="order.order_status === OrderState.SHIPPED" @tap="onOrderConfirm"> 确认收货 </view>
         </template>
       </view>
     </template>
     <template v-else>
-      <!-- 骨架屏组件 -->
       <PageSkeleton />
     </template>
   </scroll-view>

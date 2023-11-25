@@ -1,5 +1,5 @@
 import type { Product, Detail } from '@/types/product'
-import type { Paginate } from '@/types/global'
+import type { Paginate, PaginateParams } from '@/types/global'
 
 import { request } from '@/utils/request'
 import type { CartResult } from '@/types/cart'
@@ -41,7 +41,7 @@ export const orderCount = () => {
 /**
  * @param data
  */
-export const orderReceipt = (order_id: string) => {
+export const orderReceipt = (order_id: number) => {
   return request<Detail>({
     method: 'POST',
     url: '/order/receipt',
@@ -52,7 +52,7 @@ export const orderReceipt = (order_id: string) => {
 /**
  * @param data
  */
-export const cancelOrder = (data: { order_id: number }) => {
+export const cancelOrder = (data: { order_id: number; reason: string }) => {
   return request<Detail>({
     method: 'POST',
     url: '/order/cancel',
