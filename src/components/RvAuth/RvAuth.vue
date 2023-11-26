@@ -28,6 +28,7 @@ const userLogin = async () => {
   const rs = await wxLogin(code.value)
   const memberStore = useMemberStore()
   memberStore.setProfile(rs.data)
+  authStore.visible = false
   setTimeout(() => {
     popup.value?.close()
   }, 500)
@@ -46,6 +47,7 @@ const onConfirm = () => {
 }
 
 watch(authStore, (newValue, oldValue) => {
+  console.log('w atuh.............')
   if (newValue.visible) {
     wx.getSetting({
       success: (rs) => {
@@ -63,6 +65,7 @@ watch(authStore, (newValue, oldValue) => {
 })
 
 onShow(async () => {
+  if (authStore.certified()) return
   const rs = await wx.login()
   code.value = rs.code
   wx.getSetting({

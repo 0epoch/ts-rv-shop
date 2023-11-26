@@ -31,9 +31,7 @@
             <view class="specification-right">
               <view class="price-content" :style="{ color: themeColorFn('priceColor') }">
                 <text class="sign">¥</text>
-                <text class="price" :class="priceCom.length > 16 ? 'price2' : ''">{{
-                  priceCom
-                }}</text>
+                <text class="price" :class="priceCom.length > 16 ? 'price2' : ''">{{ priceCom }}</text>
               </view>
               <view class="inventory" v-if="!hideStock">{{ stockText }}：{{ stockCom }}</view>
               <view class="inventory" v-else></view>
@@ -42,22 +40,14 @@
           </view>
 
           <view class="specification-content">
-            <view
-              v-show="isManyCom"
-              class="specification-item"
-              v-for="(item, index1) in goodsInfo[specListName]"
-              :key="index1"
-            >
+            <view v-show="isManyCom" class="specification-item" v-for="(item, index1) in goodsInfo[specListName]" :key="index1">
               <view class="item-title">{{ item.name }}</view>
               <view class="item-wrapper">
                 <view
                   class="item-content"
                   v-for="(item_value, index2) in item.list"
                   :key="index2"
-                  :class="[
-                    item_value.ishow ? '' : 'noactived',
-                    subIndex[index1] == index2 ? 'actived' : '',
-                  ]"
+                  :class="[item_value.ishow ? '' : 'noactived', subIndex[index1] == index2 ? 'actived' : '']"
                   :style="[
                     item_value.ishow ? '' : themeColorFn('disableStyle'),
                     item_value.ishow ? themeColorFn('btnStyle') : '',
@@ -85,15 +75,11 @@
             </view>
           </view>
         </scroll-view>
-        <view class="close" @click="close('close')" v-if="showClose != false"
-          ><image class="close-item" :src="closeImage"></image
-        ></view>
+        <view class="close" @click="close('close')" v-if="showClose != false"><image class="close-item" :src="closeImage"></image></view>
       </view>
 
       <view class="btn-wrapper" v-if="outFoStock || mode == 4">
-        <view class="sure" style="color: #ffffff; background-color: #cccccc">{{
-          noStockText
-        }}</view>
+        <view class="sure" style="color: #ffffff; background-color: #cccccc">{{ noStockText }}</view>
       </view>
       <view class="btn-wrapper" v-else-if="mode == 1">
         <view
@@ -155,18 +141,7 @@ var vk // vk依赖
 var goodsCache = {} // 本地商品缓存
 export default {
   name: 'vk-data-goods-sku-popup',
-  emits: [
-    'update:modelValue',
-    'input',
-    'update-goods',
-    'open',
-    'close',
-    'add-cart',
-    'buy-now',
-    'cart',
-    'buy',
-    'num-change',
-  ],
+  emits: ['update:modelValue', 'input', 'update-goods', 'open', 'close', 'add-cart', 'buy-now', 'cart', 'buy', 'num-change'],
   props: {
     // true 组件显示 false 组件隐藏
     value: {
@@ -397,7 +372,7 @@ export default {
   },
   data() {
     return {
-      safeBottom: 0,  // 留出底部安全距离
+      safeBottom: 0, // 留出底部安全距离
       complete: false, // 组件是否加载完成
       goodsInfo: {}, // 商品信息
       isShow: false, // true 显示 false 隐藏
@@ -502,7 +477,7 @@ export default {
       that.open()
     }
     // 获取屏幕边界到安全区域距离
-    const {safeAreaInsets} = uni.getSystemInfoSync()
+    const { safeAreaInsets } = uni.getSystemInfoSync()
     // 底部安全距离
     that.safeBottom = safeAreaInsets.bottom
   },
@@ -580,10 +555,7 @@ export default {
       // 	item.sku_name_arr = ["20ml/瓶"];
       // });
       let { skuListName } = that
-      if (
-        JSON.stringify(that.goodsInfo) === '{}' ||
-        that.goodsInfo[that.goodsIdName] !== goodsInfo[that.goodsIdName]
-      ) {
+      if (JSON.stringify(that.goodsInfo) === '{}' || that.goodsInfo[that.goodsIdName] !== goodsInfo[that.goodsIdName]) {
         that.goodsInfo = goodsInfo
         that.initKey = true
       } else {
@@ -594,11 +566,7 @@ export default {
         that.init()
       }
       // 更新选中sku的库存信息
-      let select_sku_info = that.getListItem(
-        that.goodsInfo[skuListName],
-        that.skuIdName,
-        that.selectShop[that.skuIdName],
-      )
+      let select_sku_info = that.getListItem(that.goodsInfo[skuListName], that.skuIdName, that.selectShop[that.skuIdName])
       Object.assign(that.selectShop, select_sku_info)
       that.defaultSelectSku()
       that.complete = true
@@ -750,9 +718,7 @@ export default {
           }
           let choosed_copy = [...that.selectArr]
           that.$set(choosed_copy, i, specList[i].list[j].name)
-          let choosed_copy2 = choosed_copy.filter(
-            (item) => item !== '' && typeof item !== 'undefined',
-          )
+          let choosed_copy2 = choosed_copy.filter((item) => item !== '' && typeof item !== 'undefined')
           if (that.shopItemInfo.hasOwnProperty(that.getArrayToSting(choosed_copy2))) {
             specList[i].list[j].ishow = true
           } else {
@@ -1127,12 +1093,7 @@ export default {
       handler: function (newVal, oldValue) {
         let that = this
         let { goodsIdName } = that
-        if (
-          typeof newVal === 'object' &&
-          newVal &&
-          newVal[goodsIdName] &&
-          !goodsCache[newVal[goodsIdName]]
-        ) {
+        if (typeof newVal === 'object' && newVal && newVal[goodsIdName] && !goodsCache[newVal[goodsIdName]]) {
           that.pushGoodsCache(newVal)
         }
       },
@@ -1363,10 +1324,10 @@ export default {
       }
       .sure {
         width: 698rpx;
-        height: 68rpx;
+        height: 78rpx;
         border-radius: 38rpx;
         color: #fff;
-        line-height: 68rpx;
+        line-height: 78rpx;
         text-align: center;
         font-weight: 500;
         font-size: 28rpx;

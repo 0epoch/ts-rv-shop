@@ -60,11 +60,6 @@ const onSubmit = async () => {
 
 <template>
   <view class="viewport">
-    <view class="navbar" :style="{ paddingTop: safeAreaInsets?.top + 'px' }">
-      <navigator open-type="navigateBack" class="back icon-left" hover-class="none"></navigator>
-      <view class="title">经销商中心</view>
-    </view>
-
     <view class="aff-wrapper">
       <view class="affiliate">
         <view class="aff-overview">

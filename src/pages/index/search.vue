@@ -112,7 +112,7 @@ const onScrolltolower = async () => {
   align-items: center;
   justify-content: space-between;
   padding: 0 10rpx 0 26rpx;
-  height: 64rpx;
+  height: 78rpx;
   margin: 16rpx 20rpx;
   color: #666;
   font-size: 28rpx;

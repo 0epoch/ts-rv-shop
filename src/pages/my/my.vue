@@ -29,10 +29,10 @@ onLoad(async () => {
             {{ memberStore.profile.nickname || memberStore.profile.name }}
           </view>
         </navigator>
-        <view class="balance">
+        <navigator class="balance" url="/pages/recharge/recharge" hover-class="none">
           <text class="number">0</text>
           <text class="badge">余额</text>
-        </view>
+        </navigator>
         <!-- <view class="meta">
           <view class="nickname">
             {{ memberStore.profile.nickname || memberStore.profile.name }}

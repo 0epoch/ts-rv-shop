@@ -32,6 +32,8 @@ export type Detail = {
   stock: number
   is_aff: number
   sold_qty: number
+  meet_qty: number
+  meet_discount: number
   pic_url: string
   main_pictures: string[]
   detail_pictures: string[]

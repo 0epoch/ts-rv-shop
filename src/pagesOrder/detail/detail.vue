@@ -141,15 +141,15 @@ const onOrderCancel = async () => {
               @timeup="onTimeup"
             />
           </view>
-          <view class="button" @tap="onOrderPay">去支付</view>
+          <view class="btn" @tap="onOrderPay">去支付</view>
         </template>
 
         <template v-else>
           <!-- 订单状态 -->
           <view class="status"> {{ orderStateList[order.order_status].text }} </view>
-          <view class="button-group">
+          <view class="btn-group">
             <!-- 确认收货 -->
-            <view v-if="order.order_status === OrderState.SHIPPED" @tap="onOrderConfirm" class="button"> 确认收货 </view>
+            <view v-if="order.order_status === OrderState.SHIPPED" @tap="onOrderConfirm" class="btn"> 确认收货 </view>
           </view>
         </template>
       </view>
@@ -198,7 +198,7 @@ const onOrderCancel = async () => {
           </navigator>
 
           <view class="action" v-if="order.order_status === OrderState.SHIPPED">
-            <view class="button primary">申请售后</view>
+            <view class="btn primary">申请售后</view>
           </view>
         </view>
         <!-- 合计 -->
@@ -230,13 +230,13 @@ const onOrderCancel = async () => {
       <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
         <!-- 待付款状态 -->
         <template v-if="order.order_status === OrderState.UNPAID">
-          <view class="button primary" @tap="onOrderPay"> 去支付 </view>
-          <view class="button" @tap="popup?.open?.()"> 取消订单 </view>
+          <view class="btn primary" @tap="onOrderPay"> 去支付 </view>
+          <view class="btn" @tap="popup?.open?.()"> 取消订单 </view>
         </template>
 
         <template v-else>
           <!-- 待收货状态 -->
-          <view class="button primary" v-if="order.order_status === OrderState.SHIPPED" @tap="onOrderConfirm"> 确认收货 </view>
+          <view class="btn primary" v-if="order.order_status === OrderState.SHIPPED" @tap="onOrderConfirm"> 确认收货 </view>
         </template>
       </view>
     </template>
@@ -257,8 +257,8 @@ const onOrderCancel = async () => {
         </view>
       </view>
       <view class="footer">
-        <view class="button" @tap="popup?.close?.()">取消</view>
-        <view class="button primary" @tap="onOrderCancel">确认</view>
+        <view class="btn" @tap="popup?.close?.()">取消</view>
+        <view class="btn primary" @tap="onOrderCancel">确认</view>
       </view>
     </view>
   </uni-popup>
@@ -346,14 +346,14 @@ page {
     }
   }
 
-  .button-group {
+  .btn-group {
     margin-top: 30rpx;
     display: flex;
     justify-content: center;
     align-items: center;
   }
 
-  .button {
+  .btn {
     width: 260rpx;
     height: 64rpx;
     margin: 0 10rpx;
@@ -498,12 +498,12 @@ page {
       justify-content: flex-start;
       padding: 30rpx 0 0;
 
-      .button {
+      .btn {
         width: 200rpx;
-        height: 60rpx;
+        height: 78rpx;
         text-align: center;
         justify-content: center;
-        line-height: 60rpx;
+        line-height: 78rpx;
         margin-left: 20rpx;
         border-radius: 60rpx;
         border: 1rpx solid #ccc;
@@ -599,7 +599,7 @@ page {
   background-color: #fff;
   box-sizing: content-box;
 
-  .button {
+  .btn {
     display: flex;
     justify-content: center;
     align-items: center;
@@ -618,7 +618,7 @@ page {
     color: #e51c23;
   }
 
-  .button {
+  .btn {
     order: 3;
   }
 
@@ -684,11 +684,11 @@ page {
     font-size: 28rpx;
     color: #444;
 
-    .button {
+    .btn {
       flex: 1;
-      height: 72rpx;
+      height: 78rpx;
       text-align: center;
-      line-height: 72rpx;
+      line-height: 78rpx;
       margin: 0 20rpx;
       color: #444;
       border-radius: 72rpx;

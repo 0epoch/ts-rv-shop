@@ -99,7 +99,7 @@ page {
 .button {
   color: #fff;
   background-color: #010101;
-  border-radius: 72rpx;
+  border-radius: 68rpx;
 }
 
 @keyframes animate__shakeY {

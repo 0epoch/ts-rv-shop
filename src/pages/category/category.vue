@@ -61,6 +61,25 @@ const onRefresherrefresh = async () => {
   triggered.value = false
 }
 
+const topFixed = ref()
+// const onPageScroll = () => {
+//   var temptop
+//   const query = uni.createSelectorQuery()
+//   query.select('.category').boundingClientRect()
+//   query.selectViewport().scrollOffset()
+//   query.exec(function (res) {
+//     console.log(res)
+//     res[0].top // .switchSign节点距离上边界的坐标
+//     res[1].scrollTop // 显示区域的竖直滚动位置
+//     temptop = res[0].top
+//     if (temptop <= '2') {
+//       topFixed.value = 1
+//     } else {
+//       topFixed.value = 0
+//     }
+//   })
+// }
+
 // 滚动触底
 const onScrolltolower = async () => {
   if (!products.value) return
@@ -109,15 +128,7 @@ const onScrolltolower = async () => {
       </view>
     </scroll-view>
 
-    <scroll-view
-      enable-back-to-top
-      refresher-enabled
-      @refresherrefresh="onRefresherrefresh"
-      :refresher-triggered="triggered"
-      @scrolltolower="onScrolltolower"
-      class="scroll-view"
-      scroll-y
-    >
+    <scroll-view enable-back-to-top @scrolltolower="onScrolltolower" class="scroll-view" scroll-y>
       <view class="goods">
         <navigator
           hover-class="none"
@@ -162,7 +173,7 @@ page {
   align-items: center;
   justify-content: space-between;
   padding: 0 10rpx 0 26rpx;
-  height: 64rpx;
+  height: 78rpx;
   margin: 16rpx 20rpx;
   color: #666;
   font-size: 28rpx;
@@ -199,6 +210,7 @@ page {
 .category {
   width: 100%;
   height: 120rpx;
+  margin-bottom: 20rpx;
   // padding: 0 20rpx;
   white-space: nowrap;
   color: #333;
@@ -219,9 +231,11 @@ page {
   }
 }
 .sticky {
+  display: flex;
   position: sticky;
-  top: 0;
-  z-index: 9;
+  top: var(--window-top);
+  margin-bottom: 20rpx;
+  z-index: 999;
 }
 .goods {
   display: flex;
@@ -230,7 +244,7 @@ page {
   padding: 0 20rpx 20rpx;
   .navigator {
     width: 342rpx;
-    margin-top: 20rpx;
+    margin-bottom: 20rpx;
     border-radius: 10rpx;
     background-color: #fff;
   }

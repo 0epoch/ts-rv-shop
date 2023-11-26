@@ -3,6 +3,10 @@
 const emit = defineEmits<{
   (event: 'close'): void
 }>()
+
+defineProps<{
+  promotion: string
+}>()
 </script>
 
 <template>
@@ -10,12 +14,12 @@ const emit = defineEmits<{
     <!-- 关闭按钮 -->
     <text class="close icon-close" @tap="emit('close')"></text>
     <!-- 标题 -->
-    <view class="title">配送说明</view>
+    <view class="title">优惠详情</view>
     <!-- 内容 -->
     <view class="content">
       <view class="item">
-        <view class="dt">支持顺丰速递</view>
-        <view class="dd"> 所有地区(除新疆维吾尔自治区、西藏自治区、海外、港澳台以外）、西藏自治区[全境】、新疆维吾尔自治区[ 全境] </view>
+        <view class="dt tag">满减满折</view>
+        <view class="dd"> {{ promotion }} </view>
       </view>
     </view>
   </view>
@@ -23,6 +27,7 @@ const emit = defineEmits<{
 
 <style lang="scss">
 .service-panel {
+  height: 50vh;
   padding: 0 30rpx;
   border-radius: 10rpx 10rpx 0 0;
   position: relative;
@@ -74,7 +79,16 @@ const emit = defineEmits<{
   .dd {
     line-height: 1.6;
     font-size: 26rpx;
-    color: #999;
+    // color: #999;
+  }
+  .tag {
+    width: 110rpx;
+    margin-right: 10rpx;
+    padding: 5rpx 10rpx;
+    text-align: center;
+    border: 1rpx solid #010101;
+    border-radius: 4rpx;
+    font-size: 20rpx;
   }
 }
 </style>

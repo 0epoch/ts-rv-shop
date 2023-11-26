@@ -61,7 +61,7 @@
       "style": {
         // "navigationStyle": "custom",
         // "setNavigationBarColor": "white",
-        // "navigationBarTextStyle": "white",
+        "navigationBarTextStyle": "black",
         "navigationBarTitleText": "我的"
       }
     },
@@ -69,6 +69,12 @@
       "path": "pages/coupon/coupon",
       "style": {
         "navigationBarTitleText": "领券中心"
+      }
+    },
+    {
+      "path": "pages/recharge/recharge",
+      "style": {
+        "navigationBarTitleText": "充值中心"
       }
     },
     {
@@ -147,8 +153,8 @@
         {
           "path": "affiliate/affiliate",
           "style": {
-            "navigationStyle": "custom",
-            "navigationBarTextStyle": "white",
+            // "navigationStyle": "custom",
+            // "navigationBarTextStyle": "black",
             "navigationBarTitleText": "经销商"
           }
         },

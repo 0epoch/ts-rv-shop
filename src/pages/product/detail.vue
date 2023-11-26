@@ -5,7 +5,7 @@ import { saveCardProduct } from '@/api/cart'
 
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
-import AddressPanel from './components/AddressPanel.vue'
+import PromotionPanel from './components/PromotionPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
 import { fetchProductDetail } from '@/api/product'
 import type { Detail } from '@/types/product'
@@ -72,9 +72,11 @@ const popup = ref<{
   close: () => void
 }>()
 
-const popupName = ref<'address' | 'service'>()
-const openPopup = (name: typeof popupName.value) => {
+const promotion = ref()
+const popupName = ref<'promotion' | 'service'>()
+const openPopup = (name: typeof popupName.value, content: string) => {
   popupName.value = name
+  promotion.value = content
   popup.value?.open()
 }
 
@@ -106,6 +108,10 @@ const onAddCart = async (ev: SkuPopupEvent) => {
   await saveCardProduct({ product_id: ev._id, sku_id: ev.goods_id, qty: ev.buy_num })
   uni.showToast({ title: '添加成功' })
   skuVisible.value = false
+}
+
+const onIcon = (url: string) => {
+  uni.switchTab({ url })
 }
 </script>
 
@@ -150,20 +156,40 @@ const onAddCart = async (ev: SkuPopupEvent) => {
           <text class="number">{{ productDetail?.price }}</text>
         </view>
         <view class="name ellipsis">{{ productDetail?.title }}</view>
+        <view class="promotion-action" v-if="productDetail && productDetail.meet_qty > 0">
+          <view
+            @tap="openPopup('promotion', '满' + productDetail?.meet_qty + '件打' + productDetail?.meet_discount + '折')"
+            class="item arrow"
+          >
+            <text class="label">促销</text>
+            <view class="text">
+              <text class="tag">满减满折</text>
+              <text>{{ '满' + productDetail?.meet_qty + '件打' + productDetail?.meet_discount + '折' }}</text>
+            </view>
+          </view>
+        </view>
+        <view class="tip">
+          <text class="tip-title">温馨提示</text>
+          <text class="tip-content">
+            亲爱的姐妹，下单后10天内顺丰快递发出，请在签收后请仔细检查产品是否有质量或做工问题，我们每一套都有独立的透明包装。在未拆封状态下，收到货48小时内支持无理由退货，每一套都是百分百纯手工定制，非机器印刷。如果对品质有担忧可以先拍一两套回去看看，觉得好再回购也不迟！只做高品质，欢迎拿去跟其他家做对比！
+          </text>
+        </view>
       </view>
 
       <!-- 操作面板 -->
       <view class="action">
         <view @tap="openSkuPopup(SkuMode.Cart)" class="item arrow">
-          <text class="label">选择</text>
+          <text class="label">规格</text>
           <text class="text ellipsis"> {{ selectArrText }} </text>
         </view>
-        <view @tap="openPopup('service')" class="item arrow">
-          <text class="label">服务</text>
-          <text class="text ellipsis"> 7天无理由退款 免费包邮 </text>
+        <view @tap="openPopup('service', '')" class="item arrow">
+          <text class="label">配送</text>
+          <text class="text ellipsis"> 顺丰快递 </text>
         </view>
       </view>
     </view>
+
+    <view class="desc-title"> - 详情介绍 - </view>
 
     <!-- 商品详情 -->
     <view class="detail panel">
@@ -174,17 +200,27 @@ const onAddCart = async (ev: SkuPopupEvent) => {
   </scroll-view>
 
   <view v-if="productDetail" class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
-    <!-- <view class="icons">
-      <button class="icons-button" open-type="contact"><text class="icon-handset"></text>客服</button>
-      <navigator class="icons-button" url="/pages/cart/cart2" open-type="navigate"> <text class="icon-cart"></text>购物车 </navigator>
-    </view> -->
+    <view class="icons">
+      <view class="icons-button" @tap="onIcon('/pages/index/index')">
+        <image class="image" mode="aspectFit" src="/static/images/home_default.png"></image>
+        <text>首页</text>
+      </view>
+      <navigator class="icons-button" url="/pages/cart/cart2" open-type="navigate">
+        <image class="image" mode="aspectFit" src="/static/images/cart_default.png"></image>
+        <text>购物车</text>
+      </navigator>
+      <view class="icons-button navigator-wrap" @tap="onIcon('/pages/my/my')">
+        <image class="image" mode="aspectFit" src="/static/images/user_default.png"></image>
+        <text>我的</text>
+      </view>
+    </view>
     <view class="buttons">
       <view @tap="openSkuPopup(SkuMode.Cart)" class="addcart"> 加入购物车 </view>
     </view>
   </view>
 
   <uni-popup ref="popup" type="bottom" background-color="#fff">
-    <AddressPanel v-if="popupName === 'address'" @close="popup?.close()" />
+    <PromotionPanel v-if="popupName === 'promotion'" @close="popup?.close()" :promotion="promotion" />
     <ServicePanel v-if="popupName === 'service'" @close="popup?.close()" />
   </uni-popup>
 
@@ -204,7 +240,6 @@ page {
 }
 
 .panel {
-  margin-top: 20rpx;
   background-color: #fff;
   .title {
     display: flex;
@@ -242,13 +277,14 @@ page {
 }
 
 .goods {
-  background-color: #fff;
+  // background-color: #fff;
   .preview {
-    height: 750rpx;
+    height: 700rpx;
     position: relative;
+    border-bottom: 1rpx solid rgba(200, 200, 200, 0.1);
     .image {
       width: 750rpx;
-      height: 750rpx;
+      height: 700rpx;
     }
     .indicator {
       height: 40rpx;
@@ -274,15 +310,17 @@ page {
     }
   }
   .meta {
-    position: relative;
-    border-bottom: 1rpx solid #eaeaea;
+    margin-bottom: 20rpx;
+    padding: 20rpx;
+    background-color: #fff;
+
     .price {
-      height: 130rpx;
-      padding: 25rpx 30rpx 0;
-      color: #fff;
-      font-size: 34rpx;
+      // height: 130rpx;
+      padding: 0rpx 20rpx 0;
+      color: #010101;
+      font-size: 36rpx;
+      font-weight: bold;
       box-sizing: border-box;
-      background-color: #010101;
     }
     .number {
       font-size: 56rpx;
@@ -298,9 +336,40 @@ page {
     .name {
       max-height: 88rpx;
       line-height: 1.4;
-      margin: 20rpx;
-      font-size: 32rpx;
-      color: #333;
+      margin: 0 20rpx 30rpx 20rpx;
+      font-size: 34rpx;
+      font-weight: bold;
+      color: #010101;
+    }
+    .promotion-action {
+      .item {
+        height: 90rpx;
+        padding-right: 60rpx;
+        font-size: 26rpx;
+        color: #333;
+        position: relative;
+        display: flex;
+        align-items: center;
+        &:last-child {
+          border-bottom: 0 none;
+        }
+      }
+      .label {
+        width: 60rpx;
+        color: #898b94;
+        margin: 0 16rpx 0 10rpx;
+      }
+      .text {
+        flex: 1;
+        -webkit-line-clamp: 1;
+      }
+      .tag {
+        margin-right: 10rpx;
+        padding: 5rpx 10rpx;
+        border: 1rpx solid #010101;
+        border-radius: 4rpx;
+        font-size: 20rpx;
+      }
     }
     .desc {
       line-height: 1;
@@ -308,9 +377,23 @@ page {
       font-size: 24rpx;
       color: #e51c23;
     }
+    .tip {
+      padding: 25rpx 30rpx;
+      background-color: #fafafa;
+      border-radius: 4rpx;
+      .tip-title {
+        display: block;
+        font-size: 28rpx;
+      }
+    }
+    .tip-content {
+      color: #898b94;
+      font-size: 28rpx;
+    }
   }
   .action {
     padding-left: 20rpx;
+    background-color: #fff;
     .item {
       height: 90rpx;
       padding-right: 60rpx;
@@ -334,6 +417,12 @@ page {
       -webkit-line-clamp: 1;
     }
   }
+}
+
+.desc-title {
+  padding: 30rpx;
+  color: #898b94;
+  text-align: center;
 }
 
 .detail {
@@ -371,21 +460,22 @@ page {
   right: 0;
   bottom: calc((var(--window-bottom)));
   z-index: 1;
-  // background-color: #fff;
+  background-color: #fff;
   height: 100rpx;
   padding: 0 20rpx;
-  // border-top: 1rpx solid #eaeaea;
+  border-top: 1rpx solid #fff;
   display: flex;
   justify-content: space-between;
   align-items: center;
   box-sizing: content-box;
   .buttons {
+    flex: 60%;
     display: flex;
     & > view {
-      width: 720rpx;
+      width: 100%;
       text-align: center;
-      line-height: 72rpx;
-      font-size: 26rpx;
+      line-height: 78rpx;
+      font-size: 28rpx;
       color: #fff;
       border-radius: 72rpx;
     }
@@ -398,31 +488,34 @@ page {
     }
   }
   .icons {
+    height: 78rpx;
     padding-right: 20rpx;
     display: flex;
+    justify-content: space-between;
     align-items: center;
-    flex: 1;
+    flex: 40%;
     .navigator-wrap,
     .icons-button {
       flex: 1;
       display: flex;
       flex-direction: column;
+      height: 100%;
       text-align: center;
-      line-height: 1.4;
+      // line-height: 1.4;
       padding: 0;
       margin: 0;
       border-radius: 0;
       font-size: 20rpx;
-      color: #fff;
-      background-color: #010101;
-      border-radius: 50%;
+      color: #010101;
+      // background-color: #010101;
+      // border-radius: 50%;
       &::after {
         border: none;
       }
     }
     text {
       display: block;
-      font-size: 34rpx;
+      // font-size: 34rpx;
     }
   }
 }
