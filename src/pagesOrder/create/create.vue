@@ -4,6 +4,7 @@ import { useAddressStore } from '@/stores/modules/address'
 import { onLoad } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import type { CartResult } from '@/types/cart'
+import type { CheckoutParams, CheckoutItem } from '@/types/order'
 
 const { safeAreaInsets } = uni.getSystemInfoSync()
 // 订单备注
@@ -17,14 +18,17 @@ const popup = ref<{
 }>()
 
 const query = defineProps<{
-  skuId?: string
-  count?: string
-  orderId?: string
+  checkout?: string
 }>()
 
+const checkoutParams = ref<CheckoutParams>({
+  coupon_id: 0,
+  checkout_skus: [],
+})
+
 const checkout = ref<CartResult>()
-const getCheckoutResult = async (assignCouponId: number) => {
-  const rs = await checkoutOrder({ coupon_id: assignCouponId })
+const getCheckoutResult = async (checkoutParams: CheckoutParams) => {
+  const rs = await checkoutOrder(checkoutParams)
   checkout.value = rs.data
   if (rs.data?.coupon) {
     checkedCoupon.value = rs.data.coupon.id
@@ -32,7 +36,12 @@ const getCheckoutResult = async (assignCouponId: number) => {
 }
 
 onLoad(() => {
-  getCheckoutResult(assignCouponId.value)
+  console.log(query.checkout, 'checkout.............')
+  if (query.checkout) {
+    checkoutParams.value.checkout_skus = JSON.parse(decodeURIComponent(query.checkout)) as CheckoutItem[]
+    if (!checkoutParams.value.checkout_skus) return
+    getCheckoutResult(checkoutParams.value)
+  }
 })
 
 const addressStore = useAddressStore()
@@ -49,7 +58,8 @@ const onChangeCoupon = (id: number) => {
     checkedCoupon.value = id
     assignCouponId.value = id
   }
-  getCheckoutResult(assignCouponId.value)
+  checkoutParams.value.coupon_id = assignCouponId.value
+  getCheckoutResult(checkoutParams)
   popup.value?.close()
 }
 
@@ -58,14 +68,18 @@ const onOrderSubmit = async () => {
   if (!selecteAddress.value?.id) {
     return uni.showToast({ icon: 'none', title: '请选择收货地址' })
   }
+  if (!checkoutParams.value.checkout_skus) {
+    return uni.showToast({ icon: 'none', title: '请选择结算商品' })
+  }
+
   const rs = await createOrder({
     address_id: selecteAddress.value?.id,
-    coupon_id: 0,
+    coupon_id: assignCouponId.value,
     buyer_words: desc.value,
     buy_type: '',
     pay_type: 1,
     pay_amount: checkout.value?.checkout_amount!,
-    skus: [],
+    checkout_skus: checkoutParams.value.checkout_skus,
   })
   uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${rs.data.id}` })
 }

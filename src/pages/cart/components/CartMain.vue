@@ -155,8 +155,12 @@ const onCheckout = () => {
     })
     return
   }
+  const checkoutSkus = selectedCartList.value?.map((item) => {
+    return { sku_id: item.sku_id, qty: item.qty, cart_id: item.cart_id }
+  })
+
   // 跳转到结算页
-  uni.navigateTo({ url: '/pagesOrder/create/create' })
+  uni.navigateTo({ url: '/pagesOrder/create/create?checkout=' + encodeURIComponent(JSON.stringify(checkoutSkus)) })
 }
 
 const onGo = () => {

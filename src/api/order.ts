@@ -1,5 +1,6 @@
 import type { Product, Detail } from '@/types/product'
 import type { Paginate, PaginateParams } from '@/types/global'
+import type { CheckoutParams } from '@/types/order'
 
 import { request } from '@/utils/request'
 import type { CartResult } from '@/types/cart'
@@ -8,7 +9,7 @@ import type { Order, OrderCreateParams, OrderListParams, OrderResult } from '@/t
 /**
  * @param data
  */
-export const checkoutOrder = (data: { coupon_id: number }) => {
+export const checkoutOrder = (data: CheckoutParams) => {
   return request<CartResult>({
     method: 'POST',
     url: '/order/checkout',

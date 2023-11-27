@@ -6,13 +6,10 @@ export type OrderCreateParams = {
   address_id: number
   buy_type: string
   buyer_words: string
-  skus: {
-    qty: number
-    sku_id: string
-  }[]
   pay_amount: number
   coupon_id: number
   pay_type: 1 | 2
+  checkout_skus: CheckoutItem[]
 }
 
 export type Order = {
@@ -91,4 +88,14 @@ export type OrderListResult = {
 
 export type OrderItem = OrderResult & {
   totalNum: number
+}
+
+export type CheckoutItem = {
+  sku_id?: number
+  qty?: number
+  cart_id?: number
+}
+export type CheckoutParams = {
+  coupon_id?: number
+  checkout_skus?: CheckoutItem[]
 }
