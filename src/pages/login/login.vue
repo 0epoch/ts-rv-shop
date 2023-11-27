@@ -97,9 +97,11 @@ page {
 }
 
 .button {
+  height: 68rpx;
+  line-height: 68rpx;
   color: #fff;
   background-color: #010101;
-  border-radius: 68rpx;
+  border-radius: 78rpx;
 }
 
 @keyframes animate__shakeY {

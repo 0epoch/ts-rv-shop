@@ -36,9 +36,7 @@ onLoad(() => {
           </view>
         </view>
         <view class="action">
-          <view class="price">{{
-            item.type === 'discount' ? item.value * 10 + '折' : Math.floor(item.value) + '元'
-          }}</view>
+          <view class="price">{{ item.type === 'discount' ? item.value * 10 + '折' : Math.floor(item.value) + '元' }}</view>
           <text class="button" @tap="onReceive(item.id)">领 取</text>
         </view>
       </view>
@@ -65,7 +63,7 @@ page {
   width: 100%;
   height: 160rpx;
   padding: 20rpx 25rpx;
-  margin-top: 15rpx;
+  margin-top: 20rpx;
   background-color: #fff;
   border-radius: 8rpx;
   mask-image: radial-gradient(circle at right 200rpx bottom 8rpx, transparent 8rpx, red 8.5rpx),
@@ -91,7 +89,7 @@ page {
     .desc,
     .time {
       color: #939393;
-      font-size: 20rpx;
+      font-size: 24rpx;
     }
   }
   .action {

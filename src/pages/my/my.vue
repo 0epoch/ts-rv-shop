@@ -29,7 +29,7 @@ onLoad(async () => {
             {{ memberStore.profile.nickname || memberStore.profile.name }}
           </view>
         </navigator>
-        <navigator class="balance" url="/pages/recharge/recharge" hover-class="none">
+        <navigator class="balance" url="/pagesMember/recharge/recharge" hover-class="none">
           <text class="number">0</text>
           <text class="badge">余额</text>
         </navigator>
@@ -102,15 +102,19 @@ onLoad(async () => {
 
       <view class="actions">
         <view class="action-item">
+          <image class="action-icon" mode="aspectFit" src="/static/images/user_default.png"></image>
           <navigator url="/pagesMember/coupon/coupon" class="navigator" hover-class="none"> 我的优惠券 </navigator>
         </view>
         <view class="action-item">
+          <image class="action-icon" mode="aspectFit" src="/static/images/coupon.png"></image>
           <navigator url="/pages/coupon/coupon" class="navigator" hover-class="none"> 领券中心 </navigator>
         </view>
         <view class="action-item">
+          <image class="action-icon" mode="aspectFit" src="/static/images/locate.png"></image>
           <navigator url="/pagesMember/address/address" class="navigator" hover-class="none"> 地址管理 </navigator>
         </view>
         <view class="action-item">
+          <image class="action-icon" mode="aspectFit" src="/static/images/user_default.png"></image>
           <navigator url="/pagesMember/profile/profile" class="navigator" hover-class="none"> 账户设置 </navigator>
         </view>
       </view>
@@ -315,8 +319,19 @@ page {
   padding-bottom: 180rpx;
   background-color: #fff;
   .action-item {
+    display: flex;
+    justify-content: flex-start;
+    align-items: center;
     border-bottom: 1rpx solid #eee;
-    padding: 30rpx;
+    padding: 30rpx 20rpx;
+    .action-icon {
+      width: 50rpx;
+      height: 50rpx;
+    }
+    .navigator {
+      flex: 1;
+      margin-left: 15rpx;
+    }
   }
 }
 </style>

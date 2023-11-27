@@ -7,7 +7,7 @@ import type { CartItem, CartResult } from '@/types/cart'
 /**
  * @param data
  */
-export const saveCardProduct = (data: { product_id: string; sku_id: string; qty: number }) => {
+export const saveCardProduct = (data: { product_id: number; sku_id: number; qty: number }) => {
   return request<Paginate<Product>>({
     method: 'POST',
     url: '/cart',
@@ -18,7 +18,7 @@ export const saveCardProduct = (data: { product_id: string; sku_id: string; qty:
 /**
  * @param data
  */
-export const cartProductDel = (skus_id: string[]) => {
+export const cartProductDel = (skus_id: number[]) => {
   return request<Detail>({
     method: 'DELETE',
     url: '/cart',
@@ -29,7 +29,7 @@ export const cartProductDel = (skus_id: string[]) => {
 /**
  * @param data
  */
-export const calcCart = (data: { selected?: { sku_id: string; qty: number }[]; coupon_id: number }) => {
+export const calcCart = (data: { selected?: { sku_id: number; qty: number }[]; coupon_id: number }) => {
   return request<CartResult>({
     method: 'POST',
     url: '/cart/calc',

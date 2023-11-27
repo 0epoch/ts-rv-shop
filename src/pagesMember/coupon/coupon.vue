@@ -96,7 +96,7 @@ page {
   width: 100%;
   height: 160rpx;
   padding: 20rpx 25rpx;
-  margin-top: 5rpx;
+  margin-top: 20rpx;
   background-color: #fff;
   border-radius: 8rpx;
   mask-image: radial-gradient(circle at right 200rpx bottom 8rpx, transparent 8rpx, red 8.5rpx),
@@ -122,7 +122,7 @@ page {
     .desc,
     .time {
       color: #939393;
-      font-size: 20rpx;
+      font-size: 24rpx;
     }
   }
   .price {

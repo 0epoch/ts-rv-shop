@@ -1,6 +1,5 @@
-/** 添加收货地址: 请求参数 */
 export type AddressParams = {
-  address_id: string
+  address_id: number
   name: string
   mobile: string
   province: string
@@ -11,7 +10,6 @@ export type AddressParams = {
   is_default: number
 }
 
-/** 收货地址项 */
 export type AddressItem = AddressParams & {
-  id: string
+  id: number
 }

@@ -10,7 +10,7 @@ export type ProductParams = {
 
 /** 商品信息 */
 export type Product = {
-  id: string
+  id: number
   title: string
   original_price: number
   price: number
@@ -24,7 +24,7 @@ export type Product = {
 
 /** 商品详情 */
 export type Detail = {
-  id: string
+  id: number
   title: string
   original_price: number
   price: number
@@ -54,7 +54,7 @@ export type AttrValue = {
 }
 
 export type Sku = {
-  id: string
+  id: number
   stock: number
   aff_price: number
   pic_url: string
@@ -63,32 +63,4 @@ export type Sku = {
   sold_qty: number
   attrs: string
   attrs_map: string
-}
-
-/** 规格信息 */
-export type SkuSpecItem = {
-  /** 规格名称 */
-  name: string
-  /** 可选值名称 */
-  valueName: string
-}
-
-/** 可选规格信息 */
-export type SpecItem = {
-  /** 规格名称 */
-  name: string
-  /** 可选值集合[ 可选值信息 ] */
-  values: SpecValueItem[]
-}
-
-/** 可选值信息 */
-export type SpecValueItem = {
-  /** 是否可售 */
-  available: boolean
-  /** 可选值备注 */
-  desc: string
-  /** 可选值名称 */
-  name: string
-  /** 可选值图片链接 */
-  picture: string
 }

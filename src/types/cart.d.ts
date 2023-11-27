@@ -1,8 +1,8 @@
 import type { UserCoupon } from './coupon'
 export type CartItem = {
-  cart_id: string
-  sku_id: string
-  product_id: string
+  cart_id: number
+  sku_id: number
+  product_id: number
   pic_url: string
   title: string
   qty: number

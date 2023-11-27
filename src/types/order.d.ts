@@ -73,17 +73,14 @@ export type OrderLogisticResult = {
   list: LogisticItem[]
 }
 
-/** 物流日志 */
 export type LogisticItem = {
   id: string
   text: string
   time: string
 }
 
-/** 订单列表参数 */
 export type OrderListParams = { order_status: string; pagination: Paginate }
 
-/** 订单列表 */
 export type OrderListResult = {
   total: number
   data: Order[]
@@ -92,7 +89,6 @@ export type OrderListResult = {
   pre_page: number
 }
 
-/** 订单列表项 */
 export type OrderItem = OrderResult & {
   totalNum: number
 }

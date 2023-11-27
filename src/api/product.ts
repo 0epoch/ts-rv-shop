@@ -17,7 +17,7 @@ export const productList = (data: { params?: ProductParams; pagination?: Paginat
 /**
  * @param data
  */
-export const fetchProductDetail = (id: string) => {
+export const fetchProductDetail = (id: number) => {
   return request<Detail>({
     method: 'GET',
     url: '/product',

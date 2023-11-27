@@ -22,11 +22,13 @@ export type Profile = {
   birthday?: string
   vip_grade_id?: number
   vip_grade_name?: string
+  account_balance?: number
+  points?: number
   token: string
   gender?: Gender
   has_aff: boolean
 }
-/** 性别 */
+
 export type Gender = 0 | 1 | 2
 
 export type InviteParams = {

@@ -14,7 +14,7 @@ import { useAuthStore } from '@/stores'
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
 const query = defineProps<{
-  id: string
+  id: number
 }>()
 
 const authStore = useAuthStore()

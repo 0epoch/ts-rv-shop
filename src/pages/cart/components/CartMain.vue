@@ -58,7 +58,7 @@ const onEdit = () => {
   checkoutText.value = editActive.value ? '删除' : '去结算'
 }
 
-const onDeleteCart = (skuId: string) => {
+const onDeleteCart = (skuId: number) => {
   if (!authStore.certified()) {
     authStore.visible = true
     return
