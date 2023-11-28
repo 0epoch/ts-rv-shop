@@ -288,14 +288,14 @@ const onGo = () => {
       height: 100%;
 
       &::before {
-        content: '\e6cd';
-        font-family: 'erabbit' !important;
+        content: '\e72f';
+        font-family: 'iconfont' !important;
         font-size: 40rpx;
         color: #444;
       }
 
       &.checked::before {
-        content: '\e6cc';
+        content: '\e730';
         color: #010101;
       }
     }
@@ -436,13 +436,13 @@ const onGo = () => {
 }
 
 .all::before {
-  font-family: 'erabbit' !important;
-  content: '\e6cd';
+  content: '\e72f';
+  font-family: 'iconfont' !important;
   font-size: 40rpx;
   margin-right: 8rpx;
 }
 .checked::before {
-  content: '\e6cc';
+  content: '\e730';
   color: #010101;
 }
 .toolbar {
