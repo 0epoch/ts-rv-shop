@@ -12,50 +12,95 @@ const tabs = [
 ]
 const userCoupons = ref<Paginate<UserCoupon>>()
 const activeTab = ref(0)
+const finish = ref(false)
+const triggered = ref(false)
+
+const activeStatus = ref('unused')
 
 const onTapTab = async (id: number, status: string) => {
   activeTab.value = id
+  activeStatus.value = status
   const rs = await userCouponList({ params: { status } })
   userCoupons.value = rs.data
 }
 
 const getUserCouponList = async () => {
-  const rs = await userCouponList()
+  const rs = await userCouponList({ params: { status: activeStatus.value } })
   userCoupons.value = rs.data
+  userCoupons.value.page = rs.data.current_page
 }
 
 onLoad(() => {
   getUserCouponList()
 })
+
+const onRefresherrefresh = async () => {
+  triggered.value = true
+  await getUserCouponList()
+  triggered.value = false
+}
+
+// 滚动触底
+const onScrolltolower = async () => {
+  if (!userCoupons.value) return
+  if (userCoupons.value?.current_page! < userCoupons.value?.last_page!) {
+    userCoupons.value.page++
+  } else {
+    finish.value = true
+    return uni.showToast({ icon: 'none', title: '没有更多数据了~' })
+  }
+
+  const rs = await userCouponList({
+    params: { status: activeStatus.value },
+    pagination: { page: userCoupons.value.page },
+  })
+  userCoupons.value.data.push(...rs.data.data)
+  userCoupons.value.current_page = rs.data.current_page
+}
 </script>
 
 <template>
-  <view class="tabs">
-    <text
-      v-for="(item, index) in tabs"
-      :key="item.id"
-      class="text"
-      :class="{ active: index === activeTab }"
-      @tap="onTapTab(item.id, item.status)"
-      >{{ item.title }}</text
-    >
-  </view>
   <view class="viewport">
-    <view class="coupon" v-for="item in userCoupons?.data" :key="item.id">
-      <view class="overview">
-        <view class="meta">
-          <text class="title">{{ item.coupon.title }}</text>
-          <text class="desc ellipsis">{{ item.coupon.desc }}</text>
-        </view>
-
-        <text class="time"
-          >有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{ item.end_time.replace(/-/g, '.').substring(0, 10) }}</text
+    <scroll-view
+      class="scroll-view"
+      enable-back-to-top
+      refresher-enabled
+      scroll-y
+      @refresherrefresh="onRefresherrefresh"
+      :refresher-triggered="triggered"
+      @scrolltolower="onScrolltolower"
+    >
+      <view class="tabs">
+        <text
+          v-for="(item, index) in tabs"
+          :key="item.id"
+          class="text"
+          :class="{ active: index === activeTab }"
+          @tap="onTapTab(item.id, item.status)"
+          >{{ item.title }}</text
         >
       </view>
-      <view :class="activeTab !== 0 ? 'invalid' : 'price'">{{
-        item.coupon.type === 'discount' ? item.coupon.value * 10 + '折' : Math.floor(item.coupon.value) + '元'
-      }}</view>
-    </view>
+
+      <view class="wrapper">
+        <view class="coupon" v-for="item in userCoupons?.data" :key="item.id">
+          <view class="overview">
+            <view class="meta">
+              <text class="title">{{ item.coupon.title }}</text>
+              <text class="desc ellipsis">{{ item.coupon.desc }}</text>
+            </view>
+
+            <text class="time"
+              >有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{
+                item.end_time.replace(/-/g, '.').substring(0, 10)
+              }}</text
+            >
+          </view>
+          <view :class="activeTab !== 0 ? 'invalid' : 'price'">{{
+            item.coupon.type === 'discount' ? item.coupon.value * 10 + '折' : Math.floor(item.coupon.value) + '元'
+          }}</view>
+        </view>
+      </view>
+    </scroll-view>
   </view>
 </template>
 
@@ -67,14 +112,20 @@ page {
   height: 100vh;
   display: flex;
   flex-direction: column;
-  padding: 20rpx;
   background-color: #f4f4f4;
+  .scroll-view {
+    flex: 1;
+  }
+  .wrapper {
+    padding: 20rpx;
+  }
 }
 
 .tabs {
   display: flex;
   justify-content: space-evenly;
   height: 120rpx;
+  // margin-bottom: 20rpx;
   line-height: 90rpx;
   font-size: 28rpx;
   box-shadow: 0 2rpx 3rpx rgba(200, 200, 200, 0.3);
@@ -96,7 +147,7 @@ page {
   width: 100%;
   height: 160rpx;
   padding: 20rpx 25rpx;
-  margin-top: 20rpx;
+  margin-bottom: 20rpx;
   background-color: #fff;
   border-radius: 8rpx;
   mask-image: radial-gradient(circle at right 200rpx bottom 8rpx, transparent 8rpx, red 8.5rpx),

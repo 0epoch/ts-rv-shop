@@ -129,25 +129,7 @@ const onScrolltolower = async () => {
     </scroll-view>
 
     <scroll-view enable-back-to-top @scrolltolower="onScrolltolower" class="scroll-view" scroll-y>
-      <view class="goods">
-        <navigator
-          hover-class="none"
-          class="navigator"
-          v-for="product in products?.data"
-          :key="product.id"
-          :url="`/pages/product/detail?id=${product.id}`"
-        >
-          <image class="thumb" :src="product.pic_url"></image>
-          <view class="desc">
-            <view class="name ellipsis">{{ product.title }}</view>
-            <view class="price">
-              <text class="symbol">¥</text>
-              <text class="number" v-if="hasAff && product.is_aff == 1">{{ product.aff_price }}</text>
-              <text class="number" v-else>{{ product.price }}</text>
-            </view>
-          </view>
-        </navigator>
-      </view>
+      <RvProduct :products="products" />
       <view class="loading-text">
         {{ finish ? '没有更多数据了~' : '正在加载...' }}
       </view>
@@ -236,43 +218,6 @@ page {
   top: var(--window-top);
   margin-bottom: 20rpx;
   z-index: 999;
-}
-.goods {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  padding: 0 20rpx 20rpx;
-  .navigator {
-    width: 342rpx;
-    margin-bottom: 20rpx;
-    border-radius: 10rpx;
-    background-color: #fff;
-  }
-  .thumb {
-    // width: 305rpx;
-    height: 420rpx;
-    width: 100%;
-    vertical-align: middle;
-    // border-radius: 10rpx;
-  }
-  .desc {
-    padding: 20rpx;
-  }
-  .name {
-    height: 58rpx;
-    font-size: 26rpx;
-  }
-  .price {
-    line-height: 1;
-    color: #e51c23;
-    font-size: 30rpx;
-  }
-  .symbol {
-    font-size: 70%;
-  }
-  .decimal {
-    font-size: 70%;
-  }
 }
 // 加载提示文字
 .loading-text {

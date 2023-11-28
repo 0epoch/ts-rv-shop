@@ -73,7 +73,7 @@ const onLogin = async () => {
       <view class="tips" :class="{ animate__shakeY: isAgreePrivacyShakeY }">
         <label class="label" @tap="isAgreePrivacy = !isAgreePrivacy">
           <radio class="radio" color="#010101" :checked="isAgreePrivacy" />
-          <text>登录/注册即视为你同意RiverValley</text>
+          <text>授权登录即视为你同意RiverValley</text>
         </label>
         <navigator class="link" hover-class="none" url="./protocal">《服务条款》</navigator>
         和
@@ -97,8 +97,8 @@ page {
 }
 
 .button {
-  height: 68rpx;
-  line-height: 68rpx;
+  height: 72rpx;
+  line-height: 72rpx;
   color: #fff;
   background-color: #010101;
   border-radius: 78rpx;

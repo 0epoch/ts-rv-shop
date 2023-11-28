@@ -1,3 +1,5 @@
+import type { BillSourceType } from '@/services/constants'
+
 type BaseProfile = {
   id: number
   avatar: string
@@ -46,4 +48,15 @@ export type ProfileParams = InviteParams & {
   city?: string
   birthday?: string
   province?: string
+}
+
+export type Bill = {
+  id: number
+  source_type: BillSourceType
+  bill_type: string
+  value_type: string
+  value: number
+  desc: string
+  source_no: string
+  created_at: string
 }

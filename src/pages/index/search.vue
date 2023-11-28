@@ -73,25 +73,8 @@ const onScrolltolower = async () => {
         <input class="input" name="keyword" type="text" v-model="keyword" @confirm="onSearch" placeholder="商品搜索" />
         <text class="search-text" @tap="onSearch">搜索</text>
       </view>
-      <view class="goods">
-        <navigator
-          hover-class="none"
-          class="navigator"
-          v-for="product in products?.data"
-          :key="product.id"
-          :url="`/pages/product/detail?id=${product.id}`"
-        >
-          <image class="thumb" :src="product.pic_url"></image>
-          <view class="desc">
-            <view class="name ellipsis">{{ product.title }}</view>
-            <view class="price">
-              <text class="symbol">¥</text>
-              <text class="number" v-if="hasAff && product.is_aff == 1">{{ product.aff_price }}</text>
-              <text class="number" v-else>{{ product.price }}</text>
-            </view>
-          </view>
-        </navigator>
-      </view>
+      <RvProduct :products="products" />
+
       <view class="loading-text">
         {{ finish && products?.total ? '没有更多数据了~' : '正在加载...' }}
       </view>
@@ -104,7 +87,6 @@ const onScrolltolower = async () => {
   // height: 100%;
   position: relative;
   height: 100vh;
-  padding: 20rpx 0;
   background-color: #f4f4f4;
 }
 .search {
@@ -113,7 +95,7 @@ const onScrolltolower = async () => {
   justify-content: space-between;
   padding: 0 10rpx 0 26rpx;
   height: 78rpx;
-  margin: 16rpx 20rpx;
+  margin: 20rpx 20rpx;
   color: #666;
   font-size: 28rpx;
   border-radius: 32rpx;
@@ -130,44 +112,6 @@ const onScrolltolower = async () => {
   }
   .search-text {
     padding: 0 10rpx;
-  }
-}
-
-.goods {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: space-between;
-  padding: 0 20rpx 20rpx;
-  .navigator {
-    width: 342rpx;
-    margin-top: 20rpx;
-    border-radius: 10rpx;
-    background-color: #fff;
-  }
-  .thumb {
-    // width: 305rpx;
-    height: 420rpx;
-    width: 100%;
-    vertical-align: middle;
-    // border-radius: 10rpx;
-  }
-  .desc {
-    padding: 20rpx;
-  }
-  .name {
-    height: 58rpx;
-    font-size: 26rpx;
-  }
-  .price {
-    line-height: 1;
-    color: #e51c23;
-    font-size: 30rpx;
-  }
-  .symbol {
-    font-size: 70%;
-  }
-  .decimal {
-    font-size: 70%;
   }
 }
 // 加载提示文字

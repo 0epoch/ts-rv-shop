@@ -36,7 +36,6 @@ const getCheckoutResult = async (checkoutParams: CheckoutParams) => {
 }
 
 onLoad(() => {
-  console.log(query.checkout, 'checkout.............')
   if (query.checkout) {
     checkoutParams.value.checkout_skus = JSON.parse(decodeURIComponent(query.checkout)) as CheckoutItem[]
     if (!checkoutParams.value.checkout_skus) return
@@ -433,7 +432,7 @@ page {
   width: 100%;
   height: 160rpx;
   padding: 20rpx 25rpx;
-  margin-bottom: 10rpx;
+  margin-bottom: 20rpx;
   background-color: #fff;
   border-radius: 8rpx;
   mask-image: radial-gradient(circle at right 200rpx bottom 8rpx, transparent 8rpx, red 8.5rpx),

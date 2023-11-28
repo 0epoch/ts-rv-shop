@@ -109,7 +109,7 @@ const onRefresherrefresh = async () => {
       <view class="status">
         <text class="date">{{ order.created_at }}</text>
         <!-- 订单状态 -->
-        <text>{{ orderStateList[order.order_status as keyof typeof orderStateList].text }}</text>
+        <text>{{ orderStateList[order.order_status].text }}</text>
       </view>
 
       <!-- 订单商品信息 -->

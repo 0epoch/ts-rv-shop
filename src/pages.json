@@ -175,6 +175,12 @@
           "style": {
             "navigationBarTitleText": "充值中心"
           }
+        },
+        {
+          "path": "recharge/record",
+          "style": {
+            "navigationBarTitleText": "余额明细"
+          }
         }
       ]
     },

@@ -17,12 +17,19 @@ const query = defineProps<{
   id: number
 }>()
 
+const buyNowText = ref('')
+const minBuy = ref(1)
+
 const authStore = useAuthStore()
 // 获取商品详情信息
 const productDetail = ref<Detail>()
 const getProductDetail = async () => {
   const rs = await fetchProductDetail(query.id)
   productDetail.value = rs.data
+  if (rs.data.meet_qty > 0 && rs.data.meet_discount > 0) {
+    buyNowText.value = rs.data.meet_qty + '件单价¥' + rs.data.meet_price + ' '
+    minBuy.value = rs.data.meet_qty
+  }
   localdata.value = {
     _id: rs.data.id,
     name: rs.data.title,
@@ -110,6 +117,15 @@ const onAddCart = async (ev: SkuPopupEvent) => {
   skuVisible.value = false
 }
 
+const onBuyNow = async (ev: SkuPopupEvent) => {
+  if (!authStore.certified()) {
+    authStore.visible = true
+    return
+  }
+  const checkout = [{ sku_id: ev.goods_id, qty: ev.buy_num }]
+  uni.navigateTo({ url: `/pagesOrder/create/create?checkout=${encodeURIComponent(JSON.stringify(checkout))}` })
+}
+
 const onIcon = (url: string) => {
   uni.switchTab({ url })
 }
@@ -120,10 +136,12 @@ const onIcon = (url: string) => {
     v-model="skuVisible"
     :localdata="localdata"
     :mode="mode"
+    :min-buy-num="minBuy"
     price-color="#e51c23"
     add-cart-background-color="#010101"
     buy-now-background-color="#010101"
     add-cart-text="确定"
+    :buy-now-text="buyNowText + '立即购买'"
     ref="skuPopupRef"
     :actived-style="{
       color: '#fff',
@@ -133,6 +151,7 @@ const onIcon = (url: string) => {
     }"
     :btn-style="{ color: '#010101' }"
     @add-cart="onAddCart"
+    @buy-now="onBuyNow"
   />
   <scroll-view enable-back-to-top scroll-y class="viewport">
     <view class="goods">
@@ -178,7 +197,7 @@ const onIcon = (url: string) => {
 
       <!-- 操作面板 -->
       <view class="action">
-        <view @tap="openSkuPopup(SkuMode.Cart)" class="item arrow">
+        <view @tap="openSkuPopup(SkuMode.Both)" class="item arrow">
           <text class="label">规格</text>
           <text class="text ellipsis"> {{ selectArrText }} </text>
         </view>
@@ -215,7 +234,13 @@ const onIcon = (url: string) => {
       </view>
     </view>
     <view class="buttons">
-      <view @tap="openSkuPopup(SkuMode.Cart)" class="addcart"> 加入购物车 </view>
+      <view @tap="openSkuPopup(SkuMode.Cart)" class="addcart">
+        <text>加入购物车</text>
+      </view>
+      <view @tap="openSkuPopup(SkuMode.Buy)" class="payment" :class="{ 'meet-buy': productDetail.meet_qty > 0 }">
+        <text class="buy-tip" v-if="buyNowText !== ''">{{ buyNowText }}</text>
+        <text>立即购买</text>
+      </view>
     </view>
   </view>
 
@@ -277,7 +302,6 @@ page {
 }
 
 .goods {
-  // background-color: #fff;
   .preview {
     height: 700rpx;
     position: relative;
@@ -315,7 +339,6 @@ page {
     background-color: #fff;
 
     .price {
-      // height: 130rpx;
       padding: 0rpx 20rpx 0;
       color: #010101;
       font-size: 36rpx;
@@ -471,20 +494,33 @@ page {
   .buttons {
     flex: 60%;
     display: flex;
+    height: 78rpx;
     & > view {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
       width: 100%;
+      height: 100%;
       text-align: center;
-      line-height: 78rpx;
+      // line-height: 78rpx;
       font-size: 28rpx;
       color: #fff;
       border-radius: 72rpx;
     }
     .addcart {
-      background-color: #010101;
+      background-color: #fff;
+      color: #010101;
+      border: 1rpx solid #010101;
+    }
+    .meet-buy {
+      font-size: 24rpx;
     }
     .payment {
       background-color: #010101;
       margin-left: 20rpx;
+      .buy-tip {
+        font-size: 20rpx;
+      }
     }
   }
   .icons {

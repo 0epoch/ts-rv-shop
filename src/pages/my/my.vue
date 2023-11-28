@@ -2,10 +2,17 @@
 import { useMemberStore } from '@/stores'
 import { useAuthStore } from '@/stores'
 import { onLoad } from '@dcloudio/uni-app'
-import { computed, ref, watch } from 'vue'
+
+import { userCouponList } from '@/api/user'
+
+import type { UserCoupon } from '@/types/coupon'
+import type { Paginate } from '@/types/global'
+
+import { ref } from 'vue'
+
 const { safeAreaInsets } = uni.getSystemInfoSync()
+
 const authStore = useAuthStore()
-// 订单选项
 const orderTypes = [
   { type: '1', text: '待付款', icon: 'icon-currency' },
   { type: '2', text: '待发货', icon: 'icon-gift' },
@@ -13,8 +20,13 @@ const orderTypes = [
 ]
 const memberStore = useMemberStore()
 
+const userCoupons = ref<Paginate<UserCoupon>>()
+
 onLoad(async () => {
   authStore.toggleAuthVisible()
+
+  const rs = await userCouponList({ params: { status: 'unused' } })
+  userCoupons.value = rs.data
 })
 </script>
 
@@ -29,18 +41,20 @@ onLoad(async () => {
             {{ memberStore.profile.nickname || memberStore.profile.name }}
           </view>
         </navigator>
-        <navigator class="balance" url="/pagesMember/recharge/recharge" hover-class="none">
-          <text class="number">0</text>
-          <text class="badge">余额</text>
-        </navigator>
-        <!-- <view class="meta">
-          <view class="nickname">
-            {{ memberStore.profile.nickname || memberStore.profile.name }}
-          </view>
-          <navigator class="extra" url="/pagesMember/profile/profile" hover-class="none">
-            <text class="update">更新头像昵称</text>
+        <view class="assets">
+          <navigator class="asset-item" url="/pagesMember/coupon/coupon" hover-class="none">
+            <text class="number">{{ userCoupons?.total }}</text>
+            <text class="badge">优惠券</text>
           </navigator>
-        </view> -->
+          <text class="divider"></text>
+          <navigator class="asset-item" url="/pagesMember/recharge/record" hover-class="none">
+            <view class="number">
+              <text class="symbol">¥</text>
+              <text class="">1000000</text>
+            </view>
+            <text class="badge">余额</text>
+          </navigator>
+        </view>
       </view>
       <!-- 未登录 -->
       <view class="overview" v-else>
@@ -102,8 +116,8 @@ onLoad(async () => {
 
       <view class="actions">
         <view class="action-item">
-          <image class="action-icon" mode="aspectFit" src="/static/images/user_default.png"></image>
-          <navigator url="/pagesMember/coupon/coupon" class="navigator" hover-class="none"> 我的优惠券 </navigator>
+          <image class="action-icon" mode="aspectFit" src="/static/images/wallet.png"></image>
+          <navigator url="/pagesMember/recharge/recharge" class="navigator" hover-class="none"> 充值中心 </navigator>
         </view>
         <view class="action-item">
           <image class="action-icon" mode="aspectFit" src="/static/images/coupon.png"></image>
@@ -144,15 +158,39 @@ page {
 
   .overview {
     display: flex;
-    align-items: center;
-    justify-content: space-between;
+    flex-direction: column;
+    // align-items: center;
+    justify-content: space-around;
     padding: 30rpx;
     color: #010101;
-    .balance {
+
+    .divider {
+      height: 50rpx;
+      margin: 0 30rpx;
+      border: 1rpx solid #ccc;
+    }
+    .assets {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-top: 10rpx;
+      padding: 20rpx;
+    }
+    .asset-item {
+      min-width: 0;
+      flex: 33.3%;
       display: flex;
       flex-direction: column;
       align-items: center;
-      padding-right: 50rpx;
+      .number {
+        width: 100%;
+        text-align: center;
+        overflow: hidden;
+        text-overflow: ellipsis;
+        display: -webkit-box;
+        -webkit-line-clamp: 1;
+        -webkit-box-orient: vertical;
+      }
       .badge {
         color: #333;
         font-size: 28rpx;

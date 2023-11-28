@@ -1,9 +1,8 @@
-import type { Product } from '@/types/product'
 import type { Paginate, PaginateParams } from '@/types/global'
 import type { AddressItem, AddressParams } from '@/types/address'
 
 import { request } from '@/utils/request'
-import type { InviteParams, Profile, ProfileParams } from '@/types/member'
+import type { InviteParams, Profile, ProfileParams, Bill } from '@/types/member'
 import type { UserCoupon } from '@/types/coupon'
 
 export const wxLogin = (code: string) => {
@@ -105,11 +104,11 @@ export const getAddr = (address_id: string) => {
 /**
  * @param data
  */
-export const balanceBillList = () => {
-  return request<Paginate<Product>>({
+export const balanceBillList = (pagination?: PaginateParams) => {
+  return request<Paginate<Bill>>({
     method: 'POST',
     url: '/user/balance',
-    data: {},
+    data: { ...pagination },
   })
 }
 
