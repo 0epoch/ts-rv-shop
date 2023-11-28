@@ -18,7 +18,7 @@ const popup = ref<{
 }>()
 
 const query = defineProps<{
-  checkout?: string
+  checkout_skus?: string
 }>()
 
 const checkoutParams = ref<CheckoutParams>({
@@ -36,8 +36,8 @@ const getCheckoutResult = async (checkoutParams: CheckoutParams) => {
 }
 
 onLoad(() => {
-  if (query.checkout) {
-    checkoutParams.value.checkout_skus = JSON.parse(decodeURIComponent(query.checkout)) as CheckoutItem[]
+  if (query.checkout_skus) {
+    checkoutParams.value.checkout_skus = JSON.parse(decodeURIComponent(query.checkout_skus)) as CheckoutItem[]
     if (!checkoutParams.value.checkout_skus) return
     getCheckoutResult(checkoutParams.value)
   }
@@ -58,7 +58,7 @@ const onChangeCoupon = (id: number) => {
     assignCouponId.value = id
   }
   checkoutParams.value.coupon_id = assignCouponId.value
-  getCheckoutResult(checkoutParams)
+  getCheckoutResult(checkoutParams.value)
   popup.value?.close()
 }
 

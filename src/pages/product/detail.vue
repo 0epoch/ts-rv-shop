@@ -123,7 +123,7 @@ const onBuyNow = async (ev: SkuPopupEvent) => {
     return
   }
   const checkout = [{ sku_id: ev.goods_id, qty: ev.buy_num }]
-  uni.navigateTo({ url: `/pagesOrder/create/create?checkout=${encodeURIComponent(JSON.stringify(checkout))}` })
+  uni.navigateTo({ url: `/pagesOrder/create/create?checkout_skus=${encodeURIComponent(JSON.stringify(checkout))}` })
 }
 
 const onIcon = (url: string) => {
@@ -197,7 +197,7 @@ const onIcon = (url: string) => {
 
       <!-- 操作面板 -->
       <view class="action">
-        <view @tap="openSkuPopup(SkuMode.Both)" class="item arrow">
+        <view @tap="openSkuPopup(SkuMode.Cart)" class="item arrow">
           <text class="label">规格</text>
           <text class="text ellipsis"> {{ selectArrText }} </text>
         </view>
