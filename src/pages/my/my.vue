@@ -51,7 +51,7 @@ onLoad(async () => {
           <navigator class="asset-item" url="/pagesMember/recharge/record" hover-class="none">
             <view class="number">
               <text class="symbol">¥</text>
-              <text class="">1000000</text>
+              <text class="">{{ memberStore.profile.account_balance }}</text>
             </view>
             <text class="badge">余额</text>
           </navigator>

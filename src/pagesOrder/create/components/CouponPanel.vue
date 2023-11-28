@@ -24,13 +24,8 @@ const onChangeChecked = async (item: UserCoupon) => {
 
 <template>
   <view enable-back-to-top scroll-y class="viewport" id="scroller">
-    xxxxxxxxxxxxx
     <view class="coupon" v-for="item in props.userCoupons" :key="item.id">
-      <text
-        @tap="onChangeChecked(item)"
-        class="checkbox"
-        :class="{ checked: item.id === checkedCoupon }"
-      ></text>
+      <text @tap="onChangeChecked(item)" class="checkbox" :class="{ checked: item.id === checkedCoupon }"></text>
       <view class="overview">
         <view class="meta">
           <text class="title">{{ item.coupon.title }}</text>
@@ -38,9 +33,7 @@ const onChangeChecked = async (item: UserCoupon) => {
         </view>
 
         <text class="time"
-          >有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{
-            item.end_time.replace(/-/g, '.').substring(0, 10)
-          }}</text
+          >有效期：{{ item.start_time.replace(/-/g, '.').substring(0, 10) }}-{{ item.end_time.replace(/-/g, '.').substring(0, 10) }}</text
         >
       </view>
     </view>

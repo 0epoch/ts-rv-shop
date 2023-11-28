@@ -160,7 +160,7 @@ const onCheckout = () => {
   })
 
   // 跳转到结算页
-  uni.navigateTo({ url: '/pagesOrder/create/create?checkout=' + encodeURIComponent(JSON.stringify(checkoutSkus)) })
+  uni.navigateTo({ url: '/pagesOrder/create/create?checkout_skus=' + encodeURIComponent(JSON.stringify(checkoutSkus)) })
 }
 
 const onGo = () => {
