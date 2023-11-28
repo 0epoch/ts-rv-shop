@@ -101,9 +101,10 @@ const onFullLocationChange: UniHelper.RegionPickerOnChange = (ev) => {
 
 // 点击保存提交表单
 const onSubmit = async () => {
-  const { nickname, gender, birthday, mobile } = profile.value
+  const { nickname, gender, birthday, mobile, name } = profile.value
   const rs = await saveProfile({
-    nickname,
+    name,
+    mobile,
     gender,
     birthday,
   })

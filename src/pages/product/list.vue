@@ -57,10 +57,6 @@ const onScrolltolower = async () => {
 
 <template>
   <view class="viewport">
-    <view class="caption">
-      <!-- //TODO:search -->
-      <!-- <text class="text">{{ query.navTitle }}</text> -->
-    </view>
     <scroll-view
       enable-back-to-top
       refresher-enabled
@@ -90,6 +86,7 @@ page {
   position: relative;
 }
 .scroll-view {
+  margin-top: 20rpx;
   flex: 1;
 }
 .caption {

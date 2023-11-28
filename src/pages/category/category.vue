@@ -216,7 +216,7 @@ page {
   display: flex;
   position: sticky;
   top: var(--window-top);
-  margin-bottom: 20rpx;
+  margin-bottom: 30rpx;
   z-index: 999;
 }
 // 加载提示文字
