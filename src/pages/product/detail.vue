@@ -218,6 +218,10 @@ const onIcon = (url: string) => {
     </view>
   </scroll-view>
 
+  <!-- 客服 -->
+  <!-- #ifdef MP-WEIXIN -->
+  <button class="contact icon-customer-service" open-type="contact" :style="{ bottom: safeAreaInsets?.bottom! + 180 + 'rpx' }">客服</button>
+  <!-- #endif -->
   <view v-if="productDetail" class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
     <view class="icons">
       <view class="icons-button" @tap="onIcon('/pages/index/index')">
@@ -476,6 +480,34 @@ page {
   }
 }
 
+.contact {
+  width: 120rpx;
+  padding: 10rpx;
+  position: fixed;
+  right: 30rpx;
+  text-align: center;
+  font-size: 28rpx;
+  color: #010101;
+  background-color: #fff;
+  box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
+  line-height: inherit;
+  border-radius: 50%;
+  &::before {
+    display: block;
+    font-size: 60rpx;
+    color: #010101;
+  }
+  &::after {
+    border: none;
+  }
+}
+// .contact {
+//   padding: 0;
+//   margin: 0;
+//   border: 0;
+//   background-color: transparent;
+//   line-height: inherit;
+// }
 /* 底部工具栏 */
 .toolbar {
   position: fixed;

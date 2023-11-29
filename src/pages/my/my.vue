@@ -14,9 +14,10 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
 
 const authStore = useAuthStore()
 const orderTypes = [
-  { type: '1', text: '待付款', icon: 'icon-currency' },
-  { type: '2', text: '待发货', icon: 'icon-gift' },
-  { type: '3', text: '待收货', icon: 'icon-check' },
+  { type: '1', text: '待付款', icon: 'icon-wait' },
+  { type: '2', text: '待发货', icon: 'icon-logistics' },
+  { type: '3', text: '待收货', icon: 'icon-goods-receive' },
+  { type: '4', text: '退款/售后', icon: 'icon-refund' },
 ]
 const memberStore = useMemberStore()
 
@@ -107,10 +108,6 @@ onLoad(async () => {
           >
             {{ item.text }}
           </navigator>
-          <!-- 客服 -->
-          <!-- #ifdef MP-WEIXIN -->
-          <button class="contact icon-handset" open-type="contact">售后</button>
-          <!-- #endif -->
         </view>
       </view>
 
