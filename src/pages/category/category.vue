@@ -11,6 +11,8 @@ import { onLoad } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import type { Category } from '@/types/category'
 
+const { safeAreaInsets } = uni.getSystemInfoSync()
+
 const memberStore = useMemberStore()
 
 const confs = ref<HomeConfs>()
@@ -61,25 +63,15 @@ const onRefresherrefresh = async () => {
   triggered.value = false
 }
 
-const topFixed = ref()
-// const onPageScroll = () => {
-//   var temptop
-//   const query = uni.createSelectorQuery()
-//   query.select('.category').boundingClientRect()
-//   query.selectViewport().scrollOffset()
-//   query.exec(function (res) {
-//     console.log(res)
-//     res[0].top // .switchSign节点距离上边界的坐标
-//     res[1].scrollTop // 显示区域的竖直滚动位置
-//     temptop = res[0].top
-//     if (temptop <= '2') {
-//       topFixed.value = 1
-//     } else {
-//       topFixed.value = 0
-//     }
-//   })
-// }
-
+const isFixed = ref(false)
+const onPageScroll = (event: any) => {
+  const { scrollTop } = event.detail
+  if (scrollTop > safeAreaInsets?.top! + 200) {
+    isFixed.value = true
+  } else {
+    isFixed.value = false
+  }
+}
 // 滚动触底
 const onScrolltolower = async () => {
   if (!products.value) return
@@ -100,7 +92,7 @@ const onScrolltolower = async () => {
 </script>
 
 <template>
-  <view class="viewport">
+  <scroll-view enable-back-to-top @scrolltolower="onScrolltolower" @scroll="onPageScroll" class="viewport scroll-view" scroll-y>
     <view class="action">
       <navigator class="search" hover-class="none" url="/pages/index/search">
         <text class="icon-search">搜索商品</text>
@@ -119,7 +111,7 @@ const onScrolltolower = async () => {
       </view>
     </view>
 
-    <scroll-view scroll-x class="category sticky">
+    <scroll-view scroll-x class="category" :class="{ sticky: isFixed === true }">
       <view class="cate-item" @tap="onTapCategory(0)">
         <text :class="{ active: activeCategory === 0 }" class="cate-text">全部</text>
       </view>
@@ -128,13 +120,13 @@ const onScrolltolower = async () => {
       </view>
     </scroll-view>
 
-    <scroll-view enable-back-to-top @scrolltolower="onScrolltolower" class="scroll-view" scroll-y>
+    <view>
       <RvProduct :products="products" />
       <view class="loading-text">
         {{ finish ? '没有更多数据了~' : '正在加载...' }}
       </view>
-    </scroll-view>
-  </view>
+    </view>
+  </scroll-view>
 </template>
 
 <style lang="scss">
@@ -213,10 +205,11 @@ page {
   }
 }
 .sticky {
-  display: flex;
-  position: sticky;
+  position: fixed;
   top: var(--window-top);
-  margin-bottom: 20rpx;
+  left: 0;
+  background-color: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 999;
 }
 // 加载提示文字
