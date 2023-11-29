@@ -10,6 +10,7 @@ export type CartItem = {
   original_price: nulber
   price: number
   aff_price: number
+  checkout_price: number
   stock: number
   attrs: string
   selected: number

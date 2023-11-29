@@ -20,22 +20,14 @@ export type Product = {
   sold_qty: number
   pic_url: string
   type: string
-}
-
-/** 商品详情 */
-export type Detail = {
-  id: number
-  title: string
-  original_price: number
-  price: number
-  aff_price: number
-  stock: number
-  is_aff: number
-  sold_qty: number
+  aff_visible: number
   meet_qty: number
   meet_discount: number
   meet_price: number
-  pic_url: string
+}
+
+/** 商品详情 */
+export type Detail = Product & {
   main_pictures: string[]
   detail_pictures: string[]
   attrs: Attr[]

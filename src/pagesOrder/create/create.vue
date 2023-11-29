@@ -111,8 +111,8 @@ const onOrderSubmit = async () => {
           <view class="name ellipsis"> {{ item.title }} </view>
           <view class="attrs">{{ item.attrs }}</view>
           <view class="prices">
-            <view class="pay-price symbol">{{ item.price }}</view>
-            <view class="price symbol">{{ item.original_price }}</view>
+            <view class="pay-price symbol">{{ item.checkout_price }}</view>
+            <view class="price symbol">{{ item.price }}</view>
           </view>
           <view class="count">x{{ item.qty }}</view>
         </view>
@@ -414,14 +414,14 @@ page {
   .checkbox {
     width: 80rpx;
     &::before {
-      content: '\e6cd';
-      font-family: 'erabbit' !important;
+      content: '\e72f';
+      font-family: 'iconfont' !important;
       font-size: 40rpx;
       color: #444;
     }
 
     &.checked::before {
-      content: '\e6cc';
+      content: '\e730';
       color: #010101;
     }
   }

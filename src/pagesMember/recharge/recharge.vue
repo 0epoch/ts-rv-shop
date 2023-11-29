@@ -141,14 +141,14 @@ page {
   width: 50rpx;
   margin-right: 10rpx;
   &::before {
-    content: '\e6cd';
-    font-family: 'erabbit' !important;
+    content: '\e72f';
+    font-family: 'iconfont' !important;
     font-size: 40rpx;
     color: #444;
   }
 
   &.checked::before {
-    content: '\e6cc';
+    content: '\e730';
     color: #010101;
   }
 }

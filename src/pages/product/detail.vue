@@ -170,10 +170,22 @@ const onIcon = (url: string) => {
 
       <!-- 商品简介 -->
       <view class="meta">
-        <view class="price">
+        <view v-if="productDetail?.aff_visible === 1" class="price aff-price">
+          <view>
+            <text class="symbol">¥</text>
+            <text class="number">{{ productDetail?.aff_price }}</text>
+          </view>
+
+          <view class="broken-price">
+            <text class="symbol">¥</text>
+            <text class="">{{ productDetail?.price }}</text>
+          </view>
+        </view>
+        <view v-else class="price">
           <text class="symbol">¥</text>
           <text class="number">{{ productDetail?.price }}</text>
         </view>
+
         <view class="name ellipsis">{{ productDetail?.title }}</view>
         <view class="promotion-action" v-if="productDetail && productDetail.meet_qty > 0">
           <view
@@ -297,9 +309,9 @@ page {
     position: absolute;
     top: 50%;
     right: 30rpx;
-    content: '\e6c2';
+    content: '\e843';
     color: #ccc;
-    font-family: 'erabbit' !important;
+    font-family: 'iconfont' !important;
     font-size: 32rpx;
     transform: translateY(-50%);
   }
@@ -341,13 +353,24 @@ page {
     margin-bottom: 20rpx;
     padding: 20rpx;
     background-color: #fff;
-
     .price {
       padding: 0rpx 20rpx 0;
       color: #010101;
       font-size: 36rpx;
       font-weight: bold;
       box-sizing: border-box;
+    }
+    .aff-price {
+      display: flex;
+      align-items: center;
+    }
+    .broken-price {
+      margin-left: 20rpx;
+      font-size: 38rpx;
+      line-height: 56rpx;
+      font-weight: 500;
+      color: #999;
+      text-decoration: line-through;
     }
     .number {
       font-size: 56rpx;
@@ -393,8 +416,9 @@ page {
       .tag {
         margin-right: 10rpx;
         padding: 5rpx 10rpx;
+        color: #010101;
         border: 1rpx solid #010101;
-        border-radius: 4rpx;
+        border-radius: 8rpx;
         font-size: 20rpx;
       }
     }
@@ -486,7 +510,7 @@ page {
   position: fixed;
   right: 30rpx;
   text-align: center;
-  font-size: 28rpx;
+  font-size: 24rpx;
   color: #010101;
   background-color: #fff;
   box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
