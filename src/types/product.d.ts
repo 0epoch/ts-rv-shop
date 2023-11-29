@@ -50,6 +50,7 @@ export type Sku = {
   id: number
   stock: number
   aff_price: number
+  aff_visible: number
   pic_url: string
   status: number
   price: number

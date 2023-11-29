@@ -7,53 +7,45 @@ import { useMemberStore } from '@/stores'
 
 const memberStore = useMemberStore()
 
-const hasAff = ref(false)
-
 defineProps<{
   products: Paginate<Product>
 }>()
 
-onLoad(async () => {
-  console.log('products...........')
-})
+onLoad(async () => {})
 </script>
 
 <template>
   <view class="products">
-    <navigator
-      hover-class="none"
-      class="navigator"
-      v-for="product in products?.data"
-      :key="product.id"
-      :url="`/pages/product/detail?id=${product.id}`"
-    >
-      <image class="thumb" :src="product.pic_url"></image>
-      <view class="desc">
-        <view class="name ellipsis">{{ product.title }}</view>
-        <view class="promotion">
-          <text class="aff-man" v-if="product.aff_visible === 1">VIP</text>
-          <text class="meet-discount" v-if="product.meet_qty > 0">满{{ product.meet_qty }}件打{{ product.meet_discount }}折</text>
-        </view>
-        <view class="price-wrapper">
-          <view v-if="product.aff_visible === 1" class="price aff-price">
-            <view>
-              <text class="symbol">¥</text>
-              <text class="number">{{ product.aff_price }}</text>
-            </view>
+    <view class="product" v-for="product in products?.data" :key="product.id">
+      <navigator hover-class="none" class="navigator" :url="`/pages/product/detail?id=${product.id}`">
+        <image class="thumb" :src="product.pic_url"></image>
+        <view class="desc">
+          <view class="name ellipsis">{{ product.title }}</view>
+          <view class="promotion">
+            <text class="aff-man" v-if="product.aff_visible === 1">VIP</text>
+            <text class="meet-discount" v-if="product.meet_qty > 0">满{{ product.meet_qty }}件打{{ product.meet_discount }}折</text>
+          </view>
+          <view class="price-wrapper">
+            <view v-if="product.aff_visible === 1" class="price aff-price">
+              <view>
+                <text class="symbol">¥</text>
+                <text class="number">{{ product.aff_price }}</text>
+              </view>
 
-            <view class="broken-price">
+              <view class="broken-price">
+                <text class="symbol">¥</text>
+                <text class="number">{{ product.price }}</text>
+              </view>
+            </view>
+            <view v-else class="price">
               <text class="symbol">¥</text>
               <text class="number">{{ product.price }}</text>
             </view>
+            <text class="icon-add-btn-fill"></text>
           </view>
-          <view v-else class="price">
-            <text class="symbol">¥</text>
-            <text class="number">{{ product.price }}</text>
-          </view>
-          <text class="icon-add-btn-fill"></text>
         </view>
-      </view>
-    </navigator>
+      </navigator>
+    </view>
   </view>
 </template>
 
@@ -62,10 +54,16 @@ onLoad(async () => {
   display: flex;
   flex-wrap: wrap;
   justify-content: space-between;
-  padding: 0 20rpx 20rpx;
+  padding-left: 20rpx;
+  .product {
+    flex: 50%;
+    flex-grow: 0;
+    padding-right: 20rpx;
+    padding-bottom: 20rpx;
+  }
   .navigator {
-    width: 342rpx;
-    margin-bottom: 20rpx;
+    width: 100%;
+    height: 100%;
     border-radius: 20rpx;
     overflow: hidden;
     background-color: #fff;
@@ -79,12 +77,12 @@ onLoad(async () => {
     padding: 20rpx;
   }
   .name {
-    height: 58rpx;
-    font-size: 26rpx;
+    font-size: 28rpx;
   }
   .price-wrapper {
     display: flex;
     justify-content: space-between;
+    padding: 5rpx 0;
   }
   .promotion {
     display: flex;
@@ -116,8 +114,8 @@ onLoad(async () => {
   }
   .price {
     line-height: 1;
-    color: #010101;
-    font-size: 32rpx;
+    color: #e51c23;
+    font-size: 34rpx;
     font-weight: bold;
   }
   .broken-price {

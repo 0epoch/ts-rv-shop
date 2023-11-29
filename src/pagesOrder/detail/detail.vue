@@ -664,15 +664,15 @@ page {
     }
 
     .icon::before {
-      content: '\e6cd';
-      font-family: 'erabbit' !important;
-      font-size: 38rpx;
+      content: '\e72f';
+      font-family: 'iconfont' !important;
+      font-size: 40rpx;
       color: #999;
     }
 
     .icon.checked::before {
-      content: '\e6cc';
-      font-size: 38rpx;
+      content: '\e730';
+      font-size: 40rpx;
       color: #010101;
     }
   }

@@ -27,7 +27,7 @@ const productDetail = ref<Detail>()
 const getProductDetail = async () => {
   const rs = await fetchProductDetail(query.id)
   productDetail.value = rs.data
-  if (rs.data.meet_qty > 0 && rs.data.meet_discount > 0) {
+  if (rs.data.meet_qty > 0 && rs.data.meet_discount > 0 && rs.data.stock >= rs.data.meet_qty) {
     buyNowText.value = rs.data.meet_qty + '件单价¥' + rs.data.meet_price + ' '
     minBuy.value = rs.data.meet_qty
   }
@@ -44,12 +44,13 @@ const getProductDetail = async () => {
       }
     }),
     sku_list: rs.data.skus.map((v) => {
+      const price = v.aff_visible === 1 ? v.aff_price : v.price
       return {
         _id: rs.data.id,
         goods_id: v.id,
         goods_name: rs.data.title,
         image: v.pic_url,
-        price: v.price * 100,
+        price: price * 100,
         stock: v.stock,
         sku_name_arr: v.attrs.split(','),
       }
@@ -122,6 +123,11 @@ const onBuyNow = async (ev: SkuPopupEvent) => {
   if (!authStore.certified()) {
     authStore.visible = true
     return
+  }
+  console.log(ev.stock < productDetail.value?.meet_qty!, ev.stock, productDetail.value?.meet_qty!)
+  if (ev.stock < productDetail.value?.meet_qty!) {
+    minBuy.value = 1
+    buyNowText.value = '立即购买'
   }
   const checkout = [{ sku_id: ev.goods_id, qty: ev.buy_num }]
   uni.navigateTo({ url: `/pagesOrder/create/create?checkout_skus=${encodeURIComponent(JSON.stringify(checkout))}` })
@@ -522,12 +528,12 @@ page {
 }
 
 .contact {
-  width: 120rpx;
+  width: 100rpx;
   padding: 10rpx;
   position: fixed;
   right: 30rpx;
   text-align: center;
-  font-size: 24rpx;
+  font-size: 20rpx;
   color: #010101;
   background-color: #fff;
   box-shadow: 0 4rpx 6rpx rgba(240, 240, 240, 0.6);
@@ -535,7 +541,7 @@ page {
   border-radius: 50%;
   &::before {
     display: block;
-    font-size: 60rpx;
+    font-size: 45rpx;
     color: #010101;
   }
   &::after {

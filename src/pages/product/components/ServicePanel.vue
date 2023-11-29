@@ -23,6 +23,7 @@ const emit = defineEmits<{
 
 <style lang="scss">
 .service-panel {
+  height: 50vh;
   padding: 0 30rpx;
   border-radius: 10rpx 10rpx 0 0;
   position: relative;

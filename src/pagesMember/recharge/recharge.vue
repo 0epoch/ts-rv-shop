@@ -143,7 +143,7 @@ page {
   &::before {
     content: '\e72f';
     font-family: 'iconfont' !important;
-    font-size: 40rpx;
+    font-size: 45rpx;
     color: #444;
   }
 

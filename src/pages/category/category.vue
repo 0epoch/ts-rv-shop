@@ -34,6 +34,7 @@ const getHomeConfs = async () => {
 const getProductList = async () => {
   const rs = await productList({ params: productParams.value })
   products.value = rs.data
+  products.value.page = rs.data.current_page
   if (rs.data.total <= 0) {
     finish.value = true
   }
@@ -66,7 +67,7 @@ const onRefresherrefresh = async () => {
 const isFixed = ref(false)
 const onPageScroll = (event: any) => {
   const { scrollTop } = event.detail
-  if (scrollTop > safeAreaInsets?.top! + 200) {
+  if (scrollTop > safeAreaInsets?.top! + 150) {
     isFixed.value = true
   } else {
     isFixed.value = false
@@ -103,7 +104,7 @@ const onScrolltolower = async () => {
             <view class="=tab">
               <navigator hover-class="none" class="navigator" :url="`/pages/product/list?nav_id=${item.id}&navTitle=${item.name}`">
                 <image class="cover" :src="item.cover" mode="widthFix" />
-                <view>{{ item.name }}</view>
+                <view class="label">{{ item.name }}</view>
               </navigator>
             </view>
           </view>
@@ -167,18 +168,26 @@ page {
   flex: 1;
 }
 .tab-wrapper {
-  padding: 0 20rpx 20rpx;
+  margin-bottom: 20rpx;
+  padding: 0 10rpx;
 }
 .tabs {
   display: flex;
   flex-wrap: wrap;
+  justify-content: space-between;
   border-radius: 10rpx;
-  // background-color: #fff;
   color: #333;
   .tab-box {
+    max-width: 150rpx;
     flex: 25%;
     flex-grow: 0;
-    padding: 20rpx;
+    padding: 10rpx;
+  }
+  .label {
+    margin-top: 20rpx;
+    text-align: center;
+    color: #939393;
+    font-size: 28rpx;
   }
 }
 .category {
@@ -211,6 +220,7 @@ page {
   background-color: #fff;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
   z-index: 999;
+  transition: top 0.3s ease-out;
 }
 // 加载提示文字
 .loading-text {
