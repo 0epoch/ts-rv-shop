@@ -76,7 +76,7 @@ const onScrolltolower = async () => {
       <RvProduct :products="products" />
 
       <view class="loading-text">
-        {{ finish && products?.total ? '没有更多数据了~' : '正在加载...' }}
+        {{ finish && products?.total ? '没有更多数据了~' : '请输入关键词搜索' }}
       </view>
     </scroll-view>
   </view>

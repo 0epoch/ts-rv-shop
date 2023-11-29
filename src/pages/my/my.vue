@@ -39,7 +39,7 @@ onLoad(async () => {
         <navigator url="/pagesMember/profile/profile" hover-class="none" class="meta">
           <image class="avatar" :src="memberStore.profile.avatar" mode="aspectFill"></image>
           <view class="nickname">
-            {{ memberStore.profile.nickname || memberStore.profile.name }}
+            {{ memberStore.profile.name || memberStore.profile.nickname }}
           </view>
         </navigator>
         <view class="assets">

@@ -19,6 +19,7 @@ const query = defineProps<{
 
 const buyNowText = ref('')
 const minBuy = ref(1)
+const tipHidden = ref(true)
 
 const authStore = useAuthStore()
 // 获取商品详情信息
@@ -129,6 +130,10 @@ const onBuyNow = async (ev: SkuPopupEvent) => {
 const onIcon = (url: string) => {
   uni.switchTab({ url })
 }
+
+const onMoreTip = () => {
+  tipHidden.value = false
+}
 </script>
 
 <template>
@@ -140,7 +145,7 @@ const onIcon = (url: string) => {
     price-color="#e51c23"
     add-cart-background-color="#010101"
     buy-now-background-color="#010101"
-    add-cart-text="确定"
+    add-cart-text="加入购物车"
     :buy-now-text="buyNowText + '立即购买'"
     ref="skuPopupRef"
     :actived-style="{
@@ -201,7 +206,8 @@ const onIcon = (url: string) => {
         </view>
         <view class="tip">
           <text class="tip-title">温馨提示</text>
-          <text class="tip-content">
+          <text class="tip-content" :class="{ 'tip-hidden': tipHidden === true }">
+            <text class="icon-down more" v-if="tipHidden === true" @tap="onMoreTip"></text>
             亲爱的姐妹，下单后10天内顺丰快递发出，请在签收后请仔细检查产品是否有质量或做工问题，我们每一套都有独立的透明包装。在未拆封状态下，收到货48小时内支持无理由退货，每一套都是百分百纯手工定制，非机器印刷。如果对品质有担忧可以先拍一两套回去看看，觉得好再回购也不迟！只做高品质，欢迎拿去跟其他家做对比！
           </text>
         </view>
@@ -440,6 +446,17 @@ page {
     .tip-content {
       color: #898b94;
       font-size: 28rpx;
+      .more {
+        float: right;
+        font-size: 40rpx;
+      }
+    }
+    .tip-hidden {
+      display: -webkit-box;
+      -webkit-box-orient: vertical;
+      -webkit-line-clamp: 1;
+      overflow: hidden;
+      text-overflow: ellipsis;
     }
   }
   .action {
