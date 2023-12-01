@@ -11,3 +11,14 @@ export type PaginateParams = {
   page?: number
   per_page?: number
 }
+
+export type OssPolicy = {
+  accessid: T
+  host: number
+  policy: string
+  signature: string
+  expire: number
+  callback: string
+  'callback-var': object
+  dir: string
+}

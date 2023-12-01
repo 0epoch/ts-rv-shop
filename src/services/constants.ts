@@ -1,13 +1,8 @@
 export enum OrderState {
-  /** 待付款 */
   UNPAID = 'unpaid',
-  /** 待发货 */
   WAIT_SHIP = 'wait_ship',
-  /** 待收货 */
   SHIPPED = 'shipped',
-  /** 已完成 */
   COMPLETED = 'completed',
-  /** 已取消 */
   CANCELED = 'canceled',
   CLOSED = 'closed',
   RECEIVED = 'received',
@@ -47,4 +42,10 @@ export const billSourceTypeList: BillSourceTypeList = {
   [BillSourceType.REFUND_BALANCE]: { id: 3, text: '退款' },
   [BillSourceType.ADMIN_RECHARGE]: { id: 4, text: '管理员充值' },
   [BillSourceType.ADMIN_DEDUCTION]: { id: 5, text: '管理员扣款' },
+}
+
+export enum PaymehtMethod {
+  WECHAT = 'wechat',
+  BALANCE = 'balance',
+  FREE = 'free',
 }

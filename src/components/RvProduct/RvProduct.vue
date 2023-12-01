@@ -18,7 +18,7 @@ onLoad(async () => {})
   <view class="products">
     <view class="product" v-for="product in products?.data" :key="product.id">
       <navigator hover-class="none" class="navigator" :url="`/pages/product/detail?id=${product.id}`">
-        <image class="thumb" :src="product.pic_url"></image>
+        <image mode="aspectFill" class="thumb" :src="product.pic_url"></image>
         <view class="desc">
           <view class="name ellipsis">{{ product.title }}</view>
           <view class="promotion">

@@ -1,6 +1,6 @@
 <script setup lang="ts">
-import { OrderState, orderStateList } from '@/services/constants'
-import { orderDetail, cancelOrder } from '@/api/order'
+import { OrderState, orderStateList, PaymehtMethod } from '@/services/constants'
+import { orderDetail, cancelOrder, orderPayment } from '@/api/order'
 import type { LogisticItem, OrderResult } from '@/types/order'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
@@ -67,6 +67,8 @@ const onTimeup = () => {
 
 // 订单支付
 const onOrderPay = async () => {
+  const rs = await orderPayment({ order_id: query.id, pay_type: PaymehtMethod.WECHAT })
+  // await wx.requestPayment(rs.data.sign)
   if (import.meta.env.DEV) {
     // await getPayMockAPI({ orderId: query.id })
   } else {

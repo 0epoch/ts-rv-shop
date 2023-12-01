@@ -1,5 +1,7 @@
 <script setup lang="ts">
 import { getProfile, saveProfile } from '@/api/user'
+import { ossPolicy } from '@/api/home'
+
 import { useMemberStore } from '@/stores'
 import type { Gender, Profile } from '@/types/member'
 import { formatDate } from '@/utils'
@@ -23,9 +25,7 @@ onLoad(() => {
 
 const memberStore = useMemberStore()
 // 修改头像
-const onAvatarChange = () => {
-  return
-  // TODO:
+const onAvatarChange = async () => {
   // 调用拍照/选择图片
   // 选择图片条件编译
   // #ifdef H5 || APP-PLUS
@@ -46,12 +46,9 @@ const onAvatarChange = () => {
   uni.chooseMedia({
     // 文件个数
     count: 1,
-    // 文件类型
     mediaType: ['image'],
     success: (res) => {
-      // 本地路径
       const { tempFilePath } = res.tempFiles[0]
-      // 上传
       uploadFile(tempFilePath)
     },
   })
@@ -59,18 +56,17 @@ const onAvatarChange = () => {
 }
 
 // 文件上传-兼容小程序端、H5端、App端
-const uploadFile = (file: string) => {
-  // 文件上传
+const uploadFile = async (file: string) => {
+  const rs = await ossPolicy({ file_type: 4 })
+
   uni.uploadFile({
-    url: '/member/profile/avatar',
+    url: '',
     name: 'file',
     filePath: file,
     success: (res) => {
       if (res.statusCode === 200) {
         const avatar = JSON.parse(res.data).result.avatar
-        // 个人信息页数据更新
         profile.value.avatar = avatar
-        // Store头像更新
         memberStore.profile!.avatar = avatar
         uni.showToast({ icon: 'success', title: '更新成功' })
       } else {
@@ -82,7 +78,7 @@ const uploadFile = (file: string) => {
 
 // 修改性别
 const onGenderChange: UniHelper.RadioGroupOnChange = (ev) => {
-  profile.value.gender = ev.detail.value as Gender
+  profile.value.gender = ev.detail.value as unknown as Gender
 }
 
 // 修改生日
@@ -93,9 +89,7 @@ const onBirthdayChange: UniHelper.DatePickerOnChange = (ev) => {
 // 修改城市
 let fullLocationCode: [string, string, string] = ['', '', '']
 const onFullLocationChange: UniHelper.RegionPickerOnChange = (ev) => {
-  // 修改前端界面
   profile.value.fullLocation = ev.detail.value.join(' ')
-  // 提交后端更新
   fullLocationCode = ev.detail.code!
 }
 
