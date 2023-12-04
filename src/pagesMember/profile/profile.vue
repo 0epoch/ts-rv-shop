@@ -30,15 +30,15 @@ const onAvatarChange = async () => {
   // 选择图片条件编译
   // #ifdef H5 || APP-PLUS
   // 微信小程序从基础库 2.21.0 开始， wx.chooseImage 停止维护，请使用 uni.chooseMedia 代替
-  uni.chooseImage({
-    count: 1,
-    success: (res) => {
-      // 文件路径
-      const tempFilePaths = res.tempFilePaths
-      // 上传
-      uploadFile(tempFilePaths[0])
-    },
-  })
+  // uni.chooseImage({
+  //   count: 1,
+  //   success: (res) => {
+  //     // 文件路径
+  //     const tempFilePaths = res.tempFilePaths
+  //     // 上传
+  //     uploadFile(tempFilePaths[0])
+  //   },
+  // })
   // #endif
 
   // #ifdef MP-WEIXIN
@@ -48,6 +48,7 @@ const onAvatarChange = async () => {
     count: 1,
     mediaType: ['image'],
     success: (res) => {
+      console.log(res, 'res...............')
       const { tempFilePath } = res.tempFiles[0]
       uploadFile(tempFilePath)
     },
@@ -55,22 +56,38 @@ const onAvatarChange = async () => {
   // #endif
 }
 
+const makeRandomName = (name: string) => {
+  const randomStr = Math.random().toString().substr(2, 4)
+  const suffix = name.substr(name.lastIndexOf('.'))
+  return Date.now() + randomStr + suffix
+}
 // 文件上传-兼容小程序端、H5端、App端
 const uploadFile = async (file: string) => {
   const rs = await ossPolicy({ file_type: 4 })
 
+  const fileName = makeRandomName(file)
+  const host = rs.data.host
   uni.uploadFile({
-    url: '',
+    url: rs.data.host,
     name: 'file',
     filePath: file,
+    formData: {
+      key: rs.data.dir + fileName,
+      policy: rs.data.policy,
+      host: rs.data.host,
+      OSSAccessKeyId: rs.data.accessid,
+      success_action_status: '200',
+      Callback: rs.data.callback,
+      Signature: rs.data.signature,
+    },
     success: (res) => {
       if (res.statusCode === 200) {
-        const avatar = JSON.parse(res.data).result.avatar
-        profile.value.avatar = avatar
-        memberStore.profile!.avatar = avatar
+        const fileUrl = host + rs.data.dir + fileName
+        profile.value.avatar = fileUrl
+        memberStore.profile!.avatar = fileUrl
         uni.showToast({ icon: 'success', title: '更新成功' })
       } else {
-        uni.showToast({ icon: 'error', title: '出现错误' })
+        uni.showToast({ icon: 'error', title: '图片上传失败' })
       }
     },
   })
@@ -86,21 +103,14 @@ const onBirthdayChange: UniHelper.DatePickerOnChange = (ev) => {
   profile.value.birthday = ev.detail.value
 }
 
-// 修改城市
-let fullLocationCode: [string, string, string] = ['', '', '']
-const onFullLocationChange: UniHelper.RegionPickerOnChange = (ev) => {
-  profile.value.fullLocation = ev.detail.value.join(' ')
-  fullLocationCode = ev.detail.code!
-}
-
-// 点击保存提交表单
 const onSubmit = async () => {
-  const { nickname, gender, birthday, mobile, name } = profile.value
+  const { nickname, gender, birthday, mobile, name, avatar } = profile.value
   const rs = await saveProfile({
     name,
     mobile,
     gender,
     birthday,
+    avatar,
   })
   // 更新Store昵称
   memberStore.profile!.nickname = rs.data.nickname

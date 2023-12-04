@@ -30,13 +30,16 @@ onLoad(() => {
     <view v-if="couponListVisible">
       <view class="coupon" v-for="item in coupons?.data" :key="item.id">
         <view class="overview">
-          <view class="meta">
-            <text class="title">{{ item.title }}</text>
-            <text class="desc ellipsis">{{ item.desc }}</text>
-          </view>
+          <!-- <view class="meta"> -->
+          <text class="title">{{ item.title }}</text>
+          <text class="desc ellipsis">{{ item.desc }}</text>
+          <!-- </view> -->
         </view>
         <view class="action">
-          <view class="price">{{ item.type === 'discount' ? item.value * 10 + '折' : Math.floor(item.value) + '元' }}</view>
+          <view class="price">
+            <text>{{ item.type === 'discount' ? item.value * 10 : Math.floor(item.value) }}</text>
+            <text>{{ item.type === 'discount' ? '折' : '元' }}</text>
+          </view>
           <text class="button" @tap="onReceive(item.id)">领 取</text>
         </view>
       </view>
@@ -61,16 +64,17 @@ page {
   display: flex;
   justify-content: space-between;
   width: 100%;
-  height: 160rpx;
+  height: 180rpx;
   padding: 20rpx 25rpx;
   margin-top: 20rpx;
   background-color: #fff;
   border-radius: 8rpx;
-  mask-image: radial-gradient(circle at right 200rpx bottom 8rpx, transparent 8rpx, red 8.5rpx),
+  font-size: 40rpx;
+  mask-image: radial-gradient(circle at right 240rpx bottom 16rpx, transparent 16rpx, red 16.5rpx),
     radial-gradient(closest-side circle at 50%, red 99%, transparent 100%);
-  mask-size: 100%, 2rpx 12rpx;
+  mask-size: 100%, 6rpx 16rpx;
   mask-repeat: repeat, repeat-y;
-  mask-position: 0 8rpx, calc(100% - 199.5rpx);
+  mask-position: 0 16rpx, calc(100% - 238.5rpx);
   mask-composite: source-out;
   mask-composite: subtract;
   .overview {
@@ -78,7 +82,7 @@ page {
     flex-grow: 0;
     display: flex;
     flex-direction: column;
-    justify-content: space-around;
+    justify-content: center;
     .meta {
       display: flex;
       flex-direction: column;
@@ -97,12 +101,12 @@ page {
     flex-direction: column;
     justify-content: center;
     align-items: center;
-    margin-right: 30rpx;
+    margin-right: 50rpx;
     .price {
+      font-size: 45rpx;
       color: #e51c23;
     }
     .button {
-      margin-top: 10rpx;
       color: #010101;
       padding: 5rpx 15rpx;
       border-radius: 4rpx;

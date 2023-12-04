@@ -30,8 +30,8 @@ export const firstCategories = () => {
  */
 export const ossPolicy = (data: { file_type: number }) => {
   return request<OssPolicy>({
-    method: 'GET',
-    url: '//first',
+    method: 'POST',
+    url: '/oss/policy',
     data,
   })
 }

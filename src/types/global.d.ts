@@ -14,7 +14,7 @@ export type PaginateParams = {
 
 export type OssPolicy = {
   accessid: T
-  host: number
+  host: string
   policy: string
   signature: string
   expire: number

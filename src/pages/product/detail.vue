@@ -18,7 +18,6 @@ const query = defineProps<{
 }>()
 
 const buyNowText = ref('')
-const minBuy = ref(1)
 const tipHidden = ref(true)
 
 const authStore = useAuthStore()
@@ -29,7 +28,6 @@ const getProductDetail = async () => {
   productDetail.value = rs.data
   if (rs.data.meet_qty > 0 && rs.data.meet_discount > 0 && rs.data.stock >= rs.data.meet_qty) {
     buyNowText.value = rs.data.meet_qty + '件单价¥' + rs.data.meet_price + ' '
-    minBuy.value = rs.data.meet_qty
   }
   localdata.value = {
     _id: rs.data.id,
@@ -114,6 +112,7 @@ const onAddCart = async (ev: SkuPopupEvent) => {
     authStore.visible = true
     return
   }
+  // minBuy.value = 1
   await saveCardProduct({ product_id: ev._id, sku_id: ev.goods_id, qty: ev.buy_num })
   uni.showToast({ title: '添加成功' })
   skuVisible.value = false
@@ -126,7 +125,7 @@ const onBuyNow = async (ev: SkuPopupEvent) => {
   }
   console.log(ev.stock < productDetail.value?.meet_qty!, ev.stock, productDetail.value?.meet_qty!)
   if (ev.stock < productDetail.value?.meet_qty!) {
-    minBuy.value = 1
+    // minBuy.value = 1
     buyNowText.value = '立即购买'
   }
   const checkout = [{ sku_id: ev.goods_id, qty: ev.buy_num }]
@@ -147,12 +146,11 @@ const onMoreTip = () => {
     v-model="skuVisible"
     :localdata="localdata"
     :mode="mode"
-    :min-buy-num="minBuy"
     price-color="#e51c23"
     add-cart-background-color="#010101"
     buy-now-background-color="#010101"
-    add-cart-text="加入购物车"
-    :buy-now-text="buyNowText + '立即购买'"
+    add-cart-text="确认"
+    buy-now-text="确认"
     ref="skuPopupRef"
     :actived-style="{
       color: '#fff',

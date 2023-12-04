@@ -95,9 +95,10 @@ const onScrolltolower = async () => {
               }}</text
             >
           </view>
-          <view :class="activeTab !== 0 ? 'invalid' : 'price'">{{
-            item.coupon.type === 'discount' ? item.coupon.value * 10 + '折' : Math.floor(item.coupon.value) + '元'
-          }}</view>
+          <view :class="activeTab !== 0 ? 'invalid' : 'price'">
+            <text>{{ item.type === 'discount' ? item.value * 10 : Math.floor(item.value) }}</text>
+            <text>{{ item.type === 'discount' ? '折' : '元' }}</text>
+          </view>
         </view>
       </view>
     </scroll-view>
@@ -145,16 +146,17 @@ page {
   justify-content: space-between;
   // align-items: center;
   width: 100%;
-  height: 160rpx;
+  height: 180rpx;
   padding: 20rpx 25rpx;
   margin-bottom: 20rpx;
   background-color: #fff;
   border-radius: 8rpx;
-  mask-image: radial-gradient(circle at right 200rpx bottom 8rpx, transparent 8rpx, red 8.5rpx),
+  font-size: 40rpx;
+  mask-image: radial-gradient(circle at right 240rpx bottom 16rpx, transparent 16rpx, red 16.5rpx),
     radial-gradient(closest-side circle at 50%, red 99%, transparent 100%);
-  mask-size: 100%, 2rpx 12rpx;
+  mask-size: 100%, 6rpx 16rpx;
   mask-repeat: repeat, repeat-y;
-  mask-position: 0 8rpx, calc(100% - 199.5rpx);
+  mask-position: 0 16rpx, calc(100% - 238.5rpx);
   mask-composite: source-out;
   mask-composite: subtract;
   .overview {
@@ -179,7 +181,8 @@ page {
   .price {
     display: flex;
     align-items: center;
-    margin-right: 30rpx;
+    margin-right: 50rpx;
+    font-size: 45rpx;
     color: #e51c23;
   }
   .invalid {
