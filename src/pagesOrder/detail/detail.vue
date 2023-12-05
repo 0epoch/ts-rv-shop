@@ -9,8 +9,10 @@ import PageSkeleton from './components/PageSkeleton.vue'
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
 const popup = ref<UniHelper.UniPopupInstance>()
-const reasonList = ref(['商品无货', '不想要了', '商品信息填错了', '地址信息填写错误', '商品降价', '其它'])
+const popup2 = ref<UniHelper.UniPopupInstance>()
 
+const reasonList = ref(['商品无货', '不想要了', '商品信息填错了', '地址信息填写错误', '商品降价', '其它'])
+const paymehtMethod = ref('')
 const reason = ref('')
 const onCopy = (id: string) => {
   uni.setClipboardData({ data: id })
@@ -66,7 +68,8 @@ const onTimeup = () => {
 }
 
 // 订单支付
-const onOrderPay = async () => {
+const onOrderPay = async (method: string) => {
+  paymehtMethod.value = method
   const rs = await orderPayment({ order_id: query.id, pay_type: PaymehtMethod.WECHAT })
   // await wx.requestPayment(rs.data.sign)
   if (import.meta.env.DEV) {
@@ -113,6 +116,10 @@ const onOrderCancel = async () => {
   popup.value?.close!()
   uni.showToast({ icon: 'none', title: '订单取消成功' })
 }
+
+const onChangePayment = (method: string) => {
+  paymehtMethod.value = method
+}
 </script>
 
 <template>
@@ -143,7 +150,7 @@ const onOrderCancel = async () => {
               @timeup="onTimeup"
             />
           </view>
-          <view class="btn" @tap="onOrderPay">去支付</view>
+          <view class="btn" @tap="popup2?.open?.()">去支付</view>
         </template>
 
         <template v-else>
@@ -232,7 +239,7 @@ const onOrderCancel = async () => {
       <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
         <!-- 待付款状态 -->
         <template v-if="order.order_status === OrderState.UNPAID">
-          <view class="btn primary" @tap="onOrderPay"> 去支付 </view>
+          <view class="btn primary" @tap="popup2?.open?.()"> 去支付 </view>
           <view class="btn" @tap="popup?.open?.()"> 取消订单 </view>
         </template>
 
@@ -261,6 +268,21 @@ const onOrderCancel = async () => {
       <view class="footer">
         <view class="btn" @tap="popup?.close?.()">取消</view>
         <view class="btn primary" @tap="onOrderCancel">确认</view>
+      </view>
+    </view>
+  </uni-popup>
+
+  <uni-popup ref="popup2" type="bottom" background-color="#fff">
+    <view class="pay-panel">
+      <view class="pay-option" @tap="onOrderPay('balance')">
+        <text class="checkbox" :class="{ checked: paymehtMethod === 'balance' }"></text>
+        <text class="icon-money-rmb-symbol"></text>
+        <text>余额（1000.12）</text>
+      </view>
+      <view class="pay-option" @tap="onOrderPay('wechat')">
+        <text class="checkbox" :class="{ checked: paymehtMethod === 'wechat' }"></text>
+        <text class="icon-wechat"></text>
+        <text>微信</text>
       </view>
     </view>
   </uni-popup>
@@ -610,6 +632,7 @@ page {
     height: 72rpx;
     margin-left: 15rpx;
     font-size: 26rpx;
+    line-height: 72rpx;
     border-radius: 72rpx;
     border: 1rpx solid #ccc;
     color: #444;
@@ -701,6 +724,42 @@ page {
       color: #fff;
       background-color: #010101;
       border: none;
+    }
+  }
+}
+.pay-panel {
+  height: 40vh;
+  display: flex;
+  flex-wrap: wrap;
+  // flex-direction: column;
+  // justify-content: center;
+  align-items: center;
+  .checkbox {
+    width: 80rpx;
+    &::before {
+      content: '\e72f';
+      font-family: 'iconfont' !important;
+      font-size: 40rpx;
+      color: #444;
+    }
+
+    &.checked::before {
+      content: '\e730';
+      color: #010101;
+    }
+  }
+  .pay-option {
+    width: 100%;
+    flex: 1 0 100%;
+    padding: 20rpx;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20rpx;
+    .icon-money-rmb-symbol {
+      font-size: 45rpx;
+    }
+    .icon-wechat {
+      color: greenyellow;
     }
   }
 }

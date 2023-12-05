@@ -123,9 +123,7 @@ const onBuyNow = async (ev: SkuPopupEvent) => {
     authStore.visible = true
     return
   }
-  console.log(ev.stock < productDetail.value?.meet_qty!, ev.stock, productDetail.value?.meet_qty!)
   if (ev.stock < productDetail.value?.meet_qty!) {
-    // minBuy.value = 1
     buyNowText.value = '立即购买'
   }
   const checkout = [{ sku_id: ev.goods_id, qty: ev.buy_num }]

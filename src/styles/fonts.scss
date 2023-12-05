@@ -1,8 +1,8 @@
 @font-face {
   font-family: 'iconfont';
-  src: url('https://at.alicdn.com/t/c/font_4350713_kqnbk1rcki.woff2?t=1701240497175') format('woff2'),
-    url('https://at.alicdn.com/t/c/font_4350713_kqnbk1rcki.woff?t=1701240497175') format('woff'),
-    url('https://at.alicdn.com/t/c/font_4350713_kqnbk1rcki.ttf?t=1701240497175') format('truetype');
+  src: url('https://at.alicdn.com/t/c/font_4350713_poyt8q5f2ef.woff2?t=1701768609450') format('woff2'),
+    url('https://at.alicdn.com/t/c/font_4350713_poyt8q5f2ef.woff?t=1701768609450') format('woff'),
+    url('https://at.alicdn.com/t/c/font_4350713_poyt8q5f2ef.ttf?t=1701768609450') format('truetype');
 }
 
 [class^='icon-'],
@@ -13,6 +13,14 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
 }
+.icon-wechat:before {
+  content: '\e735';
+}
+
+.icon-money-rmb-symbol:before {
+  content: '\e83c';
+}
+
 .icon-add-btn-fill:before {
   content: '\e837';
 }
