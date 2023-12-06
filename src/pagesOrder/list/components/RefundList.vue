@@ -1,48 +1,40 @@
 <script setup lang="ts">
-import { OrderState } from '@/services/constants'
-import { orderStateList } from '@/services/constants'
-import { orderList, orderReceipt } from '@/api/order'
+import { RefundState, refundStateList } from '@/services/constants'
+import { refundList } from '@/api/refund'
 
-import type { Order, OrderResult } from '@/types/order'
-import type { OrderListParams } from '@/types/order'
+import type { Refund, RefundListResult } from '@/types/refund'
+import type { PaginateParams } from '@/types/global'
 import { onMounted, ref } from 'vue'
 
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
-const props = defineProps<{
-  orderStatus: string
-}>()
-
-const queryParams: Required<OrderListParams> = {
-  pagination: {
-    page: 1,
-    per_page: 10,
-  },
-  order_status: props.orderStatus,
+const queryParams: Required<PaginateParams> = {
+  page: 1,
+  per_page: 10,
 }
 
-const orders = ref<OrderResult[]>([])
+const refunds = ref<RefundListResult>()
 
 const isLoading = ref(false)
-const getOrderList = async () => {
+const getRefundList = async () => {
   if (isLoading.value) return
   if (isFinish.value === true) {
     return uni.showToast({ icon: 'none', title: '没有更多数据~' })
   }
 
   isLoading.value = true
-  const rs = await orderList(queryParams)
+  const rs = await refundList(queryParams)
   isLoading.value = false
-  orders.value.push(...rs.data.data)
-  if (queryParams.pagination.page < rs.data.last_page) {
-    queryParams.pagination.page++
+  refunds.value?.data.push(...rs.data.data)
+  if (queryParams.page < rs.data.last_page) {
+    queryParams.page++
   } else {
     isFinish.value = true
   }
 }
 
 onMounted(() => {
-  getOrderList()
+  getRefundList()
 })
 
 // 订单支付
@@ -67,12 +59,12 @@ const onOrderConfirm = (id: number) => {
     confirmColor: '#010101',
     success: async (res) => {
       if (res.confirm) {
-        await orderReceipt(id)
+        // await orderReceipt(id)
         uni.showToast({ icon: 'success', title: '确认收货成功' })
 
         // 确认成功，状态更新
-        const order = orders.value.find((v) => v.id === id)
-        order!.order_status = OrderState.COMPLETED
+        // const order = orders.value.find((v) => v.id === id)
+        // order!.order_status = OrderState.COMPLETED
       }
     },
   })
@@ -83,10 +75,10 @@ const isTriggered = ref(false)
 const onRefresherrefresh = async () => {
   isTriggered.value = true
   // 重置分页
-  queryParams.pagination.page = 1
-  orders.value = []
+  queryParams.page = 1
+  refunds.value.data = []
   isFinish.value = false
-  await getOrderList()
+  await getRefundList()
   isTriggered.value = false
 }
 </script>
@@ -99,48 +91,31 @@ const onRefresherrefresh = async () => {
     refresher-enabled
     :refresher-triggered="isTriggered"
     @refresherrefresh="onRefresherrefresh"
-    @scrolltolower="getOrderList"
+    @scrolltolower="getRefundList"
   >
-    <view class="card" v-for="order in orders" :key="order.id">
+    <view class="card" v-for="refund in refunds?.data" :key="refund.id">
       <view class="status">
-        <text class="date">{{ order.created_at }}</text>
+        <text class="date">{{ refund.created_at }}</text>
         <!-- 订单状态 -->
-        <text>{{ orderStateList[order.order_status].text }}</text>
+        <text>{{ refundStateList[refund.refund_status].text }}</text>
       </view>
 
       <!-- 订单商品信息 -->
-      <navigator
-        v-for="item in order.skus"
-        :key="item.id"
-        class="goods"
-        :url="`/pagesOrder/detail/detail?id=${order.id}`"
-        hover-class="none"
-      >
+      <navigator class="goods" :url="`/pagesOrder/detail/detail?id=${refund.id}`" hover-class="none">
         <view class="cover">
-          <image class="image" mode="aspectFit" :src="item.product_pic_url"></image>
+          <image class="image" mode="aspectFit" :src="refund.product_pic_url"></image>
         </view>
         <view class="meta">
-          <view class="name ellipsis">{{ item.product_name }}</view>
-          <view class="type">{{ item.product_attr }}</view>
+          <view class="name ellipsis">{{ refund.product_name }}</view>
+          <view class="type">{{ refund.product_attr }}</view>
         </view>
       </navigator>
 
       <!-- 支付信息 -->
       <view class="payment">
-        <text class="quantity">共{{ order.product_num }}件商品</text>
-        <text>实付</text>
-        <text class="amount"> <text class="symbol">¥</text>{{ order.pay_amount }}</text>
-      </view>
-
-      <view class="action">
-        <!-- 待付款状态 -->
-        <template v-if="order.order_status === OrderState.UNPAID">
-          <view class="button primary" @tap="onOrderPay(order.id)">去支付</view>
-        </template>
-        <template v-else>
-          <!-- 待收货状态 -->
-          <view v-if="order.order_status === OrderState.SHIPPED" class="button primary" @tap="onOrderConfirm(order.id)"> 确认收货 </view>
-        </template>
+        <text class="quantity">共{{ refund.product_num }}件商品</text>
+        <text>退款金额</text>
+        <text class="amount"> <text class="symbol">¥</text>{{ refund.refund_amount }}</text>
       </view>
     </view>
 

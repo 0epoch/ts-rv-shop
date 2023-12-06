@@ -114,19 +114,25 @@ onLoad(async () => {
       <view class="actions">
         <view class="action-item">
           <image class="action-icon" mode="aspectFit" src="/static/images/wallet.png"></image>
-          <navigator url="/pagesMember/recharge/recharge" class="navigator" hover-class="none"> 充值中心 </navigator>
+          <navigator url="/pagesMember/recharge/recharge" class="navigator" hover-class="none">
+            充值中心 <text class="icon-right"></text
+          ></navigator>
         </view>
         <view class="action-item">
           <image class="action-icon" mode="aspectFit" src="/static/images/coupon.png"></image>
-          <navigator url="/pages/coupon/coupon" class="navigator" hover-class="none"> 领券中心 </navigator>
+          <navigator url="/pages/coupon/coupon" class="navigator" hover-class="none"> 领券中心 <text class="icon-right"></text></navigator>
         </view>
         <view class="action-item">
           <image class="action-icon" mode="aspectFit" src="/static/images/locate.png"></image>
-          <navigator url="/pagesMember/address/address" class="navigator" hover-class="none"> 地址管理 </navigator>
+          <navigator url="/pagesMember/address/address" class="navigator" hover-class="none">
+            地址管理 <text class="icon-right"></text
+          ></navigator>
         </view>
         <view class="action-item">
           <image class="action-icon" mode="aspectFit" src="/static/images/user_default.png"></image>
-          <navigator url="/pagesMember/profile/profile" class="navigator" hover-class="none"> 账户设置 </navigator>
+          <navigator url="/pagesMember/profile/profile" class="navigator" hover-class="none">
+            账户设置 <text class="icon-right"></text
+          ></navigator>
         </view>
       </view>
     </view>
@@ -366,6 +372,11 @@ page {
     .navigator {
       flex: 1;
       margin-left: 15rpx;
+      display: flex;
+      justify-content: space-between;
+    }
+    .icon-right {
+      float: right;
     }
   }
 }

@@ -70,22 +70,24 @@ const onTimeup = () => {
 // 订单支付
 const onOrderPay = async (method: string) => {
   paymehtMethod.value = method
-  const rs = await orderPayment({ order_id: query.id, pay_type: PaymehtMethod.WECHAT })
-  // await wx.requestPayment(rs.data.sign)
-  if (import.meta.env.DEV) {
-    // await getPayMockAPI({ orderId: query.id })
-  } else {
-    // #ifdef MP-WEIXIN
-    // 正式环境支付：1.获取支付订单信息，2.调用微信支付API
-    // const res = await getPayWxPayMiniPayAPI({ orderId: query.id })
-    // await wx.requestPayment(res.result)
-    // 注意：因小程序上线后被恶意投诉：理由为支付 0.01 元后不发货，现调整为模拟支付
-    // await getPayMockAPI({ orderId: query.id })
-    // #endif
-  }
+  const rs = await orderPayment({ order_id: query.id, pay_type: method })
+  console.log(rs, 'rs...............')
+  // wx.requestPayment({
+  //   timeStamp: Date.now().toString(),
+  //   nonceStr: 'xxx',
+  //   package: 'xxx',
+  //   signType: 'RSA',
+  //   paySign: rs.data.sign,
+  //   success(rs) {
+  //     console.log(rs, 'succ.............')
+  //   },
+  //   fail(rs) {
+  //     console.log(rs, 'fail..............')
+  //   },
+  // })
 
   // 关闭当前页，再跳转支付结果页
-  uni.redirectTo({ url: `/pagesOrder/payment/payment?id=${query.id}` })
+  // uni.redirectTo({ url: `/pagesOrder/payment/payment?id=${query.id}` })
 }
 
 // 是否为开发环境
@@ -385,7 +387,7 @@ page {
     line-height: 64rpx;
     font-size: 28rpx;
     color: #010101;
-    border-radius: 68rpx;
+    border-radius: 72rpx;
     background-color: #fff;
   }
 }
@@ -524,12 +526,12 @@ page {
 
       .btn {
         width: 200rpx;
-        height: 78rpx;
+        height: 64rpx;
         text-align: center;
         justify-content: center;
-        line-height: 78rpx;
+        line-height: 64rpx;
         margin-left: 20rpx;
-        border-radius: 60rpx;
+        border-radius: 72rpx;
         border: 1rpx solid #ccc;
         font-size: 26rpx;
         color: #444;
@@ -711,9 +713,9 @@ page {
 
     .btn {
       flex: 1;
-      height: 78rpx;
+      height: 72rpx;
       text-align: center;
-      line-height: 78rpx;
+      line-height: 72rpx;
       margin: 0 20rpx;
       color: #444;
       border-radius: 72rpx;

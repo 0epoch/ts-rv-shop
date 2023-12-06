@@ -89,7 +89,7 @@ export const orderList = (data: OrderListParams) => {
 export const orderPayment = (data: { order_id: number; pay_type: string }) => {
   return request<{ sign: string }>({
     method: 'POST',
-    url: '/order/list',
+    url: '/payment/pay',
     data,
   })
 }

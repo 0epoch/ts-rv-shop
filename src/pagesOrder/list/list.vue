@@ -1,24 +1,23 @@
 <script setup lang="ts">
 import { ref } from 'vue'
 import OrderList from './components/OrderList.vue'
+import RefundList from './components/RefundList.vue'
+
 import { OrderState } from '@/services/constants'
-// 获取页面参数
+
 const query = defineProps<{
   type: string
 }>()
 
-// tabs 数据
 const orderTabs = ref([
   { index: 0, title: '全部', isRender: false, status: '' },
   { index: 1, title: '待付款', isRender: false, status: OrderState.UNPAID },
   { index: 2, title: '待发货', isRender: false, status: OrderState.WAIT_SHIP },
   { index: 3, title: '待收货', isRender: false, status: OrderState.SHIPPED },
-  { index: 4, title: '已完成', isRender: false, status: OrderState.COMPLETED },
+  { index: 4, title: '退款/售后', isRender: false, status: OrderState.REFUND },
 ])
 
-// 高亮下标
 const activeIndex = ref(orderTabs.value.findIndex((v) => v.index === Number(query.type)))
-// 默认渲染容器
 orderTabs.value[activeIndex.value].isRender = true
 </script>
 
@@ -39,15 +38,14 @@ orderTabs.value[activeIndex.value].isRender = true
       >
         {{ item.title }}
       </text>
-      <!-- 游标 -->
       <view class="cursor" :style="{ left: activeIndex * 20 + '%' }"></view>
     </view>
-    <!-- 滑动容器 -->
     <swiper class="swiper" :current="activeIndex" @change="activeIndex = $event.detail.current">
-      <!-- 滑动项 -->
       <swiper-item v-for="item in orderTabs" :key="item.title">
-        <!-- 订单列表 -->
-        <OrderList v-if="item.isRender" :order-status="item.status" />
+        <RefundList v-if="item.index === 4 && item.isRender" />
+        <view v-else>
+          <OrderList v-if="item.isRender" :order-status="item.status" />
+        </view>
       </swiper-item>
     </swiper>
   </view>

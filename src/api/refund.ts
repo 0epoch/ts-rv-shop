@@ -1,7 +1,8 @@
 import type { Product, Detail } from '@/types/product'
-import type { Paginate } from '@/types/global'
+import type { Paginate, PaginateParams } from '@/types/global'
 
 import { request } from '@/utils/request'
+import type { Refund } from '@/types/refund'
 
 /**
  * @param data
@@ -50,10 +51,10 @@ export const refundDetail = (data: { refund_id: string }) => {
 /**
  * @param data
  */
-export const refundList = () => {
-  return request<Paginate<Product>>({
+export const refundList = (data: PaginateParams) => {
+  return request<Paginate<Refund>>({
     method: 'GET',
     url: '/refund/list',
-    data: {},
+    data,
   })
 }
