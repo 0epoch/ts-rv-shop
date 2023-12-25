@@ -70,8 +70,11 @@ const onTimeup = () => {
 // 订单支付
 const onOrderPay = async (method: string) => {
   paymehtMethod.value = method
+  if (method === 'wechat') {
+    return
+  }
   const rs = await orderPayment({ order_id: query.id, pay_type: method })
-  console.log(rs, 'rs...............')
+  // console.log(rs, 'rs...............')
   // wx.requestPayment({
   //   timeStamp: Date.now().toString(),
   //   nonceStr: 'xxx',
@@ -85,9 +88,10 @@ const onOrderPay = async (method: string) => {
   //     console.log(rs, 'fail..............')
   //   },
   // })
-
-  // 关闭当前页，再跳转支付结果页
-  // uni.redirectTo({ url: `/pagesOrder/payment/payment?id=${query.id}` })
+  uni.showToast({ icon: 'success', title: '支付成功' })
+  setTimeout(function () {
+    uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${query.id}` })
+  }, 1000)
 }
 
 // 是否为开发环境
@@ -278,12 +282,12 @@ const onChangePayment = (method: string) => {
     <view class="pay-panel">
       <view class="pay-option" @tap="onOrderPay('balance')">
         <text class="checkbox" :class="{ checked: paymehtMethod === 'balance' }"></text>
-        <text class="icon-money-rmb-symbol"></text>
-        <text>余额（1000.12）</text>
+        <text class="pay-icon icon-money-wallet"></text>
+        <text>余额( <text class="symbol">¥</text>1000.12)</text>
       </view>
       <view class="pay-option" @tap="onOrderPay('wechat')">
         <text class="checkbox" :class="{ checked: paymehtMethod === 'wechat' }"></text>
-        <text class="icon-wechat"></text>
+        <text class="pay-icon icon-wechat"></text>
         <text>微信</text>
       </view>
     </view>
@@ -730,14 +734,14 @@ page {
   }
 }
 .pay-panel {
-  height: 40vh;
+  height: 25vh;
   display: flex;
+  flex-direction: column;
+  justify-content: center;
   flex-wrap: wrap;
-  // flex-direction: column;
-  // justify-content: center;
-  align-items: center;
   .checkbox {
-    width: 80rpx;
+    margin-right: 10rpx;
+    // width: 80rpx;
     &::before {
       content: '\e72f';
       font-family: 'iconfont' !important;
@@ -750,9 +754,15 @@ page {
       color: #010101;
     }
   }
+  .pay-icon {
+    margin-right: 10rpx;
+  }
+  .symbol {
+    font-size: 30rpx;
+  }
   .pay-option {
     width: 100%;
-    flex: 1 0 100%;
+    // flex: 1 0 100%;
     padding: 20rpx;
     display: flex;
     align-items: center;
@@ -761,7 +771,7 @@ page {
       font-size: 45rpx;
     }
     .icon-wechat {
-      color: greenyellow;
+      color: #1aad19;
     }
   }
 }
