@@ -126,6 +126,9 @@ const onOrderCancel = async () => {
 const onChangePayment = (method: string) => {
   paymehtMethod.value = method
 }
+
+const refundable = [OrderState.WAIT_SHIP, OrderState.SHIPPED, OrderState.RECEIVED, OrderState.COMPLETED]
+const onRefund = (id: number) => {}
 </script>
 
 <template>
@@ -210,11 +213,9 @@ const onChangePayment = (method: string) => {
               </view>
               <view class="quantity">x{{ item.product_num }}</view>
             </view>
+            <!-- 退款 -->
+              <view class="btn primary" v-if="refundable.includes(order.order_status) @tap="onRefund(order.id)">退货/退款</view>
           </navigator>
-
-          <view class="action" v-if="order.order_status === OrderState.SHIPPED">
-            <view class="btn primary">申请售后</view>
-          </view>
         </view>
         <!-- 合计 -->
         <view class="total">
@@ -530,7 +531,6 @@ page {
 
       .btn {
         width: 200rpx;
-        height: 64rpx;
         text-align: center;
         justify-content: center;
         line-height: 64rpx;

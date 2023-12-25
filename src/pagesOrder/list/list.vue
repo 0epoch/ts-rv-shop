@@ -76,9 +76,9 @@ page {
   z-index: 9;
 
   .item {
-    flex: 1;
+    flex: 20%;
     text-align: center;
-    padding: 20rpx;
+    padding: 20rpx 0;
     font-size: 28rpx;
     color: #262626;
   }
