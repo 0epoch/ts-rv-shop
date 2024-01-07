@@ -1,6 +1,6 @@
 <script setup lang="ts">
+import CryptoJS from 'crypto-js'
 import { useMemberStore } from '@/stores'
-
 import { OrderState } from '@/services/constants'
 import { orderStateList } from '@/services/constants'
 import { orderList, orderReceipt, orderPayment } from '@/api/order'
@@ -66,12 +66,14 @@ const onGoToPay = async (orderId: number) => {
 // 订单支付
 const onOrderPay = async (method: string) => {
   paymehtMethod.value = method
-  if (method === 'wechat') {
-    return
-  }
   if (payOrder.value <= 0) return
   const rs = await orderPayment({ order_id: payOrder.value, pay_type: method })
-  uni.showToast({ icon: 'success', title: '支付成功' })
+  if (method === 'wechat') {
+    wechatPay(rs.data.sign)
+    return
+  } else {
+    uni.showToast({ icon: 'success', title: '支付成功' })
+  }
 }
 
 const onOrderConfirm = (id: number) => {
@@ -87,6 +89,35 @@ const onOrderConfirm = (id: number) => {
         const order = orders.value.find((v) => v.id === id)
         order!.order_status = OrderState.COMPLETED
       }
+    },
+  })
+}
+
+const wechatPay = (sign: string) => {
+  const aesKey = CryptoJS.enc.Utf8.parse('3016C75DBDA14FAEBAE9F6B5C6696930')
+  let decrypt = CryptoJS.AES.decrypt(sign, aesKey, {
+    mode: CryptoJS.mode.ECB,
+    padding: CryptoJS.pad.Pkcs7,
+    keySize: 256 / 32,
+  })
+  const { appId, timeStamp, nonceStr, package: packageData, signType, paySign } = JSON.parse(decrypt.toString(CryptoJS.enc.Utf8))
+  wx.requestPayment({
+    provider: 'wxpay',
+    appId,
+    timeStamp,
+    nonceStr,
+    package: packageData,
+    signType,
+    paySign,
+    success: function (rs) {
+      uni.showToast({ icon: 'success', title: '支付成功' })
+      setTimeout(function () {
+        uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${payOrder.value}` })
+      }, 1000)
+    },
+    fail: function (rs) {
+      return
+      // uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${query.id}` })
     },
   })
 }
