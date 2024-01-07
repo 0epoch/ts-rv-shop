@@ -26,7 +26,7 @@ export type Profile = {
   vip_grade_name?: string
   account_balance?: number
   points?: number
-  token: string
+  token?: string
   gender?: Gender
   has_aff: boolean
 }

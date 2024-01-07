@@ -1,5 +1,6 @@
 export enum OrderState {
   UNPAID = 'unpaid',
+  IN_PAY = 'in_pay',
   WAIT_SHIP = 'wait_ship',
   SHIPPED = 'shipped',
   COMPLETED = 'completed',
@@ -16,6 +17,7 @@ type OrderStateList = {
 
 export const orderStateList: OrderStateList = {
   [OrderState.UNPAID]: { id: 1, text: '待付款' },
+  [OrderState.IN_PAY]: { id: 1, text: '支付中' },
   [OrderState.WAIT_SHIP]: { id: 2, text: '待发货' },
   [OrderState.SHIPPED]: { id: 3, text: '待收货' },
   [OrderState.COMPLETED]: { id: 4, text: '已完成' },

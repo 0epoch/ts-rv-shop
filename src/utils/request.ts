@@ -45,7 +45,6 @@ export const request = <T>(options: UniApp.RequestOptions) => {
               icon: 'none',
               title: data.message || '请求错误',
             })
-            return
             reject(rs)
           }
           resolve(data)

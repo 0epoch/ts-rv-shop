@@ -1,11 +1,7 @@
 <script setup lang="ts">
-import { ref } from 'vue'
 import { onLoad } from '@dcloudio/uni-app'
 import type { Paginate } from '@/types/global'
 import type { Product } from '@/types/product'
-import { useMemberStore } from '@/stores'
-
-const memberStore = useMemberStore()
 
 defineProps<{
   products: Paginate<Product>

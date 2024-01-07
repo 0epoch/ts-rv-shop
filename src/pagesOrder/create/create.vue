@@ -32,6 +32,7 @@ const getCheckoutResult = async (checkoutParams: CheckoutParams) => {
   checkout.value = rs.data
   if (rs.data?.coupon) {
     checkedCoupon.value = rs.data.coupon.id
+    assignCouponId.value = rs.data.coupon.id
   }
 }
 

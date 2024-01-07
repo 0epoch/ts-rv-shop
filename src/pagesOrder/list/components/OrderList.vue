@@ -1,17 +1,27 @@
 <script setup lang="ts">
+import { useMemberStore } from '@/stores'
+
 import { OrderState } from '@/services/constants'
 import { orderStateList } from '@/services/constants'
-import { orderList, orderReceipt } from '@/api/order'
+import { orderList, orderReceipt, orderPayment } from '@/api/order'
+import { getProfile } from '@/api/user'
 
 import type { Order, OrderResult } from '@/types/order'
 import type { OrderListParams } from '@/types/order'
 import { onMounted, ref } from 'vue'
+import { onLoad } from '@dcloudio/uni-app'
 
 const { safeAreaInsets } = uni.getSystemInfoSync()
+
+const memberStore = useMemberStore()
 
 const props = defineProps<{
   orderStatus: string
 }>()
+
+const popup = ref<UniHelper.UniPopupInstance>()
+const paymehtMethod = ref('')
+const payOrder = ref<number>(0)
 
 const queryParams: Required<OrderListParams> = {
   pagination: {
@@ -41,24 +51,27 @@ const getOrderList = async () => {
   }
 }
 
-onMounted(() => {
+onLoad(() => {
   getOrderList()
 })
 
+const onGoToPay = async (orderId: number) => {
+  payOrder.value = orderId
+  const rs = await getProfile()
+  rs.data.token = memberStore.profile?.token
+  memberStore.setProfile(rs.data)
+  popup.value?.open?.()
+}
+
 // 订单支付
-const onOrderPay = async (id: number) => {
-  // #ifdef MP-WEIXIN
-
-  // 正式环境支付：1.获取支付订单信息，2.调用微信支付API
-  // const res = await getPayWxPayMiniPayAPI({ orderId: id })
-  // await wx.requestPayment(res.result)
-  // #endif
-
-  uni.showToast({ title: '支付成功' })
-
-  // 更新订单状态
-  const order = orders.value.find((v) => v.id === id)
-  order!.order_status = OrderState.WAIT_SHIP
+const onOrderPay = async (method: string) => {
+  paymehtMethod.value = method
+  if (method === 'wechat') {
+    return
+  }
+  if (payOrder.value <= 0) return
+  const rs = await orderPayment({ order_id: payOrder.value, pay_type: method })
+  uni.showToast({ icon: 'success', title: '支付成功' })
 }
 
 const onOrderConfirm = (id: number) => {
@@ -135,7 +148,7 @@ const onRefresherrefresh = async () => {
       <view class="action">
         <!-- 待付款状态 -->
         <template v-if="order.order_status === OrderState.UNPAID">
-          <view class="button primary" @tap="onOrderPay(order.id)">去支付</view>
+          <view class="button primary" @tap="onGoToPay(order.id)">去支付</view>
         </template>
         <template v-else>
           <!-- 待收货状态 -->
@@ -148,6 +161,20 @@ const onRefresherrefresh = async () => {
       {{ isFinish ? '没有更多数据~' : '正在加载...' }}
     </view>
   </scroll-view>
+  <uni-popup ref="popup" type="bottom" background-color="#fff">
+    <view class="pay-panel">
+      <view class="pay-option" @tap="onOrderPay('balance')">
+        <text class="checkbox" :class="{ checked: paymehtMethod === 'balance' }"></text>
+        <text class="pay-icon icon-money-wallet"></text>
+        <text>余额( <text class="symbol">¥</text>{{ memberStore.profile?.account_balance }})</text>
+      </view>
+      <view class="pay-option" @tap="onOrderPay('wechat')">
+        <text class="checkbox" :class="{ checked: paymehtMethod === 'wechat' }"></text>
+        <text class="pay-icon icon-wechat"></text>
+        <text>微信</text>
+      </view>
+    </view>
+  </uni-popup>
 </template>
 
 <style lang="scss">
@@ -314,6 +341,48 @@ const onRefresherrefresh = async () => {
     font-size: 28rpx;
     color: #666;
     padding: 20rpx 0;
+  }
+}
+.pay-panel {
+  height: 25vh;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex-wrap: wrap;
+  .checkbox {
+    margin-right: 10rpx;
+    // width: 80rpx;
+    &::before {
+      content: '\e72f';
+      font-family: 'iconfont' !important;
+      font-size: 40rpx;
+      color: #444;
+    }
+
+    &.checked::before {
+      content: '\e730';
+      color: #010101;
+    }
+  }
+  .pay-icon {
+    margin-right: 10rpx;
+  }
+  .symbol {
+    font-size: 30rpx;
+  }
+  .pay-option {
+    width: 100%;
+    // flex: 1 0 100%;
+    padding: 20rpx;
+    display: flex;
+    align-items: center;
+    margin-bottom: 20rpx;
+    .icon-money-rmb-symbol {
+      font-size: 45rpx;
+    }
+    .icon-wechat {
+      color: #1aad19;
+    }
   }
 }
 </style>

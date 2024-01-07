@@ -1,6 +1,9 @@
 <script setup lang="ts">
+import { useMemberStore } from '@/stores'
 import { OrderState, orderStateList, PaymehtMethod } from '@/services/constants'
 import { orderDetail, cancelOrder, orderPayment } from '@/api/order'
+import { getProfile } from '@/api/user'
+
 import type { LogisticItem, OrderResult } from '@/types/order'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
@@ -8,6 +11,7 @@ import PageSkeleton from './components/PageSkeleton.vue'
 
 const { safeAreaInsets } = uni.getSystemInfoSync()
 
+const memberStore = useMemberStore()
 const popup = ref<UniHelper.UniPopupInstance>()
 const popup2 = ref<UniHelper.UniPopupInstance>()
 
@@ -67,6 +71,13 @@ const onTimeup = () => {
   order.value!.order_status = OrderState.CANCELED
 }
 
+const onGoToPay = async () => {
+  const rs = await getProfile()
+  rs.data.token = memberStore.profile?.token
+  memberStore.setProfile(rs.data)
+  popup2.value?.open?.()
+}
+
 // 订单支付
 const onOrderPay = async (method: string) => {
   paymehtMethod.value = method
@@ -74,20 +85,6 @@ const onOrderPay = async (method: string) => {
     return
   }
   const rs = await orderPayment({ order_id: query.id, pay_type: method })
-  // console.log(rs, 'rs...............')
-  // wx.requestPayment({
-  //   timeStamp: Date.now().toString(),
-  //   nonceStr: 'xxx',
-  //   package: 'xxx',
-  //   signType: 'RSA',
-  //   paySign: rs.data.sign,
-  //   success(rs) {
-  //     console.log(rs, 'succ.............')
-  //   },
-  //   fail(rs) {
-  //     console.log(rs, 'fail..............')
-  //   },
-  // })
   uni.showToast({ icon: 'success', title: '支付成功' })
   setTimeout(function () {
     uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${query.id}` })
@@ -159,7 +156,7 @@ const onRefund = (id: number) => {}
               @timeup="onTimeup"
             />
           </view>
-          <view class="btn" @tap="popup2?.open?.()">去支付</view>
+          <view class="btn" @tap="onGoToPay()">去支付</view>
         </template>
 
         <template v-else>
@@ -175,13 +172,6 @@ const onRefund = (id: number) => {}
       <!-- 配送状态 -->
       <view class="shipment">
         <!-- 订单物流信息 -->
-        <view v-for="item in logisticList" :key="item.id" class="item">
-          <view class="message">
-            {{ item.text }}
-          </view>
-          <view class="date"> {{ item.time }} </view>
-        </view>
-
         <!-- 用户收货地址 -->
         <view class="locate">
           <view class="user"> {{ order.receiver_mobile }} </view>
@@ -214,7 +204,6 @@ const onRefund = (id: number) => {}
               <view class="quantity">x{{ item.product_num }}</view>
             </view>
             <!-- 退款 -->
-              <view class="btn primary" v-if="refundable.includes(order.order_status) @tap="onRefund(order.id)">退货/退款</view>
           </navigator>
         </view>
         <!-- 合计 -->
@@ -246,7 +235,7 @@ const onRefund = (id: number) => {}
       <view class="toolbar" :style="{ paddingBottom: safeAreaInsets?.bottom + 'px' }">
         <!-- 待付款状态 -->
         <template v-if="order.order_status === OrderState.UNPAID">
-          <view class="btn primary" @tap="popup2?.open?.()"> 去支付 </view>
+          <view class="btn primary" @tap="onGoToPay()"> 去支付 </view>
           <view class="btn" @tap="popup?.open?.()"> 取消订单 </view>
         </template>
 
@@ -284,7 +273,7 @@ const onRefund = (id: number) => {}
       <view class="pay-option" @tap="onOrderPay('balance')">
         <text class="checkbox" :class="{ checked: paymehtMethod === 'balance' }"></text>
         <text class="pay-icon icon-money-wallet"></text>
-        <text>余额( <text class="symbol">¥</text>1000.12)</text>
+        <text>余额( <text class="symbol">¥</text>{{ memberStore.profile?.account_balance }})</text>
       </view>
       <view class="pay-option" @tap="onOrderPay('wechat')">
         <text class="checkbox" :class="{ checked: paymehtMethod === 'wechat' }"></text>

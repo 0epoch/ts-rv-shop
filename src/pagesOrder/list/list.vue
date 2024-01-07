@@ -8,6 +8,8 @@ import { OrderState } from '@/services/constants'
 const query = defineProps<{
   type: string
 }>()
+const finish = ref(false)
+const triggered = ref(false)
 
 const orderTabs = ref([
   { index: 0, title: '全部', isRender: false, status: '' },
@@ -43,9 +45,7 @@ orderTabs.value[activeIndex.value].isRender = true
     <swiper class="swiper" :current="activeIndex" @change="activeIndex = $event.detail.current">
       <swiper-item v-for="item in orderTabs" :key="item.title">
         <RefundList v-if="item.index === 4 && item.isRender" />
-        <view v-else>
-          <OrderList v-if="item.isRender" :order-status="item.status" />
-        </view>
+        <OrderList v-else-if="item.isRender" :order-status="item.status" />
       </swiper-item>
     </swiper>
   </view>
