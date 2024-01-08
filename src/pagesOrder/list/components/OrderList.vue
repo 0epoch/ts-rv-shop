@@ -55,6 +55,10 @@ onLoad(() => {
   getOrderList()
 })
 
+const onChangePayment = (method: string) => {
+  paymehtMethod.value = method
+}
+
 const onGoToPay = async (orderId: number) => {
   payOrder.value = orderId
   const rs = await getProfile()
@@ -64,15 +68,22 @@ const onGoToPay = async (orderId: number) => {
 }
 
 // 订单支付
-const onOrderPay = async (method: string) => {
-  paymehtMethod.value = method
+const onOrderPay = async () => {
+  if (paymehtMethod.value === '') {
+    uni.showToast({ icon: 'none', title: '请选择支付方式' })
+    return
+  }
   if (payOrder.value <= 0) return
-  const rs = await orderPayment({ order_id: payOrder.value, pay_type: method })
-  if (method === 'wechat') {
+  const rs = await orderPayment({ order_id: payOrder.value, pay_type: paymehtMethod.value })
+  if (paymehtMethod.value === 'wechat') {
     wechatPay(rs.data.sign)
     return
   } else {
     uni.showToast({ icon: 'success', title: '支付成功' })
+    popup.value?.close?.()
+    setTimeout(function () {
+      uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${payOrder.value}` })
+    }, 500)
   }
 }
 
@@ -194,16 +205,20 @@ const onRefresherrefresh = async () => {
   </scroll-view>
   <uni-popup ref="popup" type="bottom" background-color="#fff">
     <view class="pay-panel">
-      <view class="pay-option" @tap="onOrderPay('balance')">
+      <view class="pay-option" @tap="onChangePayment('balance')">
         <text class="checkbox" :class="{ checked: paymehtMethod === 'balance' }"></text>
         <text class="pay-icon icon-money-wallet"></text>
         <text>余额( <text class="symbol">¥</text>{{ memberStore.profile?.account_balance }})</text>
       </view>
-      <view class="pay-option" @tap="onOrderPay('wechat')">
+      <view class="pay-option" @tap="onChangePayment('wechat')">
         <text class="checkbox" :class="{ checked: paymehtMethod === 'wechat' }"></text>
         <text class="pay-icon icon-wechat"></text>
         <text>微信</text>
       </view>
+    </view>
+    <view class="footer">
+      <view class="btn" @tap="popup?.close?.()">取消</view>
+      <view class="btn primary" @tap="onOrderPay">确认</view>
     </view>
   </uni-popup>
 </template>
@@ -372,6 +387,30 @@ const onRefresherrefresh = async () => {
     font-size: 28rpx;
     color: #666;
     padding: 20rpx 0;
+  }
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 30rpx 0 40rpx;
+  font-size: 28rpx;
+  color: #444;
+
+  .btn {
+    flex: 1;
+    height: 72rpx;
+    text-align: center;
+    line-height: 72rpx;
+    margin: 0 20rpx;
+    color: #444;
+    border-radius: 72rpx;
+    border: 1rpx solid #ccc;
+  }
+
+  .primary {
+    color: #fff;
+    background-color: #010101;
+    border: none;
   }
 }
 .pay-panel {
