@@ -2,7 +2,7 @@
 import { RefundState, refundStateList } from '@/services/constants'
 import { refundList } from '@/api/refund'
 
-import type { Refund, RefundListResult } from '@/types/refund'
+import type { Refund } from '@/types/refund'
 import type { PaginateParams } from '@/types/global'
 import { onMounted, ref } from 'vue'
 
@@ -13,9 +13,10 @@ const queryParams: Required<PaginateParams> = {
   per_page: 10,
 }
 
-const refunds = ref<RefundListResult>()
+const refunds = ref<Refund[]>([])
 
 const isLoading = ref(false)
+
 const getRefundList = async () => {
   if (isLoading.value) return
   if (isFinish.value === true) {
@@ -25,7 +26,7 @@ const getRefundList = async () => {
   isLoading.value = true
   const rs = await refundList(queryParams)
   isLoading.value = false
-  refunds.value?.data.push(...rs.data.data)
+  refunds.value.push(...rs.data.data)
   if (queryParams.page < rs.data.last_page) {
     queryParams.page++
   } else {
@@ -37,46 +38,13 @@ onMounted(() => {
   getRefundList()
 })
 
-// 订单支付
-const onOrderPay = async (id: number) => {
-  // #ifdef MP-WEIXIN
-
-  // 正式环境支付：1.获取支付订单信息，2.调用微信支付API
-  // const res = await getPayWxPayMiniPayAPI({ orderId: id })
-  // await wx.requestPayment(res.result)
-  // #endif
-
-  uni.showToast({ title: '支付成功' })
-
-  // 更新订单状态
-  const order = orders.value.find((v) => v.id === id)
-  order!.order_status = OrderState.WAIT_SHIP
-}
-
-const onOrderConfirm = (id: number) => {
-  uni.showModal({
-    content: '为保障您的权益，请收到货并确认无误后，再确认收货',
-    confirmColor: '#010101',
-    success: async (res) => {
-      if (res.confirm) {
-        // await orderReceipt(id)
-        uni.showToast({ icon: 'success', title: '确认收货成功' })
-
-        // 确认成功，状态更新
-        // const order = orders.value.find((v) => v.id === id)
-        // order!.order_status = OrderState.COMPLETED
-      }
-    },
-  })
-}
-
 const isFinish = ref(false)
 const isTriggered = ref(false)
 const onRefresherrefresh = async () => {
   isTriggered.value = true
   // 重置分页
   queryParams.page = 1
-  refunds.value.data = []
+  refunds.value = []
   isFinish.value = false
   await getRefundList()
   isTriggered.value = false
@@ -93,15 +61,15 @@ const onRefresherrefresh = async () => {
     @refresherrefresh="onRefresherrefresh"
     @scrolltolower="getRefundList"
   >
-    <view class="card" v-for="refund in refunds?.data" :key="refund.id">
-      <view class="status">
-        <text class="date">{{ refund.created_at }}</text>
+    <view class="card" v-for="refund in refunds" :key="refund.id">
+      <view class="header">
+        <text class="date">{{ refund.refund_no }}</text>
         <!-- 订单状态 -->
         <text>{{ refundStateList[refund.refund_status].text }}</text>
       </view>
 
       <!-- 订单商品信息 -->
-      <navigator class="goods" :url="`/pagesOrder/detail/detail?id=${refund.id}`" hover-class="none">
+      <navigator class="goods" :url="`/pagesOrder/detail/detail?id=${refund.order_id}`" hover-class="none">
         <view class="cover">
           <image class="image" mode="aspectFit" :src="refund.product_pic_url"></image>
         </view>
@@ -111,11 +79,13 @@ const onRefresherrefresh = async () => {
         </view>
       </navigator>
 
-      <!-- 支付信息 -->
-      <view class="payment">
-        <text class="quantity">共{{ refund.product_num }}件商品</text>
-        <text>退款金额</text>
-        <text class="amount"> <text class="symbol">¥</text>{{ refund.refund_amount }}</text>
+      <view class="footer">
+        <text>{{ refund.create_time }}</text>
+        <view class="payment">
+          <text class="quantity">共{{ refund.product_num }}件商品</text>
+          <text>退款金额</text>
+          <text class="amount"> <text class="symbol">¥</text>{{ refund.refund_amount }}</text>
+        </view>
       </view>
     </view>
 
@@ -139,7 +109,7 @@ const onRefresherrefresh = async () => {
     }
   }
 
-  .status {
+  .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -227,6 +197,14 @@ const onRefresherrefresh = async () => {
     }
   }
 
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #999;
+    font-size: 28rpx;
+    border-bottom: 1rpx solid #eee;
+  }
   .payment {
     display: flex;
     justify-content: flex-end;
@@ -234,10 +212,6 @@ const onRefresherrefresh = async () => {
     line-height: 1;
     padding: 20rpx 0;
     text-align: right;
-    color: #999;
-    font-size: 28rpx;
-    border-bottom: 1rpx solid #eee;
-
     .quantity {
       font-size: 24rpx;
       margin-right: 16rpx;

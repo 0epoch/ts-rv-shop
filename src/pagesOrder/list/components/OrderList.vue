@@ -20,6 +20,8 @@ const props = defineProps<{
 }>()
 
 const popup = ref<UniHelper.UniPopupInstance>()
+const refundPopup = ref<UniHelper.UniPopupInstance>()
+
 const paymehtMethod = ref('')
 const payOrder = ref<number>(0)
 
@@ -144,6 +146,14 @@ const onRefresherrefresh = async () => {
   await getOrderList()
   isTriggered.value = false
 }
+
+const refundable = [OrderState.WAIT_SHIP, OrderState.RECEIVED]
+const refundOrder = ref<OrderResult>()
+const onRefund = (order: OrderResult) => {
+  refundPopup.value?.open?.()
+  refundOrder.value = order
+}
+const onConfirmRefund = () => {}
 </script>
 
 <template>
@@ -157,8 +167,8 @@ const onRefresherrefresh = async () => {
     @scrolltolower="getOrderList"
   >
     <view class="card" v-for="order in orders" :key="order.id">
-      <view class="status">
-        <text class="date">{{ order.created_at }}</text>
+      <view class="header">
+        <text class="date">{{ order.order_no }}</text>
         <!-- 订单状态 -->
         <text>{{ orderStateList[order.order_status].text }}</text>
       </view>
@@ -181,14 +191,20 @@ const onRefresherrefresh = async () => {
       </navigator>
 
       <!-- 支付信息 -->
-      <view class="payment">
-        <text class="quantity">共{{ order.product_num }}件商品</text>
-        <text>实付</text>
-        <text class="amount"> <text class="symbol">¥</text>{{ order.pay_amount }}</text>
+      <view class="footer">
+        <text>{{ order.created_at }}</text>
+        <view class="payment">
+          <text class="quantity">共{{ order.product_num }}件商品</text>
+          <text>实付</text>
+          <text class="amount"> <text class="symbol">¥</text>{{ order.pay_amount }}</text>
+        </view>
       </view>
 
       <view class="action">
         <!-- 待付款状态 -->
+        <template v-if="refundable.includes(order.order_status)">
+          <view class="button after-sales" @tap="onRefund(order)">退款</view>
+        </template>
         <template v-if="order.order_status === OrderState.UNPAID">
           <view class="button primary" @tap="onGoToPay(order.id)">去支付</view>
         </template>
@@ -221,6 +237,18 @@ const onRefresherrefresh = async () => {
       <view class="btn primary" @tap="onOrderPay">确认</view>
     </view>
   </uni-popup>
+
+  <uni-popup ref="refundPopup" type="bottom" background-color="#fff">
+    <view class="pay-panel">
+      <view class="pay-option" @tap="onRefund(order)">
+        <text>退款( <text class="symbol">¥</text>{{ order.pay_amount }})</text>
+      </view>
+    </view>
+    <view class="footer">
+      <view class="btn" @tap="refundPopup?.close?.()">取消</view>
+      <view class="btn primary" @tap="onConfirmRefund">确认</view>
+    </view>
+  </uni-popup>
 </template>
 
 <style lang="scss">
@@ -237,7 +265,7 @@ const onRefresherrefresh = async () => {
     }
   }
 
-  .status {
+  .header {
     display: flex;
     align-items: center;
     justify-content: space-between;
@@ -325,6 +353,14 @@ const onRefresherrefresh = async () => {
     }
   }
 
+  .footer {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    color: #999;
+    font-size: 28rpx;
+    border-bottom: 1rpx solid #eee;
+  }
   .payment {
     display: flex;
     justify-content: flex-end;
@@ -356,7 +392,6 @@ const onRefresherrefresh = async () => {
     justify-content: flex-end;
     align-items: center;
     padding-top: 20rpx;
-
     .button {
       width: 180rpx;
       height: 60rpx;

@@ -2,7 +2,7 @@ import type { Product, Detail } from '@/types/product'
 import type { Paginate, PaginateParams } from '@/types/global'
 
 import { request } from '@/utils/request'
-import type { Refund } from '@/types/refund'
+import type { RefundListResult } from '@/types/refund'
 
 /**
  * @param data
@@ -52,7 +52,7 @@ export const refundDetail = (data: { refund_id: string }) => {
  * @param data
  */
 export const refundList = (data: PaginateParams) => {
-  return request<Paginate<Refund>>({
+  return request<RefundListResult>({
     method: 'GET',
     url: '/refund/list',
     data,
