@@ -20,7 +20,6 @@ const props = defineProps<{
 }>()
 
 const popup = ref<UniHelper.UniPopupInstance>()
-const refundPopup = ref<UniHelper.UniPopupInstance>()
 
 const paymehtMethod = ref('')
 const payOrder = ref<number>(0)
@@ -148,12 +147,6 @@ const onRefresherrefresh = async () => {
 }
 
 const refundable = [OrderState.WAIT_SHIP, OrderState.RECEIVED]
-const refundOrder = ref<OrderResult>()
-const onRefund = (order: OrderResult) => {
-  refundPopup.value?.open?.()
-  refundOrder.value = order
-}
-const onConfirmRefund = () => {}
 </script>
 
 <template>
@@ -186,7 +179,9 @@ const onConfirmRefund = () => {}
         </view>
         <view class="meta">
           <view class="name ellipsis">{{ item.product_name }}</view>
-          <view class="type">{{ item.product_attr }}</view>
+          <view class="ext">
+            <view class="attr">{{ item.product_attr }}</view>
+          </view>
         </view>
       </navigator>
 
@@ -202,9 +197,6 @@ const onConfirmRefund = () => {}
 
       <view class="action">
         <!-- 待付款状态 -->
-        <template v-if="refundable.includes(order.order_status)">
-          <view class="button after-sales" @tap="onRefund(order)">退款</view>
-        </template>
         <template v-if="order.order_status === OrderState.UNPAID">
           <view class="button primary" @tap="onGoToPay(order.id)">去支付</view>
         </template>
@@ -232,21 +224,9 @@ const onConfirmRefund = () => {}
         <text>微信</text>
       </view>
     </view>
-    <view class="footer">
+    <view class="popup-footer">
       <view class="btn" @tap="popup?.close?.()">取消</view>
       <view class="btn primary" @tap="onOrderPay">确认</view>
-    </view>
-  </uni-popup>
-
-  <uni-popup ref="refundPopup" type="bottom" background-color="#fff">
-    <view class="pay-panel">
-      <view class="pay-option" @tap="onRefund(order)">
-        <text>退款( <text class="symbol">¥</text>{{ order.pay_amount }})</text>
-      </view>
-    </view>
-    <view class="footer">
-      <view class="btn" @tap="refundPopup?.close?.()">取消</view>
-      <view class="btn primary" @tap="onConfirmRefund">确认</view>
     </view>
   </uni-popup>
 </template>
@@ -323,7 +303,7 @@ const onConfirmRefund = () => {}
       flex: 1;
       display: flex;
       flex-direction: column;
-      justify-content: center;
+      justify-content: space-between;
     }
 
     .name {
@@ -331,13 +311,17 @@ const onConfirmRefund = () => {}
       font-size: 26rpx;
       color: #444;
     }
-
-    .type {
+    .ext {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
       line-height: 1.8;
-      padding: 0 15rpx;
       margin-top: 10rpx;
       font-size: 24rpx;
+    }
+    .attr {
       align-self: flex-start;
+      padding: 0 15rpx;
       border-radius: 4rpx;
       color: #888;
       background-color: #f7f7f8;
@@ -350,6 +334,13 @@ const onConfirmRefund = () => {}
       justify-content: center;
       font-size: 22rpx;
       color: #333;
+    }
+
+    .refund {
+      padding: 0 15rpx;
+      border-radius: 4rpx;
+      border: 1rpx solid #ccc;
+      color: #010101;
     }
   }
 
@@ -370,8 +361,7 @@ const onConfirmRefund = () => {}
     text-align: right;
     color: #999;
     font-size: 28rpx;
-    border-bottom: 1rpx solid #eee;
-
+    // border-bottom: 1rpx solid #eee;
     .quantity {
       font-size: 24rpx;
       margin-right: 16rpx;
@@ -424,7 +414,7 @@ const onConfirmRefund = () => {}
     padding: 20rpx 0;
   }
 }
-.footer {
+.popup-footer {
   display: flex;
   justify-content: space-between;
   padding: 30rpx 0 40rpx;

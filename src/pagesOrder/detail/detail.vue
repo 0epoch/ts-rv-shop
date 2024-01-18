@@ -3,9 +3,10 @@ import CryptoJS from 'crypto-js'
 import { useMemberStore } from '@/stores'
 import { OrderState, orderStateList, PaymehtMethod } from '@/services/constants'
 import { orderDetail, cancelOrder, orderPayment } from '@/api/order'
+import { createRefund } from '@/api/refund'
 import { getProfile } from '@/api/user'
 
-import type { LogisticItem, OrderResult } from '@/types/order'
+import type { LogisticItem, OrderResult, OrderSku } from '@/types/order'
 import { onLoad, onReady } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import PageSkeleton from './components/PageSkeleton.vue'
@@ -15,6 +16,7 @@ const { safeAreaInsets } = uni.getSystemInfoSync()
 const memberStore = useMemberStore()
 const popup = ref<UniHelper.UniPopupInstance>()
 const popup2 = ref<UniHelper.UniPopupInstance>()
+const refundPopup = ref<UniHelper.UniPopupInstance>()
 
 const reasonList = ref(['商品无货', '不想要了', '商品信息填错了', '地址信息填写错误', '商品降价', '其它'])
 const paymehtMethod = ref('')
@@ -157,8 +159,24 @@ const onChangePayment = (method: string) => {
   paymehtMethod.value = method
 }
 
-const refundable = [OrderState.WAIT_SHIP, OrderState.SHIPPED, OrderState.RECEIVED, OrderState.COMPLETED]
-const onRefund = (id: number) => {}
+const refundable = [OrderState.WAIT_SHIP, OrderState.RECEIVED]
+const refundSku = ref<OrderSku>()
+const onRefund = (orderSku: OrderSku) => {
+  refundSku.value = orderSku
+  refundPopup.value?.open?.()
+}
+const onConfirmRefund = () => {
+  if (!refundSku.value) {
+    uni.showToast({ icon: 'none', title: '请选择退款商品' })
+    return
+  }
+  createRefund({
+    order_id: refundSku.value.order_id,
+    order_sku_id: refundSku.value.id,
+    refund_type: 'REFUND',
+    refund_reason: '',
+  })
+}
 </script>
 
 <template>
@@ -217,27 +235,26 @@ const onRefund = (id: number) => {}
       <!-- 商品信息 -->
       <view class="goods">
         <view class="item">
-          <navigator
-            class="navigator"
-            v-for="item in order.skus"
-            :key="item.id"
-            :url="`/pages/goods/goods?id=${item.product_sku_id}`"
-            hover-class="none"
-          >
-            <image class="cover" :src="item.product_pic_url"></image>
-            <view class="meta">
-              <view class="name ellipsis">{{ item.product_name }}</view>
-              <view class="type">{{ item.product_attr }}</view>
-              <view class="price">
-                <view class="actual">
-                  <text class="symbol">¥</text>
-                  <text>{{ item.product_unit_price }}</text>
+          <view v-for="item in order.skus" :key="item.id">
+            <navigator class="navigator" :url="`/pages/product/detail?id=${item.product_id}`" hover-class="none">
+              <image class="cover" :src="item.product_pic_url"></image>
+              <view class="meta">
+                <view class="name ellipsis">{{ item.product_name }}</view>
+                <view class="type">{{ item.product_attr }}</view>
+                <view class="price">
+                  <view class="actual">
+                    <text class="symbol">¥</text>
+                    <text>{{ item.product_unit_price }}</text>
+                  </view>
                 </view>
+                <view class="quantity">x{{ item.product_num }}</view>
               </view>
-              <view class="quantity">x{{ item.product_num }}</view>
-            </view>
+            </navigator>
             <!-- 退款 -->
-          </navigator>
+            <view class="refund" v-if="refundable.includes(order.order_status)">
+              <text class="after-sales" @tap="onRefund(item)">退款</text>
+            </view>
+          </view>
         </view>
         <!-- 合计 -->
         <view class="total">
@@ -317,6 +334,16 @@ const onRefund = (id: number) => {}
     <view class="footer">
       <view class="btn" @tap="popup2?.close?.()">取消</view>
       <view class="btn primary" @tap="onOrderPay">确认</view>
+    </view>
+  </uni-popup>
+
+  <uni-popup ref="refundPopup" type="bottom" background-color="#fff">
+    <view class="pay-panel">
+      <text>退款金额( <text class="symbol">¥</text>{{ refundSku?.pay_amount }})</text>
+    </view>
+    <view class="footer">
+      <view class="btn" @tap="refundPopup?.close?.()">取消</view>
+      <view class="btn primary" @tap="onConfirmRefund">确认</view>
     </view>
   </uni-popup>
 </template>
@@ -548,7 +575,18 @@ page {
       font-size: 24rpx;
       color: #444;
     }
-
+    .refund {
+      display: flex;
+      justify-content: flex-end;
+      font-size: 24rpx;
+      .after-sales {
+        text-align: center;
+        padding: 5rpx 15rpx;
+        border-radius: 4rpx;
+        border: 1rpx solid #ccc;
+        color: #010101;
+      }
+    }
     .action {
       display: flex;
       flex-direction: row-reverse;

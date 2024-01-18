@@ -7,10 +7,10 @@ import type { RefundListResult } from '@/types/refund'
 /**
  * @param data
  */
-export const createRefund = (data: { product_id: string; sku_id: string; num: number }) => {
+export const createRefund = (data: { order_id: number; order_sku_id: number; refund_type: string; refund_reason: string }) => {
   return request<Paginate<Product>>({
     method: 'POST',
-    url: '/refund/store',
+    url: '/refund',
     data,
   })
 }
