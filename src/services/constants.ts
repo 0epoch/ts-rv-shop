@@ -48,8 +48,8 @@ type RefundStateList = {
 }
 export const refundStateList: RefundStateList = {
   [RefundState.NOT_REFUND]: { id: 1, text: '未退款' },
-  [RefundState.INIT_REFUND]: { id: 2, text: '退款申请中' },
-  [RefundState.APPLY_REFUND]: { id: 3, text: '同意退款' },
+  [RefundState.INIT_REFUND]: { id: 2, text: '申请中' },
+  [RefundState.APPLY_REFUND]: { id: 3, text: '审核中' },
   [RefundState.REJECT_REFUND]: { id: 4, text: '拒绝退款' },
   [RefundState.CANCELED]: { id: 5, text: '已取消' },
   [RefundState.RETURNED]: { id: 5, text: '已退回商品' },

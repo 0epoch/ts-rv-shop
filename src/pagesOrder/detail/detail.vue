@@ -1,7 +1,7 @@
 <script setup lang="ts">
 import CryptoJS from 'crypto-js'
 import { useMemberStore } from '@/stores'
-import { OrderState, orderStateList, PaymehtMethod } from '@/services/constants'
+import { OrderState, orderStateList, PaymehtMethod, RefundState } from '@/services/constants'
 import { orderDetail, cancelOrder, orderPayment } from '@/api/order'
 import { createRefund } from '@/api/refund'
 import { getProfile } from '@/api/user'
@@ -160,27 +160,31 @@ const onChangePayment = (method: string) => {
 }
 
 const refundable = [OrderState.WAIT_SHIP, OrderState.RECEIVED]
+const refundStatus = [RefundState.NOT_REFUND, RefundState.CANCELED]
 const refundSku = ref<OrderSku>()
 const onRefund = (orderSku: OrderSku) => {
   refundSku.value = orderSku
   refundPopup.value?.open?.()
 }
-const onConfirmRefund = () => {
+const onConfirmRefund = async () => {
   if (!refundSku.value) {
     uni.showToast({ icon: 'none', title: '请选择退款商品' })
     return
   }
-  createRefund({
+  const rs = await createRefund({
     order_id: refundSku.value.order_id,
-    order_sku_id: refundSku.value.id,
-    refund_type: 'REFUND',
+    order_sku_id: [refundSku.value.order_sku_id],
+    refund_type: 'only_money',
     refund_reason: '',
   })
+  uni.showToast({ icon: 'none', title: '退款申请成功' })
+  getOrderDetail()
+  refundSku.value = undefined
+  refundPopup.value?.close?.()
 }
 </script>
 
 <template>
-  <!-- 自定义导航栏: 默认透明不可见, scroll-view 滚动到 50 时展示 -->
   <view class="navbar" :style="{ paddingTop: safeAreaInsets?.top + 'px' }">
     <view class="wrap">
       <navigator v-if="pages.length > 1" open-type="navigateBack" class="back icon-left"></navigator>
@@ -234,24 +238,26 @@ const onConfirmRefund = () => {
 
       <!-- 商品信息 -->
       <view class="goods">
-        <view class="item">
+        <view class="details">
           <view v-for="item in order.skus" :key="item.id">
-            <navigator class="navigator" :url="`/pages/product/detail?id=${item.product_id}`" hover-class="none">
+            <navigator class="sku" :url="`/pages/product/detail?id=${item.product_id}`" hover-class="none">
               <image class="cover" :src="item.product_pic_url"></image>
               <view class="meta">
                 <view class="name ellipsis">{{ item.product_name }}</view>
                 <view class="type">{{ item.product_attr }}</view>
-                <view class="price">
-                  <view class="actual">
-                    <text class="symbol">¥</text>
-                    <text>{{ item.product_unit_price }}</text>
+                <view class="amount">
+                  <view class="price">
+                    <view class="actual">
+                      <text class="symbol">¥</text>
+                      <text>{{ item.product_unit_price }}</text>
+                    </view>
                   </view>
+                  <view class="quantity">x{{ item.product_num }}</view>
                 </view>
-                <view class="quantity">x{{ item.product_num }}</view>
               </view>
             </navigator>
             <!-- 退款 -->
-            <view class="refund" v-if="refundable.includes(order.order_status)">
+            <view class="refund" v-if="refundable.includes(order.order_status) && refundStatus.includes(item.refund_status)">
               <text class="after-sales" @tap="onRefund(item)">退款</text>
             </view>
           </view>
@@ -338,8 +344,25 @@ const onConfirmRefund = () => {
   </uni-popup>
 
   <uni-popup ref="refundPopup" type="bottom" background-color="#fff">
-    <view class="pay-panel">
-      <text>退款金额( <text class="symbol">¥</text>{{ refundSku?.pay_amount }})</text>
+    <view class="pay-panel refund-panel">
+      <view class="sku">
+        <image class="cover" :src="refundSku?.product_pic_url"></image>
+        <view class="meta">
+          <view class="name ellipsis">{{ refundSku?.product_name }}</view>
+          <view class="type">{{ refundSku?.product_attr }}</view>
+          <view class="amount">
+            <view class="quantity">x{{ refundSku?.product_num }}</view>
+            <view class="price">
+              <view class="actual">
+                <text>退款金额：</text>
+                <text class="symbol">¥</text>
+                <text>{{ refundSku?.pay_amount }}</text>
+              </view>
+            </view>
+          </view>
+        </view>
+      </view>
+      <!-- <textarea class="reason" auto-height /> -->
     </view>
     <view class="footer">
       <view class="btn" @tap="refundPopup?.close?.()">取消</view>
@@ -497,84 +520,75 @@ page {
   }
 }
 
+.sku {
+  display: flex;
+  margin: 20rpx 0;
+
+  .cover {
+    width: 170rpx;
+    height: 170rpx;
+    border-radius: 10rpx;
+    margin-right: 20rpx;
+  }
+
+  .meta {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    position: relative;
+  }
+
+  .name {
+    height: 80rpx;
+    font-size: 26rpx;
+    color: #444;
+  }
+
+  .type {
+    line-height: 1.8;
+    padding: 0 15rpx;
+    margin-top: 6rpx;
+    font-size: 24rpx;
+    align-self: flex-start;
+    border-radius: 6rpx;
+    color: #888;
+    background-color: #f7f7f8;
+  }
+  .amount {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 10rpx;
+    font-size: 24rpx;
+  }
+  .symbol {
+    font-size: 20rpx;
+  }
+
+  .original {
+    color: #999;
+    text-decoration: line-through;
+  }
+
+  .actual {
+    margin-left: 10rpx;
+    color: #444;
+  }
+
+  .text {
+    font-size: 22rpx;
+  }
+}
 .goods {
   margin: 20rpx 20rpx 0;
   padding: 0 20rpx;
   border-radius: 10rpx;
   background-color: #fff;
 
-  .item {
+  .details {
     padding: 30rpx 0;
     border-bottom: 1rpx solid #eee;
 
-    .navigator {
-      display: flex;
-      margin: 20rpx 0;
-    }
-
-    .cover {
-      width: 170rpx;
-      height: 170rpx;
-      border-radius: 10rpx;
-      margin-right: 20rpx;
-    }
-
-    .meta {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      position: relative;
-    }
-
-    .name {
-      height: 80rpx;
-      font-size: 26rpx;
-      color: #444;
-    }
-
-    .type {
-      line-height: 1.8;
-      padding: 0 15rpx;
-      margin-top: 6rpx;
-      font-size: 24rpx;
-      align-self: flex-start;
-      border-radius: 4rpx;
-      color: #888;
-      background-color: #f7f7f8;
-    }
-
-    .price {
-      display: flex;
-      margin-top: 6rpx;
-      font-size: 24rpx;
-    }
-
-    .symbol {
-      font-size: 20rpx;
-    }
-
-    .original {
-      color: #999;
-      text-decoration: line-through;
-    }
-
-    .actual {
-      margin-left: 10rpx;
-      color: #444;
-    }
-
-    .text {
-      font-size: 22rpx;
-    }
-
-    .quantity {
-      position: absolute;
-      bottom: 0;
-      right: 0;
-      font-size: 24rpx;
-      color: #444;
-    }
     .refund {
       display: flex;
       justify-content: flex-end;
@@ -582,8 +596,8 @@ page {
       .after-sales {
         text-align: center;
         padding: 5rpx 15rpx;
-        border-radius: 4rpx;
-        border: 1rpx solid #ccc;
+        border-radius: 6rpx;
+        border: 1rpx solid #999;
         color: #010101;
       }
     }
@@ -637,6 +651,7 @@ page {
     }
   }
 }
+// sku
 
 .detail {
   line-height: 1;
@@ -827,6 +842,7 @@ page {
   flex-direction: column;
   justify-content: center;
   flex-wrap: wrap;
+  padding: 0 10rpx;
   .checkbox {
     margin-right: 10rpx;
     // width: 80rpx;
@@ -846,7 +862,7 @@ page {
     margin-right: 10rpx;
   }
   .symbol {
-    font-size: 30rpx;
+    font-size: 20rpx;
   }
   .pay-option {
     width: 100%;
@@ -861,6 +877,12 @@ page {
     .icon-wechat {
       color: #1aad19;
     }
+  }
+}
+.refund-panel {
+  .reason {
+    width: 100%;
+    border: 1rpx solid #ccc;
   }
 }
 </style>

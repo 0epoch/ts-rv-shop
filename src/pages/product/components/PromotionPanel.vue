@@ -87,7 +87,7 @@ defineProps<{
     padding: 5rpx 10rpx;
     text-align: center;
     border: 1rpx solid #010101;
-    border-radius: 4rpx;
+    border-radius: 6rpx;
     font-size: 20rpx;
   }
 }

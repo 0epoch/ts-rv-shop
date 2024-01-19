@@ -4,6 +4,7 @@ import OrderList from './components/OrderList.vue'
 import RefundList from './components/RefundList.vue'
 
 import { OrderState } from '@/services/constants'
+import type { OrderListInstance, RefundsListInstance } from '@/types/components'
 
 const query = defineProps<{
   type: string
@@ -21,6 +22,9 @@ const orderTabs = ref([
 
 const activeIndex = ref(orderTabs.value.findIndex((v) => v.index === Number(query.type)))
 orderTabs.value[activeIndex.value].isRender = true
+
+const refund = ref<RefundsListInstance>()
+const order = ref<OrderListInstance>()
 </script>
 
 <template>
@@ -35,6 +39,7 @@ orderTabs.value[activeIndex.value].isRender = true
           () => {
             activeIndex = index
             item.isRender = true
+            // order.value.getOrderList()
           }
         "
       >
@@ -44,8 +49,8 @@ orderTabs.value[activeIndex.value].isRender = true
     </view>
     <swiper class="swiper" :current="activeIndex" @change="activeIndex = $event.detail.current">
       <swiper-item v-for="item in orderTabs" :key="item.title">
-        <RefundList v-if="item.index === 4 && item.isRender" />
-        <OrderList v-else-if="item.isRender" :order-status="item.status" />
+        <RefundList v-if="item.index === 4 && item.isRender" ref="refund" />
+        <OrderList v-else-if="item.isRender" :order-status="item.status" ref="order" />
       </swiper-item>
     </swiper>
   </view>

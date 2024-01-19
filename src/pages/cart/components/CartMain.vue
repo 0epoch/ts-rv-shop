@@ -259,7 +259,7 @@ const onGo = () => {
     .label {
       color: #010101;
       padding: 10rpx 15rpx;
-      border-radius: 4rpx;
+      border-radius: 6rpx;
       font-size: 24rpx;
       border: 1rpx solid #010101;
     }
@@ -324,7 +324,7 @@ const onGo = () => {
       padding: 0 15rpx;
       font-size: 24rpx;
       align-self: flex-start;
-      border-radius: 4rpx;
+      border-radius: 6rpx;
       color: #888;
       background-color: #f7f7f8;
     }
@@ -364,7 +364,7 @@ const onGo = () => {
       .input {
         height: 100%;
         text-align: center;
-        border-radius: 4rpx;
+        border-radius: 6rpx;
         font-size: 24rpx;
         color: #444;
         background-color: #f6f6f6;

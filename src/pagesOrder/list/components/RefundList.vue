@@ -83,7 +83,7 @@ const onRefresherrefresh = async () => {
         <text>{{ refund.create_time }}</text>
         <view class="payment">
           <text class="quantity">共{{ refund.product_num }}件商品</text>
-          <text>退款金额</text>
+          <text>退款</text>
           <text class="amount"> <text class="symbol">¥</text>{{ refund.refund_amount }}</text>
         </view>
       </view>
@@ -182,7 +182,7 @@ const onRefresherrefresh = async () => {
       margin-top: 10rpx;
       font-size: 24rpx;
       align-self: flex-start;
-      border-radius: 4rpx;
+      border-radius: 6rpx;
       color: #888;
       background-color: #f7f7f8;
     }

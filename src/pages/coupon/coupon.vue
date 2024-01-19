@@ -109,7 +109,7 @@ page {
     .button {
       color: #010101;
       padding: 5rpx 15rpx;
-      border-radius: 4rpx;
+      border-radius: 6rpx;
       font-size: 20rpx;
       border: 1rpx solid #010101;
     }

@@ -185,7 +185,7 @@ page {
     align-items: center;
     background-color: #010101;
     color: #fff;
-    border-radius: 4rpx;
+    border-radius: 6rpx;
     // margin-right: 30rpx;
     // .price {
     //   color: #010101;
@@ -194,7 +194,7 @@ page {
       margin-top: 10rpx;
       color: #010101;
       padding: 5rpx 15rpx;
-      border-radius: 4rpx;
+      border-radius: 6rpx;
       font-size: 20rpx;
       border: 1rpx solid #010101;
     }

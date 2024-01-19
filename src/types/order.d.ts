@@ -51,15 +51,19 @@ export type OrderResult = Order & {
 /** 商品信息 */
 export type OrderSku = {
   id: number
+  order_id: number
+  order_sku_id: number
+  pay_amount: number
+  product_id: string
   product_sku_id: string
   product_name: string
   product_attr: string
   product_num: number
   product_unit_price: number
   product_pic_url: string
+  refund_status: string
 }
 
-/** 物流信息 */
 export type OrderLogisticResult = {
   company: {
     name: string

@@ -322,7 +322,7 @@ const refundable = [OrderState.WAIT_SHIP, OrderState.RECEIVED]
     .attr {
       align-self: flex-start;
       padding: 0 15rpx;
-      border-radius: 4rpx;
+      border-radius: 6rpx;
       color: #888;
       background-color: #f7f7f8;
     }
@@ -338,7 +338,7 @@ const refundable = [OrderState.WAIT_SHIP, OrderState.RECEIVED]
 
     .refund {
       padding: 0 15rpx;
-      border-radius: 4rpx;
+      border-radius: 6rpx;
       border: 1rpx solid #ccc;
       color: #010101;
     }

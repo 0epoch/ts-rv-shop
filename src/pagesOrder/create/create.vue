@@ -265,7 +265,7 @@ page {
       margin-top: 6rpx;
       font-size: 24rpx;
       align-self: flex-start;
-      border-radius: 4rpx;
+      border-radius: 6rpx;
       color: #888;
       background-color: #f7f7f8;
     }

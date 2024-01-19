@@ -439,7 +439,7 @@ page {
     .tip {
       padding: 25rpx 30rpx;
       background-color: #fafafa;
-      border-radius: 4rpx;
+      border-radius: 6rpx;
       .tip-title {
         display: block;
         font-size: 28rpx;

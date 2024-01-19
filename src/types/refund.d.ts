@@ -43,6 +43,7 @@ export type Refund = {
   updated_at: string
   expire_time: string
   ship_time: string
+  create_time: string
   complete_time: string
   cancel_time: string
   confirm_receipt_time: string

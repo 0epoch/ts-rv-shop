@@ -183,7 +183,7 @@ page {
       line-height: 1.5;
       color: hsl(0, 0%, 0%);
       font-size: 26rpx;
-      border-radius: 4rpx;
+      border-radius: 6rpx;
       background-color: #e5e4e2;
     }
   }
