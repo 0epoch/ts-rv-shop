@@ -3,7 +3,7 @@ import { useMemberStore } from '@/stores'
 import { useAuthStore } from '@/stores'
 import { onLoad } from '@dcloudio/uni-app'
 
-import { userCouponList } from '@/api/user'
+import { userCouponList, getProfile } from '@/api/user'
 
 import type { UserCoupon } from '@/types/coupon'
 import type { Paginate } from '@/types/global'
@@ -28,6 +28,10 @@ onLoad(async () => {
 
   const rs = await userCouponList({ params: { status: 'unused' } })
   userCoupons.value = rs.data
+
+  getProfile().then((rs) => {
+    memberStore.setProfile(rs.data)
+  })
 })
 </script>
 

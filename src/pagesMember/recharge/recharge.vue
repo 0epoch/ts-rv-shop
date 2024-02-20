@@ -5,6 +5,7 @@ import { useMemberStore } from '@/stores'
 import { useAuthStore } from '@/stores'
 
 import { createRecharge, rechargeList, rechargePayment } from '@/api/recharge'
+import { getProfile } from '@/api/user'
 
 import type { Paginate } from '@/types/global'
 import type { Recharge } from '@/types/recharge'
@@ -40,11 +41,15 @@ const wechatPay = (sign: string) => {
     paySign,
     success: function (rs) {
       uni.showToast({ icon: 'success', title: '支付成功' })
-      // setTimeout(function () {
-      //   uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${query.id}` })
-      // }, 1000)
+      getProfile().then((rs) => {
+        memberStore.setProfile(rs.data)
+      })
+      setTimeout(function () {
+        uni.navigateBack()
+      }, 1000)
     },
     fail: function (rs) {
+      uni.showToast({ icon: 'error', title: '支付失败' })
       return
       // uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${query.id}` })
     },
