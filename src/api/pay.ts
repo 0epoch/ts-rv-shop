@@ -17,10 +17,10 @@ export const order = (data: { order_id: string; pay_type: string }) => {
 /**
  * @param data
  */
-export const recharge = () => {
+export const rechargePay = (data: { id: number }) => {
   return request<Detail>({
     method: 'POST',
     url: '/payment/recharge',
-    data: {},
+    data,
   })
 }

@@ -1,8 +1,11 @@
 <script setup lang="ts">
+import CryptoJS from 'crypto-js'
+
 import { useMemberStore } from '@/stores'
 import { useAuthStore } from '@/stores'
 
-import { createRecharge, rechargeList } from '@/api/recharge'
+import { createRecharge, rechargeList, rechargePayment } from '@/api/recharge'
+
 import type { Paginate } from '@/types/global'
 import type { Recharge } from '@/types/recharge'
 import { onLoad } from '@dcloudio/uni-app'
@@ -19,6 +22,34 @@ const getRechargeList = async () => {
   recharges.value = rs.data
 }
 
+const wechatPay = (sign: string) => {
+  const aesKey = CryptoJS.enc.Utf8.parse('3016C75DBDA14FAEBAE9F6B5C6696930')
+  let decrypt = CryptoJS.AES.decrypt(sign, aesKey, {
+    mode: CryptoJS.mode.ECB,
+    padding: CryptoJS.pad.Pkcs7,
+    keySize: 256 / 32,
+  })
+  const { appId, timeStamp, nonceStr, package: packageData, signType, paySign } = JSON.parse(decrypt.toString(CryptoJS.enc.Utf8))
+  wx.requestPayment({
+    provider: 'wxpay',
+    appId,
+    timeStamp,
+    nonceStr,
+    package: packageData,
+    signType,
+    paySign,
+    success: function (rs) {
+      uni.showToast({ icon: 'success', title: '支付成功' })
+      // setTimeout(function () {
+      //   uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${query.id}` })
+      // }, 1000)
+    },
+    fail: function (rs) {
+      return
+      // uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${query.id}` })
+    },
+  })
+}
 const onRecharge = async () => {
   if (!authStore.certified()) {
     authStore.visible = true
@@ -26,7 +57,12 @@ const onRecharge = async () => {
   }
   if (checked.value <= 0) return
   const rs = await createRecharge(checked.value)
-  console.log(rs)
+  if (rs.code > 0) {
+    return
+  }
+
+  const payRes = await rechargePayment({ id: rs.data.id })
+  wechatPay(payRes.data.sign)
 }
 
 onLoad(() => {

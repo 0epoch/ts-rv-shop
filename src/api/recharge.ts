@@ -23,3 +23,14 @@ export const rechargeList = () => {
     data: {},
   })
 }
+
+/**
+ * @param data
+ */
+export const rechargePayment = (data: { id: number }) => {
+  return request<{ sign: string }>({
+    method: 'POST',
+    url: '/payment/recharge',
+    data,
+  })
+}
