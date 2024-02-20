@@ -3,7 +3,7 @@ import type { SkuPopupEvent, SkuPopupInstance, SkuPopupLocaldata } from '@/compo
 
 import { saveCardProduct } from '@/api/cart'
 
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 import { computed, ref } from 'vue'
 import PromotionPanel from './components/PromotionPanel.vue'
 import ServicePanel from './components/ServicePanel.vue'
@@ -56,6 +56,12 @@ const getProductDetail = async () => {
   }
 }
 
+onShareAppMessage(() => {
+  return {
+    title: productDetail.value?.title,
+    path: `/pages/product/detail?id=` + productDetail.value?.id,
+  }
+})
 // 页面加载
 onLoad(() => {
   getProductDetail()

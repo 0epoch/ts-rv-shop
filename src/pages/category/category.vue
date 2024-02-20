@@ -7,7 +7,7 @@ import type { Paginate } from '@/types/global'
 import type { Product, ProductParams } from '@/types/product'
 import type { HomeConfs } from '@/types/home'
 
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 import type { Category } from '@/types/category'
 
@@ -44,6 +44,13 @@ const getFirstCategoryList = async () => {
   const rs = await firstCategories()
   categories.value = rs.data
 }
+
+onShareAppMessage(() => {
+  return {
+    title: '选款',
+    path: `/pages/category/category`,
+  }
+})
 
 onLoad(async () => {
   isLoading.value = true

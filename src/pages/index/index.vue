@@ -2,9 +2,15 @@
 import { homeConfs } from '@/api/home'
 
 import type { ConfItem, HomeConfs } from '@/types/home'
-import { onLoad } from '@dcloudio/uni-app'
+import { onLoad, onShareAppMessage } from '@dcloudio/uni-app'
 import { ref } from 'vue'
 
+onShareAppMessage(() => {
+  return {
+    title: '首页',
+    path: `/pages/index/index`,
+  }
+})
 const activeIndex = ref(0)
 const onChange: UniHelper.SwiperOnChange = (ev) => {
   activeIndex.value = ev.detail.current

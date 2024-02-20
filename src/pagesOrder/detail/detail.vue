@@ -59,6 +59,8 @@ onReady(() => {
 const order = ref<OrderResult>()
 const getOrderDetail = async () => {
   const rs = await orderDetail({ order_id: query.id })
+  console.log(rs, 'order..............')
+
   order.value = rs.data
 }
 
@@ -80,10 +82,13 @@ const onGoToPay = async () => {
 }
 
 // 订单支付
-const onOrderPay = async (method: string) => {
-  paymehtMethod.value = method
-  const rs = await orderPayment({ order_id: query.id, pay_type: method })
-  if (method === 'wechat') {
+const onOrderPay = async () => {
+  if (!paymehtMethod.value) {
+    uni.showToast({ icon: 'none', title: '请选择支付方式' })
+    return
+  }
+  const rs = await orderPayment({ order_id: query.id, pay_type: paymehtMethod.value })
+  if (paymehtMethod.value === 'wechat') {
     wechatPay(rs.data.sign)
     return
   } else {
@@ -299,16 +304,20 @@ const onRefund = (id: number) => {}
 
   <uni-popup ref="popup2" type="bottom" background-color="#fff">
     <view class="pay-panel">
-      <view class="pay-option" @tap="onOrderPay('balance')">
+      <view class="pay-option" @tap="onChangePayment('balance')">
         <text class="checkbox" :class="{ checked: paymehtMethod === 'balance' }"></text>
         <text class="pay-icon icon-money-wallet"></text>
         <text>余额( <text class="symbol">¥</text>{{ memberStore.profile?.account_balance }})</text>
       </view>
-      <view class="pay-option" @tap="onOrderPay('wechat')">
+      <view class="pay-option" @tap="onChangePayment('wechat')">
         <text class="checkbox" :class="{ checked: paymehtMethod === 'wechat' }"></text>
         <text class="pay-icon icon-wechat"></text>
         <text>微信</text>
       </view>
+    </view>
+    <view class="footer">
+      <view class="btn" @tap="popup?.close?.()">取消</view>
+      <view class="btn primary" @tap="onOrderPay">确认</view>
     </view>
   </uni-popup>
 </template>
@@ -658,7 +667,7 @@ page {
     font-size: 26rpx;
     line-height: 72rpx;
     border-radius: 72rpx;
-    border: 1rpx solid #ccc;
+    border: 1rpx solid #010101;
     color: #444;
   }
 
@@ -725,30 +734,28 @@ page {
       color: #010101;
     }
   }
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 30rpx 0 40rpx;
+  font-size: 28rpx;
+  color: #444;
 
-  .footer {
-    display: flex;
-    justify-content: space-between;
-    padding: 30rpx 0 40rpx;
-    font-size: 28rpx;
+  .btn {
+    flex: 1;
+    text-align: center;
+    line-height: 72rpx;
+    margin: 0 20rpx;
     color: #444;
+    border-radius: 50rpx;
+    border: 1rpx solid #010101;
+  }
 
-    .btn {
-      flex: 1;
-      height: 72rpx;
-      text-align: center;
-      line-height: 72rpx;
-      margin: 0 20rpx;
-      color: #444;
-      border-radius: 72rpx;
-      border: 1rpx solid #ccc;
-    }
-
-    .primary {
-      color: #fff;
-      background-color: #010101;
-      border: none;
-    }
+  .primary {
+    color: #fff;
+    background-color: #010101;
+    border: none;
   }
 }
 .pay-panel {
