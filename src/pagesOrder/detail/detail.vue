@@ -96,6 +96,9 @@ const onOrderPay = async () => {
     return
   } else {
     uni.showToast({ icon: 'success', title: '支付成功' })
+    const rs = await getProfile()
+    rs.data.token = memberStore.profile?.token
+    memberStore.setProfile(rs.data)
     setTimeout(function () {
       uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${query.id}` })
     }, 1000)

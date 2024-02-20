@@ -80,6 +80,8 @@ const onOrderPay = async () => {
     return
   } else {
     uni.showToast({ icon: 'success', title: '支付成功' })
+    const rs = await getProfile()
+    rs.data.token = memberStore.profile?.token
     setTimeout(function () {
       uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${payOrder.value}` })
     }, 1000)

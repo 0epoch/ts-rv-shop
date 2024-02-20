@@ -42,6 +42,7 @@ const wechatPay = (sign: string) => {
     success: function (rs) {
       uni.showToast({ icon: 'success', title: '支付成功' })
       getProfile().then((rs) => {
+        rs.data.token = memberStore.profile?.token
         memberStore.setProfile(rs.data)
       })
       setTimeout(function () {

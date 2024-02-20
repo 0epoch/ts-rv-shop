@@ -30,6 +30,7 @@ onLoad(async () => {
   userCoupons.value = rs.data
 
   getProfile().then((rs) => {
+    rs.data.token = memberStore.profile?.token
     memberStore.setProfile(rs.data)
   })
 })
