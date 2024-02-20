@@ -62,6 +62,8 @@ onReady(() => {
 const order = ref<OrderResult>()
 const getOrderDetail = async () => {
   const rs = await orderDetail({ order_id: query.id })
+  console.log(rs, 'order..............')
+
   order.value = rs.data
 }
 
@@ -84,7 +86,7 @@ const onGoToPay = async () => {
 
 // 订单支付
 const onOrderPay = async () => {
-  if (paymehtMethod.value === '') {
+  if (!paymehtMethod.value) {
     uni.showToast({ icon: 'none', title: '请选择支付方式' })
     return
   }
@@ -338,35 +340,8 @@ const onConfirmRefund = async () => {
       </view>
     </view>
     <view class="footer">
-      <view class="btn" @tap="popup2?.close?.()">取消</view>
+      <view class="btn" @tap="popup?.close?.()">取消</view>
       <view class="btn primary" @tap="onOrderPay">确认</view>
-    </view>
-  </uni-popup>
-
-  <uni-popup ref="refundPopup" type="bottom" background-color="#fff">
-    <view class="pay-panel refund-panel">
-      <view class="sku">
-        <image class="cover" :src="refundSku?.product_pic_url"></image>
-        <view class="meta">
-          <view class="name ellipsis">{{ refundSku?.product_name }}</view>
-          <view class="type">{{ refundSku?.product_attr }}</view>
-          <view class="amount">
-            <view class="quantity">x{{ refundSku?.product_num }}</view>
-            <view class="price">
-              <view class="actual">
-                <text>退款金额：</text>
-                <text class="symbol">¥</text>
-                <text>{{ refundSku?.pay_amount }}</text>
-              </view>
-            </view>
-          </view>
-        </view>
-      </view>
-      <!-- <textarea class="reason" auto-height /> -->
-    </view>
-    <view class="footer">
-      <view class="btn" @tap="refundPopup?.close?.()">取消</view>
-      <view class="btn primary" @tap="onConfirmRefund">确认</view>
     </view>
   </uni-popup>
 </template>
@@ -719,7 +694,7 @@ page {
     font-size: 26rpx;
     line-height: 72rpx;
     border-radius: 72rpx;
-    border: 1rpx solid #ccc;
+    border: 1rpx solid #010101;
     color: #444;
   }
 
@@ -810,31 +785,29 @@ page {
       color: #010101;
     }
   }
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 30rpx 0 40rpx;
+  font-size: 28rpx;
+  color: #444;
 
-  // .footer {
-  //   display: flex;
-  //   justify-content: space-between;
-  //   padding: 30rpx 0 40rpx;
-  //   font-size: 28rpx;
-  //   color: #444;
+  .btn {
+    flex: 1;
+    text-align: center;
+    line-height: 72rpx;
+    margin: 0 20rpx;
+    color: #444;
+    border-radius: 50rpx;
+    border: 1rpx solid #010101;
+  }
 
-  //   .btn {
-  //     flex: 1;
-  //     height: 72rpx;
-  //     text-align: center;
-  //     line-height: 72rpx;
-  //     margin: 0 20rpx;
-  //     color: #444;
-  //     border-radius: 72rpx;
-  //     border: 1rpx solid #ccc;
-  //   }
-
-  //   .primary {
-  //     color: #fff;
-  //     background-color: #010101;
-  //     border: none;
-  //   }
-  // }
+  .primary {
+    color: #fff;
+    background-color: #010101;
+    border: none;
+  }
 }
 .pay-panel {
   height: 25vh;

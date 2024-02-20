@@ -70,21 +70,19 @@ const onGoToPay = async (orderId: number) => {
 
 // 订单支付
 const onOrderPay = async () => {
-  if (paymehtMethod.value === '') {
+  if (!paymehtMethod.value) {
     uni.showToast({ icon: 'none', title: '请选择支付方式' })
     return
   }
-  if (payOrder.value <= 0) return
   const rs = await orderPayment({ order_id: payOrder.value, pay_type: paymehtMethod.value })
   if (paymehtMethod.value === 'wechat') {
     wechatPay(rs.data.sign)
     return
   } else {
     uni.showToast({ icon: 'success', title: '支付成功' })
-    popup.value?.close?.()
     setTimeout(function () {
       uni.redirectTo({ url: `/pagesOrder/detail/detail?id=${payOrder.value}` })
-    }, 500)
+    }, 1000)
   }
 }
 
@@ -224,7 +222,7 @@ const refundable = [OrderState.WAIT_SHIP, OrderState.RECEIVED]
         <text>微信</text>
       </view>
     </view>
-    <view class="popup-footer">
+    <view class="footer">
       <view class="btn" @tap="popup?.close?.()">取消</view>
       <view class="btn primary" @tap="onOrderPay">确认</view>
     </view>
@@ -478,6 +476,30 @@ const refundable = [OrderState.WAIT_SHIP, OrderState.RECEIVED]
     .icon-wechat {
       color: #1aad19;
     }
+  }
+}
+.footer {
+  display: flex;
+  justify-content: space-between;
+  padding: 30rpx 0 40rpx;
+  font-size: 28rpx;
+  color: #444;
+
+  .btn {
+    flex: 1;
+    // height: 72rpx;
+    text-align: center;
+    line-height: 72rpx;
+    margin: 0 20rpx;
+    color: #444;
+    border-radius: 50rpx;
+    border: 1rpx solid #010101;
+  }
+
+  .primary {
+    color: #fff;
+    background-color: #010101;
+    border: none;
   }
 }
 </style>
